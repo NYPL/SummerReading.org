@@ -1,0 +1,11 @@
+; $Id: customreports.info,v 1.1.2.1.2.1 2009/08/23 18:04:21 snufkin Exp $
+name = "Custom Reports"
+description = "Enables developers to create reports for later downloading."
+
+core = 6.x
+; Information added by drupal.org packaging script on 2009-11-16
+version = "6.x-1.0"
+core = "6.x"
+project = "customreports"
+datestamp = "1258396242"
+

@@ -1,0 +1,1513 @@
+<?php
+// $Id: sr_user.module
+
+//require_once('librarycard.inc');
+require_once('userform.inc');
+
+/**
+ * Implementation of hook_user()
+ */
+function sr_user_perm() {
+  return array('pre-register users', 'not-unit-admin');
+}
+
+/**
+ * Implementation of hook_user()
+ */
+function sr_user_user($op, &$edit, &$account, $category = NULL) {
+	global $user;
+	
+	if ($op == 'register') {
+		
+		// forward anonymous folks to custom register
+		if (!user_is_logged_in()) {
+			drupal_goto(t('register'));
+		}
+		//else
+		  //drupal_goto('profile/' . urlencode($user->name));
+	
+	}
+	else if ($op == 'login') {
+		
+		// process login action
+		Badge::processAction(Badge::TYPE_LOGIN, $user->uid);
+		
+		// force password change on first prereg login
+		if (md5("read") == $user->pass) {
+			$_REQUEST['destination'] = 'passchange';
+		}
+		else {
+			if (arg(0) == 'user' && arg(1) == 'reset') {
+				$_REQUEST['destination'] = 'passchangereset';
+			}
+			else if (sr_user_isIntern($user)) {
+				$_REQUEST['destination'] = "preregister";
+			}
+			else if (!sr_user_nodb_isAdmin($user)) {
+				$_REQUEST['destination'] = 'home';
+			}
+			else {
+				//$_REQUEST['destination'] = 'profile/' . urlencode($user->name);
+				$_REQUEST['destination'] = "administer";
+			}
+		}
+	}
+	else if ($op == 'view') {
+
+		if (!sr_user_nodb_isAdmin($user)) {
+			// don't let summer_reader see users this way (to be safe)
+			drupal_goto('profile/' . urlencode($account->name));
+		}
+		else {
+			// do let admins see them in edit mode
+			if (!arg(3) == "edit") {
+				drupal_goto('profile/' . urlencode($account->name));
+			}
+		}
+	}
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_user_menu() {
+	$items['preregister'] = array(
+    'title' => 'Pre-Register User',
+    'page callback' => 'sr_user_page_preregister',
+    'access arguments' => array('pre-register users'),
+    'type' => MENU_NORMAL_ITEM,
+	'file' => 'userform.inc',
+	);
+  $items['register'] = array(
+    'title' => 'Register for Summer Reading',
+    'page callback' => 'sr_user_page_register', 
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+	'file' => 'userform.inc',
+	//'access callback' => 'sr_user_register_access',
+  );
+  $items['passchange'] = array(
+    'title' => 'Change Screen Name and Password',
+    'page callback' => 'sr_user_page_passchange', 
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM,
+	'file' => 'userform.inc',
+  );
+  $items['unitadminregister'] = array(
+    'title' => 'Register for Summer Reading Unit Admin',
+    'page callback' => 'sr_user_page_unit_admin_register', 
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+	'file' => 'userform.inc',
+	//'access callback' => 'user_register_access',
+  );
+  $items['passchangereset'] = array(
+    'title' => 'Change Password',
+    'page callback' => 'sr_user_page_passchangereset', 
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM,
+	'file' => 'userform.inc',
+  );
+  $items['profile'] = array(
+    'title' => 'Profile',
+    'page callback' => 'sr_user_profile',
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['profile/%'] = array(
+    'title' => 'Profile Page',
+  	'title callback' => 'sr_user_myprofile_title',
+    'title arguments' => array(1),
+  	'page callback' => 'sr_user_myprofile',
+    'page arguments' => array(1),
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['editprofile'] = array(
+    'title' => 'Edit My Account Information',
+  	'page callback' => 'sr_user_page_myaccount',
+    'type' => MENU_NORMAL_ITEM,
+	'access arguments' => array('not-unit-admin'),
+	'file' => 'userform.inc',
+  );
+  $items['avatar'] = array(
+    'title' => 'Avatar My Editor',
+  	'page callback' => 'sr_user_avatar',
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['timereading'] = array(
+    'title' => 'Time Spent Reading',
+  	'page callback' => 'sr_user_page_readtime',
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['chooseavatar'] = array(
+    'title' => 'Choose a new Avatar',
+  	'page callback' => 'sr_user_chooseavatar',
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['avatarsave/%'] = array(
+    'title' => 'Avatar Save Function',
+  	'page callback' => 'sr_user_avatarsave',
+    'page arguments' => array(1),
+  	'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK
+  );
+  $items['adminusers'] = array(
+    'title' => 'Administer Users',
+  	'page callback' => 'sr_user_adminusers',
+    'access arguments' => array('administer users'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['searchusers'] = array(
+    'title' => 'Search Users',
+  	'page callback' => 'sr_user_searchusers',
+    'access arguments' => array('search content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['screenname/%'] = array(
+    'title' => t('JavaScript Regenerate ScreenName'),
+    'page callback' => 'sr_user_regenerate_sreenname_js',
+	'page arguments' => array(1),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['dissociatelibrary'] = array(
+    'title' => t('Dissociate user from library'),
+    'page callback' => 'sr_user_dissociate_library_js',
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['sr_user/autocomplete/node'] = array(
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+    'page callback' => 'sr_user_autocomplete_node',
+  );
+  return $items;
+}
+
+/**
+ * Menu callback for user profile page title.
+ */
+function sr_user_myprofile_title($arg) {
+	global $user;
+
+	$ret = "";
+
+	if (is_numeric($arg)) {
+		$args["uid"] = $arg;
+	}
+	else {
+		$args["name"] = $arg;
+	}
+	$userReq = user_load($args);
+	
+	if ($userReq) {
+		if ($userReq->uid == $user->uid) {
+			$ret = t("My Profile Page");
+		}
+		else {
+			$ret = check_plain($userReq->name) . t("'s Profile Page");
+		}
+	}
+	
+	return $ret;
+}
+
+/**
+ * Menu callback for user profile page.
+ */
+function sr_user_myprofile($arg) {
+	
+	if (is_numeric($arg)) {
+		$args["uid"] = $arg;
+	}
+	else {
+		$args["name"] = $arg;
+	}
+	$userReq = user_load($args);
+	if (!$userReq) {
+		drupal_not_found();
+		return 0;
+	}
+	
+	//$block = module_invoke('sr_media', 'block', 'view', 1);
+	//$output .= $block['content'];
+	
+	global $user;
+	// avatar
+	$output .= '<div id="profile-header-block" class="clear-block">' ;
+	$output .= '<div id="profile-header-left">' ;
+	$output .= '<div class="profile-avatar">' ;
+	$output .= '<img class="avatar-large" src="'. sr_user_makeAvatarURL($userReq->uid, "L") .'" alt="'. check_plain($userReq->name) .'" />' ;
+	$output .= "</div><!-- profile avatar -->";
+	$output .= "</div><!-- profile header left -->";
+	$output .= '<div id="profile-header-middle">' ;
+	
+	// reading time
+	if ($userReq->uid == $user->uid) {
+		$amount = sr_util_time_getReadingTime($user->uid);
+	}
+	else {
+		$amount = sr_util_time_getReadingTime($userReq->uid);
+	}
+	$hours = (int)($amount / 4);
+	$mins = ($amount % 4) * 15;
+	
+	$output .= '<div id="profile-readtime">' ;
+	if ($userReq->uid == $user->uid) {
+		$output .= "Your ". t("reading time so far this summer: ");
+	}
+	else {
+		$output .= check_plain($userReq->name) ."'s ". t("reading time so far this summer: ");
+	}
+	$output .= '<div id="profile-readtime-amount">'. $hours ." hours";
+	
+	if ($mins > 0) {
+		$output .= " and ". $mins ." minutes";
+	}
+	$output .= "</div><!-- profile readtime amount -->";
+ 
+	
+	$output .= "</div><!-- profile readtime -->";
+	$isUserAdmin=sr_user_nodb_isAdmin($user);
+	$isReqAdmin=sr_user_nodb_isAdmin($userReq);
+	
+	if ($isUserAdmin && $userReq->uid != $user->uid) // checks to see if we're logged in as admin and looking at a user profile other than the admin's own profile - T. Abrams 5/11/11
+	{
+		/* include link for printing user-specific certificate via an admin login - T. Abrams 05/11/11 */
+		$output .= '<div id="profile-links">' ;
+		if(!$isReqAdmin)
+		{
+			$output .= '<div id="profile-links-item" class="user-print-link"><img src="/sites/summerreading.org/files/images/img_print.png" alt=""/>
+				&nbsp;&nbsp;<a style="margin-left: -5px; class="print-page" rel="nofollow" onclick="window.open(this.href); return false" title="Display a printer-friendly version of this page." 
+				href="/print/myprint/certificate/'. $userReq->uid .'">'. t("Print ". check_plain($userReq->name) ."'s Certificate") .'</a></div>';
+		}
+		$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_edit.png" alt=""/>&nbsp;&nbsp;<a href="../user/'. $userReq->uid .'/edit">'. t("Edit User Profile") ."</a></div>";
+		$output .= "</div>";
+		/* include link for printing user-specific certificate via an admin login - T. Abrams 05/11/11 */
+	}
+
+	//$output .= "</div>";
+	
+	if ($userReq->uid == $user->uid) {
+		$output .= '<div id="profile-links">' ;
+		$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_search.png" alt=""/>&nbsp;&nbsp;<a href="'. base_path() .'mediasearch">'. t("Search Books & Media") ."</a></div>";
+		$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_readingtime.png" alt=""/>&nbsp;&nbsp;<a href="'. base_path() .'timereading">'. t("Enter Reading Time") ."</a></div>";
+		$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_badge.png" alt=""/>&nbsp;&nbsp;<a href="'. base_path() . 'badgecode">Enter Badge Code</a></div>';
+		if (!$isUserAdmin)
+			$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_edit.png" alt=""/>&nbsp;&nbsp;<a href="'. base_path() .'editprofile">'. t("Edit My Profile") ."</a></div>";
+		else 
+			$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_edit.png" alt=""/>&nbsp;&nbsp;<a href="../user/'. $userReq->uid .'/edit">'. t("Edit My Profile") ."</a></div>";
+       	
+		$output .= '<div id="profile-links-item"><img src="/sites/summerreading.org/files/images/img_editprofile.png" alt=""/>&nbsp;&nbsp;<a style="margin-left: -4px;" href="'. base_path() .'avatar">'. t("Edit My Avatar") ."</a></div>";	
+    
+		$output .= '<div id="profile-links-item" class="user-print-link"><img src="/sites/summerreading.org/files/images/img_print.png" alt=""/>
+			&nbsp;&nbsp;<a style="margin-left: -5px; class="print-page" rel="nofollow" onclick="window.open(this.href); return false" title="Display a printer-friendly version of this page." 
+			href="/print/myprint/mylog/0">'. t("Print Page") .'</a>&nbsp;&nbsp;<a class="print-page" rel="nofollow" onclick="window.open(this.href); return false" title="Display a printer-friendly version of this page." 
+			href="/print/myprint/avatar/0">'. t("Print Avatar") .'</a></div>';
+		$output .= "</div><!-- profile links -->";
+	}
+	
+	$output .= "</div>";
+	$output .= '<div id="profile-header-right">' ;
+	
+	if ($isUserAdmin && $userReq->uid != $user->uid && !$isReqAdmin) {
+	
+		$output .= '<div id="profile-edit-menu">' ;
+		//if(!$userReq->uid == $user->uid)
+			//$output .= '<a href="../user/'. $userReq->uid .'/edit">Edit User Profile</a>' ;
+		$output .= sr_user_roundbox_start('profile-edit-badge');
+		$output .= '<form action="" method="post" name="profile-edit">' ;
+		$output .= '<span class="profile-edit-menu-label">Give this user a badge:</span>' ;
+		$output .= '<select name="badges">' . '<option value="">-- Please select --</option>' ;
+		$badges = Badge::loadBadgeList();
+		$x = 0;
+		while ($x < $badges->count) {
+			$badge = $badges->getObject($x);
+			$output .= '<option value="'. $badge->bid .'">'. check_plain($badge->title) ."</option>";
+			$x++;
+		}
+		$output .= '</select>&nbsp;&nbsp;<input id="badge_submit" type="image" src="/sites/summerreading.org/files/images/btn_awardbadge.gif"  name="submit"/></form><!-- </div> -->' ;
+		if (strlen($_POST['badges']) > 0 && is_numeric($_POST['badges'])) {
+			// award badge to user
+			$bid = $_POST['badges'] + 0;
+			Badge::toggleUserBadge(true, $userReq->uid, $bid);
+			
+			$mids=Badge::getBadgeLog($bid);
+			if(isset($mids)&&count($mids)>0)//check if badgetype is code+action
+			{		
+				 foreach($mids as $mid)
+				 {
+					  if(!Media::isInUserMedia($userReq->uid, $mid))
+					  {
+							// save to user's log
+							Media::toggleUserMedia(true, $userReq->uid, $mid);
+							Badge::processAction(Badge::TYPE_ADD2LOG, $userReq->uid);
+					  }
+					
+				  }
+			}
+		}
+		$output .=sr_user_roundbox_end();
+		$output .= "</div><!-- profile-edit-menu -->";
+	}
+	
+	$output .= "</div><!-- profile header right -->";
+	$output .= "</div>";
+	$output .= "<!--[if lt IE 8]><br style='clear: both; padding-top: 20px; display: block; width: 880px; height: 1px;' /><![endif]-->";
+	
+	// media log
+	$output .= '<div id="media-log"><div class="profile_box_side"><div class="profile_box_bottom"><div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block"><div class="padding-20 clear-block">' ;
+	$output .= '<a name="medialog">';
+	if ($userReq->uid == $user->uid) {
+		$output .= '<div class="media-log-title">'. t("My Log") ."</div>";
+	}
+	else {
+		$output .= '<div class="media-log-title">'. check_plain($userReq->name) . t("'s Log") ."</div>";
+	}
+	$output .= "</a>";
+	$output .= sr_media_makeMediaLog($userReq);
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+
+  // Display newest message (privatemsg), only if the user is on their own profile page
+  if ( $userReq->uid == $user->uid ) {
+		$output .= '<div id="msg_box">';
+		$output .= '<div id="msg_box_inner">';
+		$output .= sr_message_display_message(0);
+		$output .= '</div>';
+		$output .= '</div>';		
+  }
+
+  if($isReqAdmin)
+	{
+	  $output .="<div id='fact-list'><div class='profile_box_side'><div class='profile_box_bottom'><div class='profile_box_tl'><div class='profile_box_tr'><div class='profile_box_br'><div class='profile_box_bl clear-block'><div class='padding-20'>";	
+	  $output .=sr_user_admin_stats('profile',$userReq);
+      $output .= "</div>";
+      $output .= "</div>";
+      $output .= "</div>";
+      $output .= "</div>";
+      $output .= "</div>";
+      $output .= "</div>";
+      $output .= "</div>";
+      $output .= "</div>";
+	}
+	else
+	{
+		// badges
+		$output .= '<div id="badge-list"><div class="profile_box_side"><div class="profile_box_bottom"><div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block"><div class="padding-20">';
+		if ($userReq->uid == $user->uid) {
+			$output .= '<div class="badge-list-title">'. t("My Badges") . "</div>";
+		}
+		else {
+			$output .= '<div class="badge-list-title">'. check_plain($userReq->name) . t("'s Badges") ."</div>";
+		}
+		$output .= sr_badge_makeUserBadgeList($userReq);
+		$output .= "</div>";
+		$output .= "</div>";
+		$output .= "</div>";
+		$output .= "</div>";
+		$output .= "</div>";
+		$output .= "</div>";
+		$output .= "</div>";
+		$output .= "</div>";
+	}
+	return $output;
+}
+
+/**
+ * Menu callback to override profile module page.
+ */
+function sr_user_profile() {
+	// /profile lists all user profiles - overriding that
+	drupal_not_found();	
+}
+
+/**
+ * Menu callback shortcut for branch/system admins to manage users.
+ */
+function sr_user_adminusers() {
+	drupal_goto("admin/user/user");
+}
+
+/**
+ * Menu callback shortcut for branch/system admins to search users.
+ */
+function sr_user_searchusers() {
+	drupal_goto("search/user");
+}
+
+/**
+ * Menu callback for avatar editor page.
+ */
+function sr_user_avatar() {
+	global $user;
+	
+	$output = "";
+	if (!$user->uid > 0) {
+		drupal_not_found();
+		return 0;
+	}
+
+	//drupal_add_js(drupal_get_path('module', 'sr_user') . '/flash.js');
+	
+	$output .= '<div id="avatar-editor">';
+	if (!strlen($user->avatar) > 0) {
+		$user->avatar = "000200640065006600610075006c00740042006f0079404080807f5fc242899808047c40b98028a20c8c04801548b08e008a008a25040000000000000000000000000000000000000000";
+	}
+
+	$src = "http://". $_SERVER['HTTP_HOST'] . base_path() . file_directory_path() ."/myavatareditor.swf";
+	$vars = "uid=". $user->uid ."&avatar=". $user->avatar ."&saveURL=". drupal_get_path("module", "sr_user") ."/avatarsave.php";
+	$vars .= "&characterSWFURL=". "http://" . $_SERVER['HTTP_HOST'] . base_path() . file_directory_path() ."/myavatarcharacter.swf";
+	$vars .= "&saveDIR=". dirname(__FILE__) ."/../../../summerreading.org/files/profile/||http://". $_SERVER['HTTP_HOST'] . base_path() ."avatarsave";
+	
+	$output .= '
+		<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=10,0,0,0" width="640" height="500" id="myavatareditor" align="middle">
+			<param name="allowScriptAccess" value="sameDomain" />
+			<param name="allowFullScreen" value="false" />
+			<param name="movie" value="'. $src .'" />
+			<param name="quality" value="high" />
+			<param name="bgcolor" value="#000000" />
+			<embed src="'. $src .'" FlashVars="'. $vars .'" quality="high" bgcolor="#000000" width="640" height="500" name="myavatareditor" align="middle" allowScriptAccess="sameDomain" allowFullScreen="false" type="application/x-shockwave-flash" pluginspage="http://www.adobe.com/go/getflashplayer" />
+			<param name="FlashVars" value="'. $vars .'">
+		</object>	
+	';
+
+	$output .= "</div>";
+	
+	$output .= '<div id="avatar-noflash">'. t("Adobe Flash version 10 is required to design your own avatar.") ."<br />". t("If the Avatar Editor is not loading correctly, you can");
+	$output .= ' <a id="choose-avatar-link" href="chooseavatar">'. t("choose from a list of pre-designed avatars.") ."</a>";
+	$output .= "</div>";
+	
+	return $output;
+}
+
+/**
+ * Menu callback for avatar save page.
+ */
+function sr_user_avatarsave($avatar) {
+	
+	// save avatar hex data to profile
+	global $user;
+	if ($user->uid > 0) {
+	  $array = array('avatar' => $avatar);
+	  user_save($user, $array);
+	  drupal_goto('profile/' . urlencode($user->name));
+	}
+	// default boy: 			000000640065006600610075006c00740042006f0079404080807f5fc242899800044240318028a2088c08401448b88d008a008a25040000000000000000000000000000000000000000
+	// default girl: 			400000640065006600610075006c007400470072006c404080807f73c242899800041840018028a2106c08401448b88d008a008a25040000000000000000000000000000000000000000
+	// one i like: 				28f400520061006e0064006f006d00000000000000007279d9784b75c2428998320023403100a23c5c6a28c0052888a830490ae71b98004d004100450000000000000000000000000000
+	// mr t: 							000000640065006600610075006c00740042006f0079606580807f5fc2428998f284520062c01030a4cf2a4094586072008af0ec25040000000000000000000000000000000000000000
+	// nypl default: 			000200640065006600610075006c00740042006f0079404080807f5fc242899808047c40b98028a20c8c04801548b08e008a008a25040000000000000000000000000000000000000000
+}
+
+/**
+ * Menu callback for choose avatar page.
+ */
+function sr_user_chooseavatar() {
+	global $user;
+	
+	$avatars = sr_user_buildAvatars();
+	$numAvatars = count($avatars);
+	$output = "";
+
+	if (!$user->uid > 0) {
+		drupal_not_found();
+		return 0;
+	}
+
+	$aid = $_GET['aid'];
+	if (is_numeric($aid) && $aid > 0 && $aid <= $numAvatars) {
+				
+		// copy avatar images
+		$src = dirname(__FILE__) ."/../../../summerreading.org/files/profile/default-L__". $aid .".jpg";
+		$dest = dirname(__FILE__) ."/../../../summerreading.org/files/profile/avatar-L__". $user->uid .".jpg";;
+		
+		copy($src, $dest);
+		$src = dirname(__FILE__) ."/../../../summerreading.org/files/profile/default-S__". $aid .".jpg";
+		$dest = dirname(__FILE__) ."/../../../summerreading.org/files/profile/avatar-S__". $user->uid .".jpg";;
+		copy($src, $dest);
+		
+		// save avatar to profile and redirect
+		sr_user_avatarsave($avatars[$aid-1]);
+
+	}
+	
+	$output .= '<div id="avatar-list">' ;
+	
+	$x = 1;
+	while ($x <= $numAvatars) {
+	
+		$output .= '<div class="avatar-list-item">' ;
+		$output .= '<a href="chooseavatar?aid='. $x .'" title="'. t("Click to choose this Avatar") .'" onclick="javascript: return confirm(\"'. 
+			t("Are you sure you wish to change your Avatar? This will overwrite your existing one.") .'\");" >';
+		$output .= '<img src="http://'. $_SERVER['HTTP_HOST'] . base_path() . file_directory_path() .'/profile/default-L__'. $x .'.jpg" alt="'. t("Click to choose this Avatar") .'" />' ;
+		$output .= "</div>";
+		
+		$x++;
+	}
+	
+	$output .= "</div>";
+	
+	return $output;
+}
+
+/**
+ * Menu callback for reading time entry page.
+ */
+function sr_user_page_readtime() {
+    drupal_set_title('');
+    global $user;
+	
+    $output .= "<div class='topbox'><div id='top-container'><div class='SN-bl'><div class='SN-br'><div class='SN-tl'><div class='SN-tr'><div class='header'>A Note From Your Library</div><p class='notes'>This website was created by New York City's public libraries as a place where you can
+			log the books you read and present information about your summer reading activities in
+			a fun, safe and anonymous way. This site is all about reviewing books, winning badges
+			for your accomplishments in reading and other library related activities. It's not a place to
+			meet other people. Please, for your safety, keep your real identity a secret on this website.<br/><br/> <a href= '/safety'> Learn More </a></p></div>
+			</div></div></div></div></div><div class='clear'>&nbsp;</div>";
+	$output .= drupal_get_form('sr_user_readtime');
+	
+    return $output;
+}
+
+/**
+ * Define reading time entry form.
+ */
+function sr_user_readtime() {
+  
+	$hours = array(
+		0,1,2,3,4,5,6,7,8,9,
+		10,11,12,13,14,15,16,17,18,19,
+		20,21,22,23,24,25,26,27,28,29,
+		30,31,32,33,34,35,36,37,38,39,
+		40,41,42,43,44,45,46,47,48,49,
+		50,51,52,53,54,55,56,57,58,59,
+		60,61,62,63,64,65,66,67,68,69,
+		70,71,72,73,74,75,76,77,78,79,
+		80,81,82,83,84,85,86,87,88,89,
+		90,91,92,93,94,95,96,97,98,99,100
+		);
+	$mins = array(0, 15, 30, 45);
+	
+    global $user;
+	profile_load_profile($user);
+	$luid=$user->{profile_luid};
+	$borough=$user->{profile_borough};
+    $stamp = sr_util_time_getLastTimestamp($user->uid);	
+	$amount = sr_util_time_getReadingTime($user->uid);
+	$myhours = (int)($amount/4);
+	$mymins = ($amount % 4) * 15;
+	
+	
+ 
+	if ($stamp == 0) {
+		  $form['readtime_start'] = array(
+		  '#value' =>  sr_user_roundbox_start("readtime").'<div class="header">Time Spent Reading</div>
+		  This is your first reading time entry.<br />How much time have you spent reading so far this summer?<br />'
+		  );
+	}
+	else
+	{
+		 $form['readtime_start'] = array(
+		 '#value' =>  sr_user_roundbox_start("readtime").'<div class="header">Time Spent Reading</div><div class="timemsg">Your last 
+		 reading time entry was on &nbsp'.format_date($stamp, "medium") .'.<br /></div>How much time have you spent reading since then?<br />'
+	     );
+    }
+	if($mymins>0)
+	{
+	    $form[] = array(
+			'#value'=>'<div id="profile-readtime"><div class="timemsg">To date,<br/> you\'ve read</div>
+			<div id="profile-readtime-amount">'. $myhours .'</div><div style="font-size:12px;" class="timehour">Hours<br/>'.$mymins.' minutes</div></div>',
+		);
+	
+	}
+	else
+	{
+		$form[] = array(
+			'#value'=>'<div id="profile-readtime"><div class="timemsg">To date,<br/> you\'ve read</div>
+			<div id="profile-readtime-amount">'. $myhours .'</div><div style="font-size:18px;" class="timehour">Hours</div></div>',
+		);
+	}
+	$form['hours'] = array(
+		'#title' => t('Hours'),
+		'#description' => t("Select an approximate number of hours."),
+		'#type' => 'select',
+		'#options' => $hours,
+		'#required' => false
+	);
+	$form['minutes'] = array(
+		'#title' => t('Minutes'),
+		'#description' => t("Select an approximate number of minutes."),
+		'#type' => 'select',
+		'#options' => $mins,
+		  '#required' => false
+    );
+	
+	if(strlen($luid)>0)
+	{
+	    $form[] = array(
+			'#value'=> sr_user_roundbox_end(),
+		);
+		$form[]=sr_media_makeLibraryMediaLog();
+	}
+	
+    $form['submit'] = array(
+		'#type' => 'image_button', 
+		'#value' => t(' '), 
+		'#src' => 'sites/summerreading.org/files/images/btn_updatereading.gif',
+		'#prefix'=>'<div class=submitBtn>',
+		'#suffix'=>'</div><div class="imgclear"><!-- --></div>',
+	);
+	if(!strlen($luid)>0)
+	{
+	 $form[] = array(
+			'#value'=> sr_user_roundbox_end(),
+		);
+	}
+	
+	if(!strlen($luid)>0 && ($borough=="Manhattan"||$borough=="Bronx"||$borough=="Staten Island"))
+	{
+	   $form[] = array(
+			'#value'=>sr_user_roundbox_start("cardadd").'<div class="header">Add Your Library Card</div>
+	            <div class="cardimage"><img alt="libray card" src="sites/summerreading.org/files/images/img_librarycard_lg.png"/><img id="card-ie6" alt="libray card" style="display: none;" src="sites/summerreading.org/files/images/img_librarycard_lg-ie6.png"/></div>
+				<div class="description">By linking your card to your summer reading list. you can 
+				easily keep track of books you\'ve read and earn badges.</div>
+				<div class="btn"><a href="/editprofile"><img alt="libray card" src="sites/summerreading.org/files/images/btn_addcard.gif"/></a></div>
+			    <div class="imgclear"><!-- --></div></div></div></div></div></div></div><div class="clear">&nbsp;</div>',
+		);
+	}
+	
+    return $form;
+}
+
+/**
+ * Process reading time submission.
+ */
+function sr_user_readtime_submit($form, &$form_state) {
+	global $user;
+	profile_load_profile($user);
+	$luid=$user->{profile_luid};
+	
+	$mid=(int)$form_state['values']['remove_mid'];
+	
+	if($mid>0)
+	{
+	   Media::removeUserLibraryLog($mid, $luid);
+	}
+	else
+	{
+		if(strlen($luid)>0) //library log user
+		{
+			$medias = Media::loadLibraryUserMedia($luid);
+			
+			if ($medias instanceof Collection) {
+			    $x=0;
+				
+				while ($x < $medias->count){
+				    $media = $medias->getObject($x);
+					Media::toggleUserMedia(true, $user->uid, $media->mid);
+					// process add2log action
+					Badge::processAction(Badge::TYPE_ADD2LOG, $user->uid);
+					Media::removeUserLibraryLog($media->mid, $luid);
+							
+					$x++;
+				}	
+			}
+		}
+		
+		$hours = (int)$form_state['values']['hours'];
+		$mins = (int)$form_state['values']['minutes'];
+		
+		if ($hours > 0 || $mins > 0) {
+			// time was entered
+			sr_util_time_saveEntry($user->uid, $hours, $mins);
+			//drupal_set_message(t('Thank you for entering your reading time.'));
+		}
+		
+		drupal_goto("profile/". urlencode($user->uid));
+	}
+}
+
+/**
+ * Implementation ajax call
+ */
+function sr_user_dissociate_library_js()
+{
+    $luid = $_POST['luid']; 
+	$borough = $_POST['borough']; 
+	
+	if(strlen($luid)>0)
+	{
+	    $reMsg=DisassociateSummerReadingUser($luid);
+		
+        if($reMsg=='ok')
+		{
+		    drupal_alter('form', $form_element, array(), 'sr_user_dissociate_library_js');
+			$form_state = array('submitted' => FALSE);
+			$form_build_id = $_POST['form_build_id'];
+			if (!$form = form_get_cache($form_build_id, $form_state)) {
+				   exit();
+			}
+			$form['dissociate_libarary']['luid']= "";
+			form_set_cache($form_build_id, $form, $form_state);
+			$form += array(
+			   '#post' => $_POST,
+			   '#programmed' => FALSE,
+			);
+
+			// Rebuild the form.
+			$form = form_builder($form_build_id, $form, $form_state);  
+			$output="<script>
+				if( ($('#edit-borough option:selected').text()=='Manhattan' || 
+				  $('#edit-borough option:selected').text()=='Bronx' || $('#edit-borough option:selected').text()=='Staten Island'))
+					$('#librarycard').css('display', '');
+				else
+					$('#librarycard').css('display', 'none');
+				</script>";
+		}
+        else
+        {	  
+		    $form_element = array(
+			   array(
+			     '#value'=>'<div>'.$reMsg.'</div>',
+			   ),
+			   array(
+					'#type' => 'hidden',
+					'#default_value' => $luid,
+				),
+			);
+			drupal_alter('form', $form_element, array(), 'sr_user_dissociate_library_js');
+			$form_state = array('submitted' => FALSE);
+			$form_build_id = $_POST['form_build_id'];
+			if (!$form = form_get_cache($form_build_id, $form_state)) {
+				   exit();
+			}
+			
+			$form['dissociate_libarary']['errmsg']= $form_element[0];
+		    $form['dissociate_libarary']['luid']= $form_element[1];
+			
+			form_set_cache($form_build_id, $form, $form_state);
+			$form += array(
+			   '#post' => $_POST,
+			   '#programmed' => FALSE,
+			);	
+			// Rebuild the form.
+			$form = form_builder($form_build_id, $form, $form_state);
+			$outForm[0]=$form['dissociate_libarary']['errmsg'];
+			$outForm[1]=$form['dissociate_libarary']['luid'];
+			unset($outForm['#prefix'], $outForm['#suffix']); // Prevent duplicate wrappers.
+			$output = drupal_render($outForm); 
+        }		
+		drupal_json(array('status' => TRUE, 'data' => $output));
+		exit();
+	}
+} 
+
+/**
+ * Implementation autocomplete
+ */
+function sr_user_autocomplete_node($userString) 
+{
+  $cookie_name="summerreading_boroughSelect";
+  
+  $borough=$_COOKIE[$cookie_name];
+ 
+  if (!isset($borough))
+  {    
+         /*
+		switch ($borough) 
+		{
+		case "Manhattan":
+			$borough= "M";
+			break;
+		case "Bronx":
+			$borough= "X";
+			break;
+		case "Brooklyn":
+			$borough= "K";
+			break;
+		case "Staten Island":
+			$borough= "R";
+			break;
+		case "Queens":
+			$borough= "Q";
+			break;
+		case "Not in NYC":
+			$borough= "N";
+			break;
+		default:
+		    $borough= "A";//all
+			break;
+		}*/
+		$borough= "A";
+  }
+  
+  $splitString=sr_user_Split_String($userString);
+  $splitString2=str_replace('.', '%', $splitString);
+  
+  if (isset($borough) && $borough!="A" )
+  {
+	  $sql = "select 1 as part, id, school from {school} where borough='%s' and lower(school) like lower('%s%%') 
+			  union select 2, id, school from {school} where borough='%s' and lower(school) like lower('%%%s%%') 
+			  union select 3, id, school from {school} where borough='%s' and lower(school) like lower('%%%s%%')
+			  union select 4, id, school from {school} where borough='%s' and lower(school) like lower('%%%s%%') order by part";
+	
+	  // query the database
+	  $resource = db_query_range($sql, $borough, $userString, $borough, $userString, $borough, $splitString, $borough, $splitString2, 0, 15);
+  }
+  else
+  {
+      $sql = "select 1 as part, id, school from {school} where lower(school) like lower('%s%%') 
+			  union select 2, id, school from {school} where lower(school) like lower('%%%s%%') 
+			  union select 3, id, school from {school} where lower(school) like lower('%%%s%%') 
+			  union select 4, id, school from {school} where lower(school) like lower('%%%s%%') order by part";
+	  // query the database
+	  $resource = db_query_range($sql, $userString, $userString, $splitString,$splitString2, 0, 15);
+  }
+
+  // loop through the results and create an associative array
+  $results = array();
+  //$results[0] = $borough;
+  while ($row = db_fetch_array($resource)) $results[$row['school']] = $row['school'];
+
+  // output the results in javascript
+  print drupal_to_js($results);
+
+  // exit, to prevent your results form hitting the theme layer
+  exit();
+}
+
+/**
+ * Implementation ajax screenname update
+ */
+function sr_user_regenerate_sreenname_js($type)
+{
+
+    $adjective = $_POST['adjective_hidden']; 
+	$color = $_POST['color_hidden']; 
+	$animal = $_POST['animal_hidden']; 
+	$new_value=sr_user_get_screenname($type);
+	$screen_name="";
+	
+	if($type=="adjective")
+	   $adjective=$new_value;
+	if($type=="color")
+	   $color=$new_value;
+	if($type=="animal")
+	   $animal=$new_value;
+	   
+	$screen_name=$adjective.$color.$animal;  
+	$number=sr_user_get_screenname_number($screen_name);  
+	
+	$div_name="div_screen_name_".$type;
+	$hidden_field=$type."_hidden";
+	
+	$form_element = array(
+					  array(
+						'#type' => 'item',
+						'#value' => $adjective,
+						'#prefix' => '<div id="div_screen_name_adjective">',
+					  ),
+					  array(
+						'#type' => 'hidden',
+						'#value' => $adjective,
+					  ),
+					 array(
+						'#type' => 'item',
+						'#value' => $color,
+					  ),
+					  array(
+						'#type' => 'hidden',
+						'#value' => $color,
+					  ),
+					  array(
+						'#type' => 'item',
+						'#value' => $animal,
+					  ),
+					  array(
+						'#type' => 'hidden',
+						'#value' => $animal,
+					  ),
+					   array(
+						'#type' => 'item',
+						'#value' => $number,
+					  ),
+					  array(
+						'#type' => 'hidden',
+						'#value' => $number,
+						'#suffix' => '</div>',
+					  ),
+	);	 
+	
+	drupal_alter('form', $form_element, array(), 'sr_user_regenerate_sreenname_js');
+
+	$form_state = array('submitted' => FALSE);
+	$form_build_id = $_POST['form_build_id'];
+	  // Add the new element to the stored form. Without adding the element to the
+	  // form, Drupal is not aware of this new elements existence and will not
+	  // process it. We retreive the cached form, add the element, and resave.
+	if (!$form = form_get_cache($form_build_id, &$form_state)) {
+	   exit();
+	}
+
+
+    $form['screen_name_fields']['adjective'] = $form_element[0];
+	$form['screen_name_fields']['adjective_hidden']= $form_element[1];
+	$form['screen_name_fields']['color'] = $form_element[2];
+	$form['screen_name_fields']['color_hidden']= $form_element[3];
+	$form['screen_name_fields']['animal'] = $form_element[4];
+	$form['screen_name_fields']['animal_hidden']= $form_element[5];
+	$form['screen_name_fields']['number'] = $form_element[6];
+	$form['screen_name_fields']['number_hidden']= $form_element[7];
+	form_set_cache($form_build_id, $form, $form_state);
+	$form += array(
+	   '#post' => $_POST,
+	   '#programmed' => FALSE,
+	);
+
+	// Rebuild the form.
+	$form = form_builder($form_build_id, $form, &$form_state);   
+	$program_form[0] = $form['screen_name_fields']['adjective'];
+	$program_form[1] = $form['screen_name_fields']['adjective_hidden'];
+	$program_form[2] = $form['screen_name_fields']['color'];
+	$program_form[3] = $form['screen_name_fields']['color_hidden'];
+	$program_form[4] = $form['screen_name_fields']['animal'];
+	$program_form[5] = $form['screen_name_fields']['animal_hidden'];
+	$program_form[6] = $form['screen_name_fields']['number'];
+	$program_form[7] = $form['screen_name_fields']['number_hidden'];
+	//watchdog('sr_user', 'sr_user_regenerate_sreenname_js--&$form_state:', $program_form[1], WATCHDOG_ERROR);
+
+	unset($program_form['#prefix'], $program_form['#suffix']); // Prevent duplicate wrappers.
+	$output = drupal_render($program_form); //theme('score_calc_program');
+	drupal_json(array('status' => TRUE, 'data' => $output));
+	exit();
+}
+ 
+/**
+ * Generate screen_name for registration form.
+ */
+function sr_user_get_screenname($type) 
+{
+  $output="";
+  
+  if($type=="adjective")  
+  {
+	  $sql = "SELECT TRIM(adjective) FROM screen_name ORDER BY RAND() LIMIT 1";
+	  $output = trim(db_result(db_query($sql)));
+  }
+  if($type=="color")  
+  {
+	  $sql = "SELECT TRIM(color) FROM screen_name ORDER BY RAND() LIMIT 1";
+	  $output = trim(db_result(db_query($sql)));
+  }
+  if($type=="animal")  
+  {
+	  $sql = "SELECT TRIM(animal) FROM screen_name ORDER BY RAND() LIMIT 1";
+	  $output = trim(db_result(db_query($sql)));
+  }
+  
+  $output = preg_replace('/[\x{80}-\x{A0}'.  // Non-printable ISO-8859-1 + NBSP
+                   '\x{AD}'.                 // Soft-hyphen
+                   '\x{2000}-\x{200F}'.      // Various space characters
+                   '\x{2028}-\x{202F}'.      // Bidirectional text overrides
+                   '\x{205F}-\x{206F}'.      // Various text hinting characters
+                   '\x{FEFF}'.               // Byte order mark
+                   '\x{FF01}-\x{FF60}'.      // Full-width latin
+                   '\x{FFF9}-\x{FFFD}'.      // Replacement characters
+                   '\x{0}]/u','',$output); 
+
+  return $output;
+}
+
+/**
+ * Generate screen_name_number for registration form.
+ */
+function sr_user_get_screenname_number($screenname) 
+{
+  $output=0;
+  $is_true=0;
+  $screenname_no_number=$screenname;
+  
+  while($is_true==0)
+  {  
+	  if(!sr_user_isUniqueScreenname($screenname))
+	  {
+	     $output++;
+		 $screenname=$screenname_no_number.$output;
+	  }
+	  else
+	  {
+	    $is_true=1;
+		break;
+	  }
+  }
+  
+  if($output==0) 
+      $output="";
+	  
+  return $output;
+}
+
+function sr_user_Split_String($String) {
+    // Get the String Length
+    $STR_LEN = strlen($String);
+
+    // To prevent notice errors
+    $New_String = "";
+
+    // Loop for each character
+    for ($i = 0; $i < $STR_LEN; $i++) {
+        $New_String .= $String{$i} . "%";
+    }
+    // Return the new variable
+    return $New_String;
+}
+
+function sr_user_isUniqueScreenname($_screenname) {
+
+   // try to load screenname
+  $result = db_query("SELECT uid FROM {users} WHERE name = '%s'", $_screenname);
+  
+  if(!$result || !db_affected_rows() > 0) {
+  	// name is unique
+    return true;
+  } else {
+  	return false;
+  }
+}
+
+function sr_user_isUniqueEmail($email) {
+
+   // try to load screenname
+  $result = db_query("SELECT uid FROM {users} WHERE mail = '%s'", $email);
+  
+  if(!$result || !db_affected_rows() > 0) {
+  	// name is unique
+    return true;
+  } else {
+  	return false;
+  }
+}
+
+function sr_user_formatScreenname($_first, $_last, $_num) {
+	 return substr(trim(strtolower($_first)), 0, 3) . substr(trim(strtolower($_last)), 0, 3) . substr(trim($_num), 0, 4);
+}
+
+function sr_user_makeAvatarURL($uid, $size) {
+
+	$ret = "http://". $_SERVER['HTTP_HOST'] . base_path() . file_directory_path() ."/profile/avatar-". strtoupper($size);
+	
+	$args["uid"] = $uid;
+	$user = user_load($args);
+	if (!$user) {
+		$ret .= ".jpg";
+	} else {
+		if (strlen($user->avatar) > 0) {
+			$ret .= "__". $uid .".jpg?". rand(100000, 999999);
+		} else {
+			$ret .= ".jpg?". rand(100000, 999999);
+		}
+	}
+	
+	return $ret;
+}
+
+function sr_user_validateScreenName($name) {
+    
+	// screen_name formatting rules
+	// strict because of requirement to have them be url-friendly
+  if (!strlen($name)) {
+		return 'You must enter a Screen Name.';
+  }
+  if (substr($name, 0, 1) == ' ') {
+		return 'The Screen Name cannot begin with a space.';
+  }
+  if (substr($name, -1) == ' ') {
+  	return 'The Screen Name cannot end with a space.';
+  }
+  if (strpos($name, '  ') !== FALSE) {	
+  	return 'The Screen Name cannot contain multiple spaces in a row.';
+  }
+  if (ereg("[^\x80-\xF7 [:alnum:]@_.-]", $name)) {
+  	return 'The Screen Name contains an illegal character.';
+  }
+  if (preg_match('/[\x{80}-\x{A0}'.          // Non-printable ISO-8859-1 + NBSP
+                   '\x{AD}'.                 // Soft-hyphen
+                   '\x{2000}-\x{200F}'.      // Various space characters
+                   '\x{2028}-\x{202F}'.      // Bidirectional text overrides
+                   '\x{205F}-\x{206F}'.      // Various text hinting characters
+                   '\x{FEFF}'.               // Byte order mark
+                   '\x{FF01}-\x{FF60}'.      // Full-width latin
+                   '\x{FFF9}-\x{FFFD}'.      // Replacement characters
+                   '\x{0}]/u',               // NULL byte
+                   $name)) {
+    return 'The Screen Name contains an illegal character.';
+  }
+  if (strpos($name, '@') !== FALSE && 
+  	!eregi('@([0-9a-z](-?[0-9a-z])*.)+[a-z]{2}([zmuvtg]|fo|me)?$', $name)) {
+  	return 'The Screen Name is not valid.';
+  }
+  if (strlen($name) > 60) {
+  	return 'The Screen Name is too long.';
+  }
+  if (!sr_user_isUniqueScreenname(trim($name))) {
+    return 'That Screen Name is already taken. Please choose another.';
+  }
+  if (sr_util_containsBadInput($name)) {
+  	return 'The Screen Name contains words which are not permitted. Please choose another.';
+  }
+
+  return "";
+}
+
+function sr_user_validateSchool($school, $boro) {
+ 
+  $result = db_query("SELECT id FROM {school} WHERE school = '%s' AND borough='%s'", $school, $boro);
+  
+  if(!$result || !db_affected_rows() > 0) {
+  	// name not exists
+    return t('No school match found. Please enter a valid school name or click "No School Match" if your school is  not coming up in the auto-complete.');
+  } else {
+  	return "";
+  }
+}
+
+function sr_user_isSummerReader($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid = %d AND uid = %d", Util::RID_SUMMER_READER, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  } else {
+		return true;
+  }
+}
+
+function sr_user_isAdmin($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid IN (%d, %d, %d, %d, %d) AND uid = %d", 
+		Util::RID_SCHOOL_ADMIN, Util::RID_BOROUGH_ADMIN, Util::RID_BRANCH_ADMIN, Util::RID_SITE_ADMIN, Util::RID_SYSTEM_ADMIN, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  } else {
+		return true;
+  }
+}
+
+function sr_user_isSiteAdmin($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid IN (%d, %d) AND uid = %d", 
+		 Util::RID_SITE_ADMIN, Util::RID_SYSTEM_ADMIN, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  } else {
+		return true;
+  }
+}
+function sr_user_nodb_isAdmin($user) {
+	if(in_array('site_admin', array_values($user->roles)))
+		return true;
+	else if(in_array('system_admin', array_values($user->roles)))
+		return true;
+    else if(in_array('branch_admin', array_values($user->roles)))
+		return true;
+    else if(in_array('borough_admin', array_values($user->roles)))
+		return true;
+	else if(in_array('school_admin', array_values($user->roles)))
+		return true;
+	else
+		return false;
+}
+
+function sr_user_nodb_isSiteAdmin($user) {
+	if(in_array('site_admin', array_values($user->roles)))
+		return true;
+	else if(in_array('system_admin', array_values($user->roles)))
+		return true;
+	else
+		return false;
+}
+
+function sr_user_nodb_isBoroughAdmin($user) {
+	if(in_array('borough_admin', array_values($user->roles)))
+		return true;
+	else
+		return false;
+}
+function sr_user_nodb_isBranchAdmin($user) {
+	if(in_array('branch_admin', array_values($user->roles)))
+		return true;
+	else
+		return false;
+}
+
+function sr_user_nodb_isSchoolAdmin($user) {
+	if(in_array('school_admin', array_values($user->roles)))
+		return true;
+	else
+		return false;
+}
+
+function sr_user_isSchoolAdmin($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid IN ( %d) AND uid = %d", 
+		Util::RID_SCHOOL_ADMIN, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  } else {
+		return true;
+  }
+}
+
+function sr_user_isBranchAdmin($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid IN ( %d) AND uid = %d", 
+		Util::RID_BRANCH_ADMIN, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  } else {
+		return true;
+  }
+}
+
+function sr_user_isBoroughAdmin($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid IN ( %d) AND uid = %d", 
+		Util::RID_BOROUGH_ADMIN, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  } else {
+		return true;
+  }
+}
+
+
+function sr_user_isIntern($user) {
+	$count = db_result(db_query("SELECT COUNT(*) FROM users_roles WHERE rid = %d AND uid = %d", 
+		Util::RID_INTERN, $user->uid));
+  if (is_null($count) || $count == 0) {
+    return false;
+  }
+  else {
+		return true;
+  }
+}
+
+function sr_user_buildAvatars() {
+	$avatars = array(
+		"246c00520061006e0064006f006d000000000000000029739aaf6fc9c24289980e4045c01200e29628d188807330126b08528e6806d0004d004100450000000000000000000000000000",
+		"71c000520061006e0064006f006d00000000000000002272111d8e21c24289980c403820214000566c6906a04328ac4b022900c6031a004d004100450000000000000000000000000000",
+		"20e800520061006e0064006f006d000000000000000066668f78f247c242899854008800a9c0429644ab048086387890762b0ec51b96004d004100450000000000000000000000000000",
+		"155600520061006e0064006f006d00000000000000001078769766bfc2428998aa00468081c0883c70ac086066502c91082d04501314004d004100450000000000000000000000000000",
+		"06e000520061006e0064006f006d00000000000000003b7dd69d694bc242899810c04c00a10020688c4966a00708ba672829008113d4004d004100450000000000000000000000000000",
+		"6f9400520061006e0064006f006d00000000000000004a1fc0730793c242899851801e20210002c8287008601660b252040f002a2404004d004100450000000000000000000000000000",
+		"52d000520061006e0064006f006d0000000000000000185b2620b24bc242899828c4322071802482608a46402528a8cd000700262c10004d004100450000000000000000000000000000",
+		"32b400520061006e0064006f006d00000000000000001403152657d7c2428998e5801b809840c43cb8464a60365062b10005f48d0418004d004100450000000000000000000000000000",
+		"2b4600520061006e0064006f006d00000000000000003b05fc40f26dc24289986180804031c0e49494f12a60b46882327810c2ae1b50004d004100450000000000000000000000000000",
+		"2b4600520061006e0064006f006d00000000000000003b05fc40f26dc24289986180804031c0e49494f12a60b46882327810c2ae1b50004d004100450000000000000000000000000000",
+		"562c00520061006e0064006f006d00000000000000000854c25c237dc2428998e9c41820194000555caa86801638708e064a006e1b50004d004100450000000000000000000000000000",
+		"518000520061006e0064006f006d00000000000000003532b877ec9bc24289980c4029e0b900403c2488868026280cab084508e7831a004d004100450000000000000000000000000000",
+		"118800520061006e0064006f006d00000000000000004e53b877ec9bc242899816002e20b900403c2488268026289c6d084500e7831a004d004100450000000000000000000000000000",
+		"1dd600520061006e0064006f006d00000000000000002100b182f4c3c2428998b0c05300a200a07680ea26c0b34890ae7a4c0e30920a004d004100450000000000000000000000000000",
+		"285200520061006e0064006f006d0000000000000000322deeedaf23c24289988a044e60b880c23c184a08602658a8d104290cec934a004d004100450000000000000000000000000000",
+		"25aa00520061006e0064006f006d00000000000000000c68e5e84775c242899800407c209100023c44484860b5706c3100070aefad14004d004100450000000000000000000000000000",
+		"6bae00520061006e0064006f006d0000000000000000313ae470461fc242899856041020a14000659c8a08600528a8cb0a0b0b089ac8004d004100450000000000000000000000000000",
+		"19ca00520061006e0064006f006d000000000000000009121532c991c24289984a8473400140403cac8d048085209888022c04671418004d004100450000000000000000000000000000",
+		"6c4800520061006e0064006f006d000000000000000037250da30e91c242899815c07a806180423c4488484025200289042704aa2554004d004100450000000000000000000000000000",
+		"2dc000520061006e0064006f006d000000000000000009494799fbffc2428998300419401980a4c518906a60a650ac70046f0a6c1308004d004100450000000000000000000000000000",
+		"305600520061006e0064006f006d00000000000000004b7584c17a27c24289986e407c80ba40423c1cea686076386cae0a2943090b10004d004100450000000000000000000000000000",
+		"1dc400520061006e0064006f006d00000000000000002509a786d603c2428998100073c0b18040e48c4fa4206538b22e702e0e4812c4004d004100450000000000000000000000000000",
+		"4e4000520061006e0064006f006d00000000000000006b4bb7283ce5c24289982dc03aa03900e0da806f2880a4683c110a500e901558004d004100450000000000000000000000000000",
+		"59ea00520061006e0064006f006d00000000000000004d2f05d73bd5c242899854c4122092002074206a66801420b48a548704a51350004d004100450000000000000000000000000000",
+		"0c4a00520061006e0064006f006d0000000000000000230cb4f5ce35c2428998098466a04180403ca488a6a053208c4b042808881144004d004100450000000000000000000000000000",
+		"66cc00520061006e0064006f006d0000000000000000545645c04a63c242899810442620ba802e8c78488a802730b2cd0a690ead1b5c004d004100450000000000000000000000000000",
+		"246600520061006e0064006f006d0000000000000000037f6acc3aa9c242899862c05300a0c0a0543c4946608328ac4d424858a71690004d004100450000000000000000000000000000",
+		"255600520061006e0064006f006d0000000000000000305c57206d93c242899849c088000180acf2ac712c601368a09008100ad02b5a004d004100450000000000000000000000000000",
+		"1fc800520061006e0064006f006d00000000000000001c404a2ea073c242899828400ca0b8c0ac96148e268066504c8f004e048a0b5a004d004100450000000000000000000000000000",
+		"592c00520061006e0064006f006d00000000000000000b2854a3898fc24289986180256081802277988c28a025580a8f2a4f0a8c1352004d004100450000000000000000000000000000",
+		"5ef000520061006e0064006f006d00000000000000005315d3f0895bc24289981404882029c002676c890a804528b08b06250a2724cc004d004100450000000000000000000000000000",
+		"643400520061006e0064006f006d00000000000000000327aee8373bc242899808042ce0b900c03c208706801528ac2b764a06c5845a004d004100450000000000000000000000000000",
+		"2da000520061006e0064006f006d000000000000000007376785a8a9c2428998a900102008c000a76c6b26806748b010644ec0ad2bd8004d004100450000000000000000000000000000",
+		"2c4a00520061006e0064006f006d00000000000000002e4286ec943dc242899831c40e0098c06498844e4ac066684cb1044d862d0d90004d004100450000000000000000000000000000",
+		"148c00520061006e0064006f006d00000000000000005845677df43bc24289984c005ae08880427c7c6ea880743078ae086d064531cc004d004100450000000000000000000000000000",
+		"15d600520061006e0064006f006d00000000000000005631be29574fc2428998f5446220b980c03ca48946809548988e86680c69339a004d004100450000000000000000000000000000",
+		"558400520061006e0064006f006d000000000000000060438bf2280bc24289980404818030c0003c006884e0764800ce00470ca90b8e004d004100450000000000000000000000000000",
+		"192800520061006e0064006f006d00000000000000003a3128198d0fc242899881c00a00a140c23638892ac0a418b08b044a0706841e004d004100450000000000000000000000000000",
+		"2f2a00520061006e0064006f006d00000000000000000552f4ee9075c242899825805c204200023c5ca948602628a8ab060300851e16004d004100450000000000000000000000000000",
+		"1ac800520061006e0064006f006d0000000000000000126000ad9325c242899869808c2091c022a7808d48802540acae044d008604ca004d004100450000000000000000000000000000"
+	);
+	
+	return $avatars;
+}
+
+/**
+ * Menu callback to override profile module page.
+   Modified rendered HTML for isSiteAdmin to match all other types of roles - T. Abrams 4/25/11
+ */
+function sr_user_admin_stats($from, $user) {
+    
+	    if(!sr_user_nodb_isAdmin($user))
+		{
+		  //profile_load_profile($user);
+		  $ret = array();
+		  $query = db_query("SELECT  
+		                    (SELECT count(um.mid) FROM sr_user_media um where u.uid = um.uid) AS logcount,
+							(SELECT count(b.bid) FROM sr_user_badge b where u.uid = b.uid) AS badgecount,
+							(SELECT count(r.rid) FROM sr_review r where u.uid = r.uid) AS reviewcount,
+							(SELECT SUM(st.amount*15) FROM sr_time st where u.uid =st.uid) AS timespent
+							from users u
+							WHERE u.uid=%d", $user->uid);
+							
+		  $result = db_fetch_object($query);
+		  
+		  $ret['logount']=isset($result->logcount)?$result->logcount:0;
+		  $ret['reviewcount']=isset($result->reviewcount)?$result->reviewcount:0;
+		  $ret['likecount']=isset($result->likecount)?$result->likecount:0;
+		  $ret['badgecount']=isset($result->badgecount)?$result->badgecount:0;
+		  $ret['timespent']=isset($result->timespent)?$result->timespent:0;
+		  $output = '<div class="list-title">'. $user->{profile_school}. t(" Fast Facts") . '</div>';
+		  $output .= '<div class="facts-all-books facts-all"><img src="/sites/summerreading.org/files/images/img_user_book_sm.png" alt=""/>';
+		  $output .= '<div class="list-item-right">'. $ret['logount'] . '</div>';
+		  $output .= '<div class="list-item-msg">Media Logs</div></div>';
+		  $output .= '<div class="facts-all-media facts-all"><img src="/sites/summerreading.org/files/images/img_computer_color.png" alt=""/>';
+		  $output .= '<div class="list-item-right">'. $ret['reviewcount'] . '</div>';
+		  $output .= '<div class="list-item-msg">Review Count</div></div>';
+		  $output .= '<div class="facts-all-badges facts-all"><img src="/sites/summerreading.org/files/images/img_badge_color.png" alt=""/>';
+		  $output .= '<div class="list-item-right">'. $ret['badgecount'] . '</div>';
+		  $output .= '<div class="list-item-msg">Badges Won</div></div>';
+		  $output .= '<div class="facts-all-minutes facts-all"><img src="/sites/summerreading.org/files/images/img_time_color.png" alt=""/>';
+		  $output .= '<div class="list-item-right">'. (int)($ret['timespent']/60) . '</div>';
+		  $output .= '<div class="list-item-msg">Hours Spent Reading</div></div>';
+		}
+		else
+		{
+			if(sr_user_nodb_isSiteAdmin($user))
+			{
+			  $ret = array();
+			  $retpre=array();
+			  $query = db_query("SELECT * FROM sr_admin_statistics WHERE name='site'");
+			 
+			  while ($result = db_fetch_object($query)) {
+				$ret[$result->type] = $result->total;
+			  }
+			   //pre-register
+			  $query = db_query("SELECT * FROM sr_pre_reg_stats WHERE branchid=0");
+			  $existing_item = db_fetch_array($query);
+			  if ($existing_item) {
+				$retpre['users'] = $existing_item['users'];
+				$retpre['books'] = $existing_item['books'];
+			  }
+			  
+			  $output = '<div class="list-title">'. t("Summer Reading Fast Facts") . '</div>';
+			}
+			else if(sr_user_nodb_isBoroughAdmin($user))
+			{
+			  profile_load_profile($user);
+			  $ret = array();
+			  
+			  $query = db_query("SELECT * FROM sr_admin_statistics WHERE name='%s'", $user->{profile_borough});
+			  while ($result = db_fetch_object($query)) {
+				$ret[$result->type] = $result->total;
+			  }
+			  $output = '<div class="list-title">'. $user->{profile_borough}. t(" Fast Facts") . '</div>';
+			}
+			else if(sr_user_nodb_isBranchAdmin($user))
+			{
+			  profile_load_profile($user);
+			  $ret = array();
+			  $retpre=array();
+			  $sql = "SELECT TRIM(name) FROM sr_branch WHERE branchid=%d";
+			  $output = trim(db_result(db_query($sql,$user->{profile_branch})));
+			
+			  $query = db_query("SELECT * FROM sr_admin_statistics WHERE name='%s' AND borough='%s'", $output,$user->{profile_borough});
+			  while ($result = db_fetch_object($query)) {
+				$ret[$result->type] = $result->total;
+			  }
+			  //pre-register
+			  $query = db_query("SELECT * FROM sr_pre_reg_stats WHERE branchid=%d", $user->{profile_branch});
+			 
+			  $existing_item = db_fetch_array($query);
+			  if ($existing_item) {
+				$retpre['users'] = $existing_item['users'];
+				$retpre['books'] = $existing_item['books'];
+			  }
+			  
+			  $output = '<div class="list-title">'. $output. t(" Fast Facts") . '</div>';
+			}
+			else if(sr_user_nodb_isSchoolAdmin($user))
+			{
+			  profile_load_profile($user);
+			  $ret = array();
+			  $query = db_query("SELECT * FROM sr_admin_statistics WHERE name='%s' AND borough='%s'", $user->{profile_school},$user->{profile_borough});
+			  while ($result = db_fetch_object($query)) {
+				$ret[$result->type] = $result->total;
+			  }
+			  $output = '<div class="list-title">'. $user->{profile_school}. t(" Fast Facts") . '</div>';
+			}
+			  $ret['user']=isset($ret['user'])?$ret['user']:0;
+			  $ret['book']=isset($ret['book'])?$ret['book']:0;
+			  $ret['media']=isset($ret['media'])?$ret['media']:0;
+			  $ret['badge']=isset($ret['badge'])?$ret['badge']:0;
+			  $ret['time']=isset($ret['time'])?$ret['time']:0;
+			  
+			  $ret['user']=$ret['user']+(isset($retpre['users'])?$retpre['users']:0);
+			  $ret['book']=$ret['book']+(isset($retpre['books'])?$retpre['books']:0);
+			  $ret['media']=$ret['media']+(isset($retpre['books'])?$retpre['books']:0);
+			  
+			  $output .= '<div class="facts-all-reg facts-all"><img src="/sites/summerreading.org/files/images/img_user_color.png" alt=""/>';
+			  $output .= '<div class="list-item-right">'. $ret['user'] . '</div>';
+			  $output .= '<div class="list-item-msg">Registrants</div></div>';
+			  $output .= '<div class="facts-all-books facts-all"><img src="/sites/summerreading.org/files/images/img_user_book_sm.png" alt=""/>';
+			  $output .= '<div class="list-item-right">'. $ret['book'] . '</div>';
+			  $output .= '<div class="list-item-msg">Books Logged</div></div>';
+			  $output .= '<div class="facts-all-media facts-all"><img src="/sites/summerreading.org/files/images/img_computer_color.png" alt=""/>';
+			  $output .= '<div class="list-item-right">'. $ret['media'] . '</div>';
+			  $output .= '<div class="list-item-msg">Media Logged</div></div>';
+			  $output .= '<div class="facts-all-badges facts-all"><img src="/sites/summerreading.org/files/images/img_badge_color.png" alt=""/>';
+			  $output .= '<div class="list-item-right">'. $ret['badge'] . '</div>';
+			  $output .= '<div class="list-item-msg">Badges Won</div></div>';
+			  $output .= '<div class="facts-all-minutes facts-all"><img src="/sites/summerreading.org/files/images/img_time_color.png" alt=""/>';
+			  $output .= '<div class="list-item-right">'. (int)($ret['time']/60) . '</div>';
+			  $output .= '<div class="list-item-msg">Hours Spent Reading</div></div>';
+		}
+		
+		return $output;
+}
+
+function sr_user_roundbox_start($name) {
+
+   $output='<div id="'.$name.'"><div class="top-container"><div class="SN-bl"><div class="SN-br"><div class="SN-tl"><div class="SN-tr">';
+   return $output;
+}
+
+function sr_user_roundbox_end() {
+
+   $output='</div></div></div></div></div><div class="clear">&nbsp;</div></div>';
+   return $output;
+}
+
+function sr_user_yellow_roundbox_start($name) {
+
+   $output='<div id="'.$name.'"><div class="top-container">';
+   return $output;
+}
+
+function sr_user_yellow_roundbox_end() {
+
+   $output='<div class="clear">&nbsp;</div></div></div></div>';
+   return $output;
+}
+
+function sr_user_yellow_roundbox2_start($name) {
+
+   $output='<div id="'.$name.'"><div id="dissociate_wrap_content"><div class="top-container">';
+   return $output;
+}
+
+function sr_user_yellow_roundbox2_end() {
+
+   $output='<div class="clear">&nbsp;</div></div></div></div></div>';
+   return $output;
+}

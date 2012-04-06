@@ -1,0 +1,28 @@
+<?php
+/* $Id: rounded_corners.install,v 1.1.6.1.2.1 2010/10/27 14:01:58 amitaibu Exp $ */
+/**
+ * Install, uninstall and update functions for the rounded corners module.
+ */
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function rounded_corners_uninstall() {
+  variable_del('rounded_corners_all_pages');
+}
+
+/**
+ * Notify users about the change in 2.x -- commands are now provided via code.
+ *
+ * No actual upgrade is done, only explanation about how to get the new
+ * commands to work, and output the existing settings.
+ */
+function rounded_corners_update_6000() {
+  $ret = array();
+  // Load the rounded corners API.
+  include_once(drupal_get_path('module', 'rounded_corners') .'/rounded_corners.module');
+
+  $output = rounded_corners_legacy_message();
+  drupal_set_message($output);
+  return $ret;
+}

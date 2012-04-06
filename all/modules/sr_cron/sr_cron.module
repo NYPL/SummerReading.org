@@ -1,0 +1,690 @@
+<?php
+
+
+function sr_cron_cron() {
+
+	
+	$today = date("H");     
+	//only run at mid-night
+	if($today>1 && $today<7)
+	{
+		 //clear table
+		db_query("TRUNCATE TABLE sr_admin_statistics");
+		
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Borough)
+				SELECT 'user', (CASE WHEN sb.name IS NULL THEN IFNULL(sb.borough,'site') ELSE sb.name END),COUNT(u.uid), sb.borough
+					FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+					INNER JOIN profile_values pv ON u.uid = pv.uid
+					INNER JOIN sr_branch sb ON sb.branchid = pv.value
+					WHERE ur.rid = %d
+					AND u.status=1
+					AND pv.fid = %d
+					GROUP BY sb.borough, sb.name
+					WITH ROLLUP
+					union
+					SELECT 'user', pv.value, COUNT(u.uid),pv2.value 
+					FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+					INNER JOIN profile_values pv ON u.uid = pv.uid
+					INNER JOIN profile_values pv2 ON u.uid = pv2.uid
+					INNER JOIN school s ON s.school = pv.value and pv2.value=s.borough
+					WHERE ur.rid = %d
+					AND u.status=1
+					AND pv.fid = %d
+					AND pv2.fid = %d
+					GROUP BY pv2.value, pv.value
+					", Util::RID_SUMMER_READER, Util::FID_PROFILE_BRANCH, Util::RID_SUMMER_READER,Util::FID_PROFILE_SCHOOL,Util::FID_PROFILE_BOROUGH);
+			
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Borough)
+				 SELECT 'book',(CASE WHEN br.name IS NULL THEN IFNULL(br.borough,'site') ELSE br.name END),count(um.mid),br.borough
+					FROM sr_branch br, profile_values pv, sr_user_media um, sr_media m, users u, users_roles ur
+					where m.mid = um.mid
+					and um.uid = pv.uid AND pv.fid = %d AND pv.value = br.branchid
+					and u.uid=um.uid and u.uid=pv.uid and u.uid=ur.uid
+					and m.mediatype=0
+					and u.status=1
+					and ur.rid=%d
+					GROUP BY br.borough, br.name
+					WITH ROLLUP
+					union
+					SELECT 'book', pv.value, count(um.mid),pv2.value 
+					FROM profile_values pv, sr_user_media um, sr_media m, users u, users_roles ur, school s, profile_values pv2
+					where m.mid = um.mid
+					and um.uid = pv.uid AND pv.fid = %d
+					AND um.uid = pv2.uid AND pv2.fid = %d
+					and u.uid=um.uid and u.uid=pv.uid and u.uid=ur.uid and pv2.uid=u.uid
+					and m.mediatype=0
+					and s.school = pv.value and pv2.value=s.borough
+					and u.status=1
+					and ur.rid=%d
+					GROUP BY pv2.value,pv.value",Util::FID_PROFILE_BRANCH, Util::RID_SUMMER_READER,Util::FID_PROFILE_SCHOOL,Util::FID_PROFILE_BOROUGH,Util::RID_SUMMER_READER);	
+					
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Borough)
+				 SELECT 'media',(CASE WHEN br.name IS NULL THEN IFNULL(br.borough,'site') ELSE br.name END),count(um.mid),br.borough
+					FROM sr_branch br, profile_values pv, sr_user_media um, sr_media m, users u, users_roles ur
+					where m.mid = um.mid
+					and um.uid = pv.uid AND pv.fid = %d AND pv.value = br.branchid
+					and u.uid=um.uid and u.uid=pv.uid and u.uid=ur.uid
+					and u.status=1
+					and ur.rid=%d
+					GROUP BY br.borough, br.name
+					WITH ROLLUP
+					union
+					SELECT 'media', pv.value, count(um.mid),pv2.value 
+					FROM profile_values pv, sr_user_media um, sr_media m, users u, users_roles ur, school s, profile_values pv2
+					where m.mid = um.mid
+					and um.uid = pv.uid AND pv.fid = %d
+					and um.uid = pv.uid AND pv2.fid = %d
+					and u.uid=um.uid and u.uid=pv.uid and u.uid=ur.uid and pv2.uid=u.uid
+					and s.school = pv.value and pv2.value=s.borough
+					and u.status=1
+					and ur.rid=%d
+					GROUP BY pv2.value, pv.value ",Util::FID_PROFILE_BRANCH, Util::RID_SUMMER_READER,Util::FID_PROFILE_SCHOOL,Util::FID_PROFILE_BOROUGH,Util::RID_SUMMER_READER);	
+					
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Borough)
+				SELECT 'badge',(CASE WHEN br.name IS NULL THEN IFNULL(br.borough,'site') ELSE br.name END),COUNT(ub.bid),br.borough
+					FROM sr_branch br, profile_values pv, sr_user_badge ub, users u, users_roles ur
+					WHERE ub.uid=u.uid
+					AND  ub.uid = pv.uid AND pv.fid = %d AND pv.value = br.branchid
+					and ur.uid=u.uid
+					and u.status=1
+					and ur.rid=%d
+					GROUP BY br.borough, br.name
+					WITH ROLLUP
+					union
+					SELECT 'badge', pv.value, count(ub.bid),pv2.value 
+					FROM profile_values pv, sr_user_badge ub, users u, users_roles ur,school s, profile_values pv2
+					WHERE ub.uid=u.uid
+					AND ub.uid = pv.uid AND pv.fid = %d 
+					and ub.uid = pv2.uid AND pv2.fid = %d
+					and s.school = pv.value and pv2.value=s.borough
+					and ur.uid=u.uid
+					and u.status=1
+					and ur.rid=%d
+					GROUP BY pv2.value, pv.value ",Util::FID_PROFILE_BRANCH, Util::RID_SUMMER_READER,Util::FID_PROFILE_SCHOOL,Util::FID_PROFILE_BOROUGH,Util::RID_SUMMER_READER);	
+					
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Borough)
+			   SELECT 'time',(CASE WHEN sb.name IS NULL THEN IFNULL(sb.borough,'site') ELSE sb.name END), SUM(st.amount*15) AS 'total minutes entered',sb.borough
+					FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+					INNER JOIN sr_time st ON u.uid = st.uid
+					INNER JOIN profile_values pv ON u.uid = pv.uid
+					INNER JOIN sr_branch sb ON sb.branchid = pv.value
+					AND pv.fid = %d
+					WHERE ur.rid = %d
+					and u.status=1
+					GROUP BY sb.borough, sb.name
+					WITH ROLLUP
+					union
+					SELECT 'time', pv.value,SUM(st.amount * 15) AS 'total minutes entered', pv2.value
+					FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+					INNER JOIN sr_time st ON u.uid = st.uid
+					INNER JOIN profile_values pv ON u.uid = pv.uid
+					INNER JOIN profile_values pv2 ON u.uid = pv2.uid
+					INNER JOIN school s ON s.school = pv.value and pv2.value=s.borough
+					AND pv.fid = %d
+					WHERE ur.rid = %d
+					and u.status=1
+					AND pv2.fid = %d
+					GROUP BY pv2.value, pv.value",Util::FID_PROFILE_BRANCH, Util::RID_SUMMER_READER,Util::FID_PROFILE_SCHOOL,Util::RID_SUMMER_READER,Util::FID_PROFILE_BOROUGH);
+				
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Total1)
+			     SELECT 'Review Like Count by Age Group',(CASE pv.value 
+							  WHEN 1 THEN 'toddlers' WHEN 2 THEN 'kids' WHEN 3 THEN 'teens' WHEN 4 THEN 'adults' when '' then 'other' ELSE 'total' END) AS 'age group', 
+					          COUNT(DISTINCT rl.rid) AS 'reviews with likes', 
+							  COUNT(rl.lid) AS 'number of likes'
+					 		FROM users u 
+					 		INNER JOIN users_roles ur ON u.uid = ur.uid
+					 		INNER JOIN role r ON r.rid = ur.rid
+					 		INNER JOIN sr_review_like rl ON u.uid = rl.uid 
+					 		INNER JOIN profile_values pv ON u.uid = pv.uid
+					 		INNER JOIN profile_fields pf ON pf.fid = pv.fid
+					 		WHERE r.name = 'summer_reader' AND pf.name = 'profile_age' AND u.status=1
+					 		GROUP BY pv.value WITH ROLLUP ");
+							
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total)
+			     SELECT 'Badges Awarded by Badge Type and Age Group',(
+							CASE b.badgetype
+							WHEN 1 THEN 'code'
+							WHEN 2 THEN 'login'
+							WHEN 3 THEN 'media log'
+							WHEN 4 THEN 'review'
+							WHEN 5 THEN 'liked'
+							WHEN 6 THEN 'was liked'
+							when '' then 'other'
+							ELSE 'total' END
+							) AS 'badge type',
+							(CASE pv.value WHEN 1 THEN 'toddlers' WHEN 2 THEN 'kids' WHEN 3 THEN 'teens' WHEN 4 THEN 'adults' when '' then 'other' ELSE 'total' END) AS 'age group',
+							COUNT(ub.uid) AS 'awarded count'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_user_badge ub ON u.uid = ub.uid
+							INNER JOIN sr_badge b ON b.bid = ub.bid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_age'
+							AND u.status=1
+							GROUP BY b.badgetype, pv.value
+							WITH ROLLUP");
+							
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Total, Total1)
+			    SELECT 'Review count by Age Group',(CASE pv.value WHEN 1 THEN 'toddlers' WHEN 2 THEN 'kids' WHEN 3 THEN 'teens' WHEN 4 THEN 'adults' when '' then 'other' ELSE 'total' END) AS 'age group',
+							COUNT(DISTINCT sr.mid) AS 'media with reviews',
+							COUNT(sr.rid) AS 'number of reviews'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_review sr ON u.uid = sr.uid 
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_age'
+                            AND u.status=1
+							GROUP BY pv.value
+							WITH ROLLUP");
+							
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1, Total2)
+			   SELECT 'Time Entry by Borough and Branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(DISTINCT st.uid) AS 'users who entered time',
+							COUNT(st.tid) AS 'time punches',
+							SUM(st.amount * 15) AS 'total minutes entered'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_time st ON u.uid = st.uid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							INNER JOIN sr_branch sb ON sb.branchid = pv.value
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_branch'
+                            AND u.status=1
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");
+							
+		db_query("INSERT INTO sr_admin_statistics(Type, Name,  Total, Total1, Total2)
+			  SELECT 'Time Entry by Age Group',(CASE pv.value WHEN 1 THEN 'toddlers' WHEN 2 THEN 'kids' WHEN 3 THEN 'teens' WHEN 4 THEN 'adults' when '' then 'other' ELSE 'total' END) AS 'age group',
+							COUNT(DISTINCT st.uid) AS 'users who entered time',
+							COUNT(st.tid) AS 'time punches',
+							SUM(st.amount * 15) AS 'minutes entered'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_time st ON u.uid = st.uid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_age'
+                            AND u.status=1
+							GROUP BY pv.value
+							WITH ROLLUP");
+							
+	    db_query("INSERT INTO sr_admin_statistics(Type, Name,  name1, Total, Total1)
+			  SELECT 'Media Log Count by Media Type and Age Group',(CASE pv.value WHEN 1 THEN 'toddlers' WHEN 2 THEN 'kids' WHEN 3 THEN 'teens' WHEN 4 THEN 'adults' ELSE 'total' END) AS 'age group',
+							(CASE m.mediatype WHEN 0 THEN 'books' WHEN 1 THEN 'videos' WHEN 2 THEN 'music' WHEN 3 THEN 'games' ELSE 'total' END) AS 'media type',(COUNT(NULLIF(m.logtype, 1))) 
+								AS 'worldcat-entered media log count',
+							(COUNT(NULLIF(m.logtype, 0))) AS 'user-entered media log count'
+
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_user_media um ON u.uid = um.uid 
+							INNER JOIN sr_media m ON m.mid = um.mid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_age'
+                            AND u.status=1
+							GROUP BY m.mediatype, pv.value
+							WITH ROLLUP");
+							
+		
+		  db_query("INSERT INTO sr_admin_statistics(Type, Name,  Total, Total1)
+			        SELECT 'Media Log Count by Media Type',(CASE m.mediatype WHEN 0 THEN 'logged books' 
+								WHEN 1 THEN 'logged videos' 
+								WHEN 2 THEN 'logged music' 
+								WHEN 3 THEN 'logged games' when '' then 'other' ELSE 'logged total' END) AS 'media type',
+							(COUNT(NULLIF(m.logtype, 1))) AS 'worldcat-entered media log count',
+							(COUNT(NULLIF(m.logtype, 0))) AS 'user-entered media log count'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_user_media um ON u.uid = um.uid 
+							INNER JOIN sr_media m ON m.mid = um.mid
+							WHERE r.name = 'summer_reader'
+							AND u.status=1
+							GROUP BY m.mediatype
+							WITH ROLLUP
+
+							UNION
+
+							SELECT  'Media Log Count by Media Type',(CASE m.mediatype WHEN 0 THEN 'not logged books' 
+								WHEN 1 THEN 'not logged videos' WHEN 2 THEN 'not logged music' WHEN 3 THEN 'not logged games' when '' then 'other' ELSE 'not logged total' END),
+							(COUNT(NULLIF(m.logtype, 1))),
+							(COUNT(NULLIF(m.logtype, 0)))
+							FROM sr_media m
+							WHERE m.mid NOT IN (SELECT DISTINCT mid FROM sr_user_media)
+							GROUP BY m.mediatype
+							WITH ROLLUP");	
+							
+         db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1)
+			  SELECT 'Registrants by Borough and Branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(u.uid) AS 'registrants created',
+							(COUNT(NULLIF(u.login, 0))) AS 'registrants visited'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							INNER JOIN sr_branch sb ON sb.branchid = pv.value
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_branch'
+                            AND u.status=1
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");	
+							
+		 db_query("INSERT INTO sr_admin_statistics(Type, Name,  Total, Total1)
+			 SELECT 'Registrants by Age Group', (CASE pv.value WHEN 1 THEN 'toddlers' WHEN 2 THEN 'kids' WHEN 3 THEN 'teens' WHEN 4 THEN 'adults' when '' then 'other' ELSE 'total' END) AS 'age group',
+							COUNT(u.uid) AS 'registrants created',
+							(COUNT(NULLIF(u.login, 0))) AS 'registrants visited'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_age'
+                            AND u.status=1
+							GROUP BY pv.value
+							WITH ROLLUP");	
+							
+		 db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1)
+			SELECT 'Review counts for toddlers by borough and branch',(CASE WHEN b.borough IS NULL THEN 'Total' ELSE b.borough END) AS 'borough',
+							(CASE WHEN b.name IS NULL THEN 'borough total' ELSE b.name END) AS 'branch', 
+							COUNT(DISTINCT sr.mid) AS 'media with reviews from toddlers',
+							COUNT(sr.rid) AS 'number of reviews by toddlers'
+							FROM sr_branch b, profile_values pv, sr_review sr, users u, users_roles r
+							WHERE sr.UID in ( select uid from profile_values where fid = 5 and value = 1 ) AND sr.uid = pv.uid AND pv.fid = 7 AND pv.value = b.branchid and sr.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.borough, b.name
+							WITH ROLLUP");		
+
+        db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1)
+			SELECT 'Review counts for kids by borough and branch',(CASE WHEN b.borough IS NULL THEN 'Total' ELSE b.borough END) AS 'borough',
+							(CASE WHEN b.name IS NULL THEN 'borough total' ELSE b.name END) AS 'branch', 
+							COUNT(DISTINCT sr.mid) AS 'media with reviews from kids',
+							COUNT(sr.rid) AS 'number of reviews by kids'
+							FROM sr_branch b, profile_values pv, sr_review sr, users u, users_roles r
+							WHERE sr.UID in ( select uid from profile_values where fid = 5 and value = 2 ) AND sr.uid = pv.uid AND pv.fid = 7 AND pv.value = b.branchid and sr.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.borough, b.name
+							WITH ROLLUP");	
+							
+		 db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1)
+			SELECT 'Review counts for teenagers by borough and branch',(CASE WHEN b.borough IS NULL THEN 'Total' ELSE b.borough END) AS 'borough',
+							(CASE WHEN b.name IS NULL THEN 'borough total' ELSE b.name END) AS 'branch', 
+							COUNT(DISTINCT sr.mid) AS 'media with reviews from teens',
+							COUNT(sr.rid) AS 'number of reviews by teens'
+							FROM sr_branch b, profile_values pv, sr_review sr, users u, users_roles r
+							WHERE sr.UID in ( select uid from profile_values where fid = 5 and value = 3 ) AND sr.uid = pv.uid AND pv.fid = 7 AND pv.value = b.branchid and sr.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.borough, b.name
+							WITH ROLLUP");	
+
+        db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1)
+			SELECT 'Review counts for adults by borough and branch',(CASE WHEN b.borough IS NULL THEN 'Total' ELSE b.borough END) AS 'borough',
+							(CASE WHEN b.name IS NULL THEN 'borough total' ELSE b.name END) AS 'branch', 
+							COUNT(DISTINCT sr.mid) AS 'media with reviews from adults',
+							COUNT(sr.rid) AS 'number of reviews by adults'
+							FROM sr_branch b, profile_values pv, sr_review sr, users u, users_roles r
+							WHERE sr.UID in ( select uid from profile_values where fid = 5 and value = 4 ) AND sr.uid = pv.uid AND pv.fid = 7 AND pv.value = b.branchid  and sr.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.borough, b.name
+							WITH ROLLUP");		
+							
+        db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2,Total)
+			SELECT 'Badges awarded to toddlers by badge type, borough, and branch',(
+							CASE b.badgetype
+							WHEN 1 THEN 'code'
+							WHEN 2 THEN 'login'
+							WHEN 3 THEN 'media log'
+							WHEN 4 THEN 'review'
+							WHEN 5 THEN 'liked'
+							WHEN 6 THEN 'was liked'
+							when '' then 'other'
+							ELSE 'total' END
+							) AS 'badge type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch', 
+							COUNT(ub.uid) AS 'awarded count for toddlers'
+							FROM sr_branch br, profile_values pv, sr_user_badge ub, sr_badge b, users u, users_roles r
+							WHERE b.bid = ub.bid
+							AND ub.uid in (SELECT uid from profile_values where fid = 5 and value = 1) AND ub.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid  and ub.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.badgetype, br.borough, br.name
+							WITH ROLLUP");
+
+        db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2,Total)
+			SELECT 'Badges awarded to kids by badge type, borough, and branch',(
+							CASE b.badgetype
+							WHEN 1 THEN 'code'
+							WHEN 2 THEN 'login'
+							WHEN 3 THEN 'media log'
+							WHEN 4 THEN 'review'
+							WHEN 5 THEN 'liked'
+							WHEN 6 THEN 'was liked'
+							when '' then 'other'
+							ELSE 'total' END
+							) AS 'badge type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch', 
+							COUNT(ub.uid) AS 'awarded count for kids'
+							FROM sr_branch br, profile_values pv, sr_user_badge ub, sr_badge b, users u, users_roles r
+							WHERE b.bid = ub.bid
+							AND ub.uid in (SELECT uid from profile_values where fid = 5 and value = 2) AND ub.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid  and ub.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.badgetype, br.borough, br.name
+							WITH ROLLUP");								
+							
+         db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2,Total)
+			SELECT 'Badges awarded to teenagers by badge type, borough, and branch',(
+							CASE b.badgetype
+							WHEN 1 THEN 'code'
+							WHEN 2 THEN 'login'
+							WHEN 3 THEN 'media log'
+							WHEN 4 THEN 'review'
+							WHEN 5 THEN 'liked'
+							WHEN 6 THEN 'was liked'
+							when '' then 'other'
+							ELSE 'total' END
+							) AS 'badge type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch', 
+							COUNT(ub.uid) AS 'awarded count for teens'
+							FROM sr_branch br, profile_values pv, sr_user_badge ub, sr_badge b, users u, users_roles r
+							WHERE b.bid = ub.bid
+							AND ub.uid in (SELECT uid from profile_values where fid = 5 and value = 3) AND ub.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid and  ub.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.badgetype, br.borough, br.name
+							WITH ROLLUP");
+							
+       db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2,Total)
+			SELECT 'Badges awarded to adults by badge type, borough, and branch',(
+							CASE b.badgetype
+							WHEN 1 THEN 'code'
+							WHEN 2 THEN 'login'
+							WHEN 3 THEN 'media log'
+							WHEN 4 THEN 'review'
+							WHEN 5 THEN 'liked'
+							WHEN 6 THEN 'was liked'
+							when '' then 'other'
+							ELSE 'total' END
+							) AS 'badge type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch', 
+							COUNT(ub.uid) AS 'awarded count for adults'
+
+							FROM sr_branch br, profile_values pv, sr_user_badge ub, sr_badge b, users u, users_roles r
+							WHERE b.bid = ub.bid
+							AND ub.uid in (SELECT uid from profile_values where fid = 5 and value = 4) AND ub.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid  and ub.uid=u.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY b.badgetype, br.borough, br.name
+							WITH ROLLUP");	
+							
+       db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1, Total2)
+			SELECT 'Time entry for toddlers by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(DISTINCT st.uid) AS 'toddlers who entered time',
+							COUNT(st.tid) AS 'time punches',
+							SUM(st.amount * 15) AS 'total minutes entered'
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_time st ON u.uid = st.uid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							INNER JOIN sr_branch sb ON sb.branchid = pv.value
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_branch'
+							and u.uid in (select uid from profile_values where fid = 5 and value = 1 )
+							and u.status=1
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");
+							
+     db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1, Total2)
+			SELECT 'Time entry for kids by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(DISTINCT st.uid) AS 'kids who entered time',
+							COUNT(st.tid) AS 'time punches',
+							SUM(st.amount * 15) AS 'total minutes entered'
+
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_time st ON u.uid = st.uid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							INNER JOIN sr_branch sb ON sb.branchid = pv.value
+
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_branch'
+							and u.uid in (select uid from profile_values where fid = 5 and value = 2 )
+							and u.status=1
+							
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");
+							
+    db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1, Total2)
+			SELECT 'Time entry for teenagers by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(DISTINCT st.uid) AS 'teens who entered time',
+							COUNT(st.tid) AS 'time punches',
+							SUM(st.amount * 15) AS 'total minutes entered'
+
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_time st ON u.uid = st.uid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							INNER JOIN sr_branch sb ON sb.branchid = pv.value
+
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_branch'
+							and u.uid in (select uid from profile_values where fid = 5 and value = 3 )
+							and u.status=1
+
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");	
+							
+     db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Total, Total1, Total2)
+			SELECT 'Time entry for adults by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(DISTINCT st.uid) AS 'adults who entered time',
+							COUNT(st.tid) AS 'time punches',
+							SUM(st.amount * 15) AS 'total minutes entered'
+
+							FROM users u INNER JOIN users_roles ur ON u.uid = ur.uid
+							INNER JOIN role r ON r.rid = ur.rid
+							INNER JOIN sr_time st ON u.uid = st.uid
+							INNER JOIN profile_values pv ON u.uid = pv.uid
+							INNER JOIN profile_fields pf ON pf.fid = pv.fid
+							INNER JOIN sr_branch sb ON sb.branchid = pv.value
+
+							WHERE r.name = 'summer_reader'
+							AND pf.name = 'profile_branch'
+							and u.uid in (select uid from profile_values where fid = 5 and value = 4 )
+							and u.status=1
+
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");	
+							
+      db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2, Total, Total1)
+			SELECT 'Media log count for toddlers by media type, borough, and branch',(CASE m.mediatype WHEN 0 THEN 'books' WHEN 1 THEN 'videos' WHEN 2 THEN 'music' WHEN 3 THEN 'games' when '' then 'other' ELSE 'total' END) AS 'media type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch',
+							(COUNT(NULLIF(m.logtype, 1))) AS 'worldcat-entered media log count',
+							(COUNT(NULLIF(m.logtype, 0))) AS 'toddler-entered media log count'
+
+							FROM sr_branch br, profile_values pv, sr_user_media um, sr_media m, users u, users_roles r
+							where m.mid = um.mid
+							AND um.uid in (SELECT uid from profile_values where fid = 5 and value = 1) AND um.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid  and u.uid=um.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY m.mediatype, br.borough, br.name
+							WITH ROLLUP");	
+							
+     db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2, Total, Total1)
+			SELECT 'Media log count for kids by media type, borough, and branch',(CASE m.mediatype WHEN 0 THEN 'books' WHEN 1 THEN 'videos' WHEN 2 THEN 'music' WHEN 3 THEN 'games' when '' then 'other' ELSE 'total' END) AS 'media type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch',
+							(COUNT(NULLIF(m.logtype, 1))) AS 'worldcat-entered media log count',
+							(COUNT(NULLIF(m.logtype, 0))) AS 'kid-entered media log count'
+
+							FROM sr_branch br, profile_values pv, sr_user_media um, sr_media m, users u, users_roles r
+							where m.mid = um.mid
+							AND um.uid in (SELECT uid from profile_values where fid = 5 and value = 2) AND um.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid and u.uid=um.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY m.mediatype, br.borough, br.name
+							WITH ROLLUP");	
+							
+     db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2, Total, Total1)
+			SELECT 'Media log count for teenagers by media type, borough, and branch',(CASE m.mediatype WHEN 0 THEN 'books' WHEN 1 THEN 'videos' WHEN 2 THEN 'music' WHEN 3 THEN 'games' when '' then 'other' ELSE 'total' END) AS 'media type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch',
+							(COUNT(NULLIF(m.logtype, 1))) AS 'worldcat-entered media log count',
+							(COUNT(NULLIF(m.logtype, 0))) AS 'teen-entered media log count'
+
+							FROM sr_branch br, profile_values pv, sr_user_media um, sr_media m, users u, users_roles r
+							where m.mid = um.mid
+							AND um.uid in (SELECT uid from profile_values where fid = 5 and value = 3) AND um.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid and u.uid=um.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY m.mediatype, br.borough, br.name
+							WITH ROLLUP");	
+							
+    db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1, Name2, Total, Total1)
+			SELECT 'Media log count for adults by media type, borough, and branch',(CASE m.mediatype WHEN 0 THEN 'books' WHEN 1 THEN 'videos' WHEN 2 THEN 'music' WHEN 3 THEN 'games' when '' then 'other' ELSE 'total' END) AS 'media type',
+							(CASE WHEN br.borough IS NULL THEN 'Total' ELSE br.borough END) AS 'borough',
+							(CASE WHEN br.name IS NULL THEN 'borough total' ELSE br.name END) AS 'branch',
+							(COUNT(NULLIF(m.logtype, 1))) AS 'worldcat-entered media log count',
+							(COUNT(NULLIF(m.logtype, 0))) AS 'adult-entered media log count'
+
+							FROM sr_branch br, profile_values pv, sr_user_media um, sr_media m, users u, users_roles r
+							where m.mid = um.mid
+							AND um.uid in (SELECT uid from profile_values where fid = 5 and value = 4) AND um.uid = pv.uid AND pv.fid = 7 AND pv.value = br.branchid and u.uid=um.uid and u.status=1
+							and r.uid=u.uid and r.rid=4
+							GROUP BY m.mediatype, br.borough, br.name
+							WITH ROLLUP");	
+							
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1,Total, Total1)
+			SELECT 'Registration numbers for toddlers by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(u.uid) AS 'toddlers registered',
+							(COUNT(NULLIF(u.login, 0))) AS 'toddlers visited'
+
+							FROM sr_branch sb, profile_values pv, users u, users_roles r
+							WHERE u.uid in (select uid from profile_values where fid = 5 and value = 1)
+							AND u.uid = pv.uid
+							and pv.value = sb.branchid
+							and pv.fid = 7
+							and u.status=1
+							and r.uid=u.uid and r.rid=4
+
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");	
+		 db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1,Total, Total1)
+			SELECT 'Registration numbers for kids by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(u.uid) AS 'kids registered',
+							(COUNT(NULLIF(u.login, 0))) AS 'kids visited'
+
+							FROM sr_branch sb, profile_values pv, users u, users_roles r
+							WHERE u.uid in (select uid from profile_values where fid = 5 and value = 2)
+							AND u.uid = pv.uid
+							and pv.value = sb.branchid
+							and pv.fid = 7
+							and u.status=1
+							and r.uid=u.uid and r.rid=4
+
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");						
+        db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1,Total, Total1)
+			SELECT 'Registration numbers for teenagers by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(u.uid) AS 'teenagers registered',
+							(COUNT(NULLIF(u.login, 0))) AS 'teenagers visited'
+
+							FROM sr_branch sb, profile_values pv, users u, users_roles r
+							WHERE u.uid in (select uid from profile_values where fid = 5 and value = 3)
+							AND u.uid = pv.uid
+							and pv.value = sb.branchid
+							and pv.fid = 7
+							and u.status=1
+							and r.uid=u.uid and r.rid=4
+
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");	
+							
+		db_query("INSERT INTO sr_admin_statistics(Type, Name, Name1,Total, Total1)
+			SELECT 'Registration numbers for adults by borough and branch',(CASE WHEN sb.borough IS NULL THEN 'Total' ELSE sb.borough END) AS 'borough',
+							(CASE WHEN sb.name IS NULL THEN 'borough total' ELSE sb.name END) AS 'branch',
+							COUNT(u.uid) AS 'adults registered',
+							(COUNT(NULLIF(u.login, 0))) AS 'adults visited'
+
+							FROM sr_branch sb, profile_values pv, users u,users_roles r
+							WHERE u.uid in (select uid from profile_values where fid = 5 and value = 4)
+							AND u.uid = pv.uid
+							and pv.value = sb.branchid
+							and pv.fid = 7
+							and u.status=1
+                            and r.uid=u.uid and r.rid=4
+							GROUP BY sb.borough, sb.name
+							WITH ROLLUP");	
+							
+		db_query("truncate table sr_branch_users");	
+		
+		db_query("INSERT INTO sr_branch_users(uid, username, firstname, lastname, email, age, borough, branch, school, logcount,  
+         		badgecount,likecount,reviewcount,timespent, created, branchid)
+				 SELECT  u.uid, name as username,
+				(SELECT value FROM {profile_values} WHERE fid = " . Util::FID_PROFILE_FIRSTNAME . " AND uid = u.uid LIMIT 1) AS firstname, 
+				(SELECT value FROM {profile_values} WHERE fid = " . Util::FID_PROFILE_LASTNAME . " AND uid = u.uid LIMIT 1) AS lastname, 
+				 mail, 
+				(SELECT value FROM {profile_values} WHERE fid = " . Util::FID_PROFILE_AGE . " AND uid = u.uid LIMIT 1) AS agegroup, 
+				(SELECT value FROM {profile_values} WHERE fid = " . Util::FID_PROFILE_BOROUGH . " AND uid = u.uid LIMIT 1) AS borough, 
+				(SELECT b.name FROM {profile_values} INNER JOIN sr_branch b ON value=b.branchid WHERE fid = " . Util::FID_PROFILE_BRANCH . " AND uid = u.uid LIMIT 1) AS branch, 
+				(SELECT value FROM {profile_values} WHERE fid = " . Util::FID_PROFILE_SCHOOL . " AND uid = u.uid LIMIT 1) AS school, 
+				(SELECT count(um.mid) FROM {sr_user_media} um where u.uid = um.uid) AS logcount,
+				(SELECT count(ub.bid) FROM {sr_user_badge} ub where u.uid = ub.uid) AS badgecount,
+				(SELECT count(rl.lid) FROM {sr_review_like} rl where u.uid = rl.uid) AS likecount, 			
+				(SELECT count(r.rid) FROM {sr_review} r where r.uid = u.uid) AS reviewcount,
+				(SELECT SUM(st.amount * 15) FROM sr_time st where st.uid=u.uid) AS timespent,
+				 FROM_UNIXTIME(u.created)  as datejoined,				
+				(SELECT value FROM {profile_values} WHERE fid = " . Util::FID_PROFILE_BRANCH . " AND uid = u.uid LIMIT 1) AS branchid 		
+				FROM users u 
+				INNER JOIN {users_roles} ur ON u.uid = ur.uid and ur.rid=". Util::RID_SUMMER_READER ." and u.status=1");
+			
+		db_query("truncate table sr_branch_medias");	
+		
+		db_query("INSERT INTO sr_branch_medias(mid, title, isbn, author, branchid, type, usercount, reviewcount)
+				     SELECT DISTINCT m.mid, m.title, m.isbn, m.author, pv.value,
+					(CASE m.mediatype WHEN 0 THEN 'book' WHEN 1 THEN 'video' WHEN 2 THEN 'music' WHEN 3 THEN 'game' ELSE 'book' END) as type,
+					(SELECT count(um.uid) FROM {sr_user_media} um inner join {users} u on u.uid=um.uid inner join users_roles ur on ur.uid= u.uid where um.mid = m.mid and u.status=1 
+					and ur.rid=". Util::RID_SUMMER_READER .") AS usercount, 
+					(SELECT count(r.rid) FROM sr_review r inner join users u on u.uid=r.uid inner join users_roles ur on ur.uid= u.uid where r.mid = m.mid and u.status=1 
+					and ur.rid=". Util::RID_SUMMER_READER .") AS reviewcount
+					FROM sr_media m INNER JOIN sr_user_media um ON m.mid = um.mid
+					INNER JOIN users u ON u.uid = um.uid
+					INNER JOIN users_roles ur ON u.uid = ur.uid
+					INNER JOIN profile_values pv ON u.uid = pv.uid
+					WHERE  pv.fid = " . Util::FID_PROFILE_BRANCH . "
+					AND ur.rid = ". Util::RID_SUMMER_READER ." and u.status=1
+					group by m.mid, pv.value");
+	
+			
+				
+		//db_query('delete FROM {sr_message_del} WHERE mid in (select mid from {sr_messages} where expire_date < %d)', time());
+		//clear expire message
+		db_query('delete FROM {sr_messages} WHERE expire_date>0 and expire_date < %d', time());
+		$aMonth =30 * 24 * 60 * 60;
+		$sixMonth =30 * 24 * 60 * 60 * 6;
+		$lastMonth=time()-$aMonth;
+		$last_six_Month=time()-$sixMonth;
+		
+		db_query("delete FROM {sr_messages} WHERE (expire_date is null or expire_date=0) and timestamp<%d", $lastMonth);
+		db_query('delete FROM {sr_message_del} WHERE mid not in (select mid from {sr_messages})');
+		
+		//db_query("delete FROM {watchdog} WHERE timestamp<%d", $last_six_Month);
+		db_query("delete FROM {watchdog} WHERE timestamp<%d AND type='page not found'", $lastMonth);
+		
+	}
+}

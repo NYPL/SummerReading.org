@@ -1,0 +1,2336 @@
+/* $Id: zen.css,v 1.14.2.6 2009/11/05 11:03:32 johnalbin Exp $ */
+
+/*
+ * ZEN STYLES
+ *
+ * This is an example stylesheet. Sub-themes should NOT include the zen/zen.css
+ * file, but instead copy this CSS to their own stylesheets.
+ *
+ * In this stylesheet, we have included all of the classes and IDs from this
+ * theme's tpl.php files. We have also included many of the useful Drupal core
+ * styles to make it easier for theme developers to see them.
+ *
+ * Many of these styles are over-riding Drupal's core stylesheets, so if you
+ * remove a declaration from here, the styles may still not be what you want
+ * since Drupal's core stylesheets are still styling the element. See the
+ * drupal6-reference.css file for a list of all Drupal 5.x core styles.
+ *
+ * In addition to the style declarations in this file, other Drupal styles that
+ * you might want to override or augment are those for:
+ *
+ *   Book Navigation  See line 74  of Zen's drupal6-reference.css file
+ *   Forum            See line 197 of Zen's drupal6-reference.css file
+ *   Menus            See line 667 of Zen's drupal6-reference.css file
+ *   News Aggregator  See line 20  of Zen's drupal6-reference.css file
+ *   Polls            See line 287 of Zen's drupal6-reference.css file
+ *   Search           See line 320 of Zen's drupal6-reference.css file
+ *   User Profiles    See line 945 of Zen's drupal6-reference.css file
+ */
+
+
+ 
+
+/** BODY **/
+body {
+margin: 0;
+padding: 0;
+font-family: "Lucida Grande", Tahoma, Arial, sans-serif;
+color:#00354F;
+}
+
+#page {
+background: #26ABCF;
+witdh: 960px;
+}
+
+#page-inner {
+
+}
+
+a:link, a:visited {
+color:#00354F;
+}
+
+a:hover,
+a:focus,
+a:active {
+color:#95D6DA;
+}
+
+
+
+/** HEADER **********************************************************************************************/
+#header {
+padding: 20px 0 20px 40px;
+}
+
+#header-inner {
+}
+
+#logo-title /* Wrapper for logo, website name, and slogan */
+{
+}
+
+#logo /* Wrapper for logo */
+{
+margin: 0 10px 0 0;
+padding: 0;
+}
+
+#logo-image /* The actual logo image */
+{
+}
+
+h1#site-name, div#site-name /* The name of the website */
+{
+margin: 0;
+font-size: 2em;
+line-height: 1.3em;
+}
+
+#site-name a:link,
+#site-name a:visited {
+color: #000;
+text-decoration: none;
+}
+
+#site-name a:hover, 
+#site-name a:active, 
+#site-name a:focus {
+text-decoration: underline;
+}
+
+#site-slogan /* The slogan (or tagline) of a website */
+{
+}
+
+#logo-year {
+color: #EDEA66;
+}
+
+#header-blocks /* Wrapper for any blocks placed in the header region */
+{
+}
+
+#summerreading-logo {
+font-size: 2.5em;
+line-height: 1.1em;
+margin: 0;
+float:left;	
+margin: -9px 0 0 0;
+}
+
+#summerreading-logo a {
+color: #fff;
+text-decoration: none;
+font-weight: normal;
+}
+
+.region-header {
+margin:0px 0px 0px 20px;
+float: left;
+width: 364px;
+}
+
+#header-intro-leadin {
+color:#EDEA66;
+font-size:1.3em;
+}
+
+#header-intro {
+color:#FFFFFF;
+font-size:0.9em;
+}
+
+#header-right {
+padding: 20px 40px 0 40px;
+width: 236px;
+}
+
+#header-nav {
+width: 341px;
+}
+
+#header-nav-left {
+width: 30%;
+float: left;
+}
+
+#header-nav-right {
+float:right;
+width: 70%;
+}
+
+
+#header-nav-avatar {
+margin-right: 20px;
+}
+
+a img#header-nav-avatar{
+
+}
+a:link img#header-nav-avatar,
+a:visited img#header-nav-avatar {
+border: 5px solid #CFEAE5;
+}
+a:hover img#header-nav-avatar,
+a:active img#header-nav-avatar,
+a:focus img#header-nav-avatar {
+border: 5px solid #0071A1;
+}
+
+#header-nav-logout {
+float: left;
+text-align: center;
+}
+
+span#header-nav-logout a {
+color: #ffffff;
+text-decoration: none;
+font-size: .9em;
+}
+
+#header-nav-logout a:hover, 
+#header-nav-logout a:active, 
+#header-nav-logout a:focus {
+text-decoration: underline;
+}
+
+#header-nav-screenname {
+color: #EDEA66;
+/* font-size: 2.5em; */ /* trying to fit long screen names */
+margin-bottom: 10px;
+}
+
+#header-search {
+background:#FFFD6F;
+color:#000000;
+font-size:90%;
+padding:5px 15px;
+margin-bottom: 10px;
+/* width: 270px; */
+/* CSS3 effects */
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+}
+
+#header-search form input[type="submit"] {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px;
+text-transform:uppercase;
+}
+
+#header-search form input[type="submit"]:hover,
+#header-search form input[type="submit"]:active {
+background: #f2f2b7;
+}
+
+
+/* HEADER: USER LOGIN *****************************************************************************/
+
+#user-login {
+background: #fffd6f;
+color: #000000;
+padding: 10px 7px 0 10px;
+width: 220px;
+/* CSS3 effects */
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+}
+
+#user-login input {
+
+margin: 6px 0;
+}
+
+#login-register {
+/* color: #ffffff; */
+font-size: 85%;
+}
+#login-register a {
+/* color: #ffffff; */
+}
+#login-register a:link, 
+#login-register a:visited {
+/* color: #ffffff; */
+}
+#login-register a:hover,
+#login-register a:active,
+#login-register a:focus {
+color: #000000;
+font-weight: bold;
+}
+
+#user-login-form .item-list ul {
+padding: 0 0 0 0;
+}
+
+#user-login-form .item-list ul li {
+list-style-image: none;
+list-style-position: none;
+list-style-type: none;
+}
+
+
+
+
+form#user-login input#edit-submit {
+margin: 10px 0px;
+height: 25px;
+width:75px;
+background: url(/sites/summerreading.org/files/images/btn_login.gif) no-repeat;
+border:0px none #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:0px;
+text-transform:uppercase;
+font-size: 0;
+}
+
+/*form#user-login input#edit-submit:hover,
+form#user-login input#edit-submit:active {
+background: #f2f2b7;
+}*/
+
+/* WIDTH EXCEPTION FOR USER LOGIN IN CONTENT AREA (case: wrong login) */
+#content-area form#user-login {
+background:#EDEA66;
+width:400px;
+}
+
+
+/** MAIN CONTENT AREAS AND STYLES *************************************************************************************/
+#main {
+border-top: 10px solid #fff;
+border-bottom: 10px solid #fff;
+padding-bottom: 10px;
+}
+
+#main-inner {
+margin: 10px 30px;
+}
+
+#content {
+min-height: 350px;
+}
+
+#content,
+.no-sidebars #content /* overrides for layout.css styles */
+{
+width: 100%;
+margin-right: 0px;
+}
+
+#content-inner {
+}
+
+#mission /* The mission statement of the site (displayed on homepage) */
+{
+}
+
+#content-top /* Wrapper for any blocks placed in the "content top" region */
+{
+}
+
+#content-header /* Wrapper for breadcrumb, title, messages, tabs, and help */
+{
+}
+
+.breadcrumb /* The path to the current page in the form of a list of links */
+{
+padding-bottom: 0; /* Undo system.css */
+}
+
+h1.title, /* The title of the page */
+h2.title, /* Block title or the title of a piece of content when it is given in a list of content */
+h3.title /* Comment title */
+{
+color:#EDEA66;
+font-weight:normal;
+margin:0;
+}
+
+div.messages /* Important messages (status, warning, and error) for the user */
+{
+}
+
+div.status /* Normal priority messages */
+{
+}
+
+div.warning, tr.warning /* Medium priority messages */
+{
+/* border: 1px solid #f0c020; */ /* Drupal core uses: 1px solid #f0c020 */
+}
+
+div.error, tr.error /* High priority messages. See also the .error declaration below. */
+{
+}
+
+div.messages, div.status, div.warning, div.error {
+background-color:#F2F2B7;
+background-image:url("images/messages-status.png");
+background-position:5px 5px;
+background-repeat:no-repeat;
+border:2px solid #FDB829;
+color:#000000;
+margin:5px 0;
+min-height:21px;
+padding:5px 5px 5px 35px;
+}
+
+div.tabs /* See also the tabs.css file. */
+{
+}
+
+.help /* Help text on a page */
+{
+margin: 1em 0;
+}
+
+.more-help-link /* Link to more help */
+{
+font-size: 0.85em;
+text-align: right;
+}
+
+#content-area /* Wrapper for the actual page content */
+{
+}
+
+ul.links /* List of links */
+{
+margin: 1em 0;
+padding: 0;
+}
+
+ul.links.inline {
+margin: 0;
+display: inline;
+}
+
+ul.links li {
+display: inline;
+list-style-type: none;
+padding: 0 0.5em;
+}
+
+.pager /* A list of page numbers when more than 1 page of content is available */
+{
+clear: both;
+margin: 1em 0;
+text-align: center;
+}
+
+.pager a, .pager strong.pager-current {
+padding: 0.5em;
+}
+
+.feed-icons /* The links to the RSS or Atom feeds for the current list of content */
+{
+margin: 1em 0;
+}
+
+#content-bottom /* Wrapper for any blocks placed in the "content bottom" region */
+{
+}
+
+
+
+
+/* OTHER PAGE CONTENT & REUSED STYLES ***************************************************/
+
+/* Time Spent Reading */
+ /**form#sr-user-readtime {
+background:#CFEAE5;
+margin:10px 0;
+padding:10px;
+width: 400px;**/
+/* CSS3 effects */
+/**-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+} **/
+
+form#sr-user-readtime .form-item {
+margin-top: 0;
+margin-bottom: 1em;
+}
+
+/* Sponsors page needs 3 columns */
+#sponsor1, #sponsor2, #sponsor3 {
+float: left;
+width: 250px;
+margin-right: 20px;
+}
+
+#sponsor1, #sponsor2 {
+margin-right: 20px;
+}
+
+/* user and media pages reused styles */
+#media-log, 
+#badge-list,
+#media-page-reviews,
+#media-loggers {
+background: #ffffff;
+width: 400px;
+float: left;
+padding:10px;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+-webkit-box-shadow:-5px 5px 0px #015F89;
+-moz-box-shadow:-5px 5px 0px #015F89;
+box-shadow:-5px 5px 0px #015F89;
+}
+
+#badge-list,
+#media-loggers {
+width: 430px;
+padding-left: 15px;
+}
+
+#media-log {
+clear: both;
+margin-right: 20px;
+}
+
+#media-page-reviews {
+margin-right: 20px;
+}
+
+.media-log-title, 
+.badge-list-title,
+#media-loggers-label, 
+#media-reviews-pagelabel {
+color:#00A2CE;
+font-size:1em;
+font-weight:bold;
+margin-bottom:10px;
+text-transform:uppercase;
+}
+
+
+/* style for FAQ content */
+.question {
+font-weight: bold;
+}
+
+/* thumbnails on book list pages */
+img.booklist-img {
+border:1px solid #000000;
+}
+
+/* HOME PAGE **********************************************************************************************************/
+
+#feature1,
+#feature2 {
+background: #0071A1;
+float: left;
+padding:10px 0 0 15px;
+width: 400px;
+height: 350px;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+-webkit-box-shadow:-5px 5px 0px #015F89;
+-moz-box-shadow:-5px 5px 0px #015F89;
+box-shadow:-5px 5px 0px #015F89;
+-webkit-linear-gradient(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+-moz-linear-gradient(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+linear-gradient(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+}
+
+#feature1 object,
+#feature2 object { 
+width: 380px;
+height: 304px;
+}
+
+#feature1 embed,
+#feature2 embed { 
+width: 380px;
+height: 304px;
+}
+
+#feature1 {
+margin-right: 35px;
+}
+
+#feature1 h3, #feature2 h3 {
+color: #ffffff;
+}
+
+#feature2 p,
+#feature2 ul li,
+#feature2 ul li a,
+#feature1 a {
+color: #ffffff;
+}
+
+#feature2  .first-graf {
+color:#EDEA66;
+font-size:1.8em;
+line-height:1.2em;
+width:350px;
+}
+
+
+/* USER PROFILE PAGE ***************************************************************************************************/
+
+.profile-avatar {
+margin: 10px 15px 20px 0;
+float: left;
+}
+
+img.avatar-small-list {
+/* NO BORDER PLS */
+}
+
+#badge-winners-outer .badge-winner a:link img.avatar-small-list,
+#badge-winners-outer .badge-winner a:visited img.avatar-small-list {
+border:5px solid #CFEAE5;
+}
+
+#badge-winners-outer .badge-winner a:hover img.avatar-small-list,
+#badge-winners-outer .badge-winner a:active img.avatar-small-list,
+#badge-winners-outer .badge-winner a:focus img.avatar-small-list {
+border:5px solid #0071A1;
+}
+
+img.avatar-small {
+/* NO BORDER PLS */
+}
+
+img.avatar-large {
+border:5px solid #CFEAE5;
+}
+
+a.avatar-link {
+text-decoration: none;
+float: left;
+}
+
+#profile-header-left {
+float: left;
+}
+
+#profile-header-middle {
+float: left;
+/* width: 350px; */
+margin-bottom:100px;
+}
+
+#profile-header-right {
+float: right;
+/* margin-bottom:120px; */
+}
+
+#profile-edit-menu form  /* for logged-in admins: assign badge */
+{
+background: #015F89;
+color:#FFFFFF;
+font-size:90%;
+margin-bottom:10px;
+margin-top:10px;
+padding:8px 15px 18px;
+width: 310px;
+height: 65px;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+}
+
+#profile-edit-menu form select {
+margin: 5px 0;
+width: 300px;
+}
+
+#profile-edit-menu form input[type="submit"] /* for logged-in admins: assign badge */
+{
+background:#00A2CE;
+border:2px solid #95D6DA;
+color:#FFFFFF;
+float:left;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+#profile-edit-menu form input[type="submit"]:hover,
+#profile-edit-menu form input[type="submit"]:active {
+background:#95D6DA;
+}
+
+#profile-readtime {
+padding: 15px 0 0 0;
+}
+
+#profile-readtime-amount {
+font-weight: bold;
+}
+
+#profile-links {
+margin: 15px 0 0 0;
+}
+
+#profile-links-item {
+padding-bottom:5px;
+}
+
+img.media-header-image {
+border: 1px solid #000000;
+}
+
+
+/* profile badge list */
+
+.badge-list-item {
+float: left;
+width: 85px;
+height: 80px;
+}
+
+.badge-list-item-icon {
+}
+
+
+
+
+/** BOOKS/MEDIA SEARCH ******************************************************************************************************/
+
+#sr-media-mediasearch {
+background:#015F89;
+color:#FFFFFF;
+padding:5px 15px;
+margin-bottom: 10px;
+width: 600px
+/* CSS3 effects */
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+}
+
+input#edit-submit {
+background: #4ebedc;
+border:0px none #4ebedc;
+color:#FFFFFF;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+margin-bottom:5px;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+input#edit-submit:hover,
+input#edit-submit:active {
+background: #95D6DA;
+}
+
+#mediasearch-noresult {
+padding-top: 15px;
+}
+
+.mediasearch-results-rule {
+width: 100%;
+border-top: solid 1px black;
+margin-top: 25px;
+}
+
+#mediasearch-results-container {
+padding-top: 25px;
+}
+
+.mediasearch-results-item {
+padding-bottom: 65px;
+}
+
+.mediasearch-results-pager-heading {
+
+}
+
+.mediasearch-results-pager {
+margin: 10px 0;
+}
+
+.mediasearch-results-pager a {
+background: #0071A1;
+color:#FFFFFF;
+font-size:0.7em;
+letter-spacing:0.09em;
+margin:10px 0;
+padding:3px 7px;
+text-decoration:none;
+text-transform:uppercase;
+}
+
+.mediasearch-results-pager a:hover,
+.mediasearch-results-pager a:active {
+background: #015F89;
+}
+
+.mediasearch-results-pager-spacer {
+padding: 0 0 0 10px;
+}
+
+.mediasearch-type-icon {
+}
+
+.mediasearch-results-item-title {
+float: left;
+width: 500px;
+}
+
+.mediasearch-results-item-cover-image {
+border:1px solid #000000;
+}
+
+.mediasearch-results-item-cover {
+float: left;
+padding-right: 10px;
+margin-bottom: 5px;
+}
+
+.mediasearch-results-item input {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+margin-bottom:5px;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+.mediasearch-results-item input:hover, 
+.mediasearch-results-item input:active {
+background: #f2f2b7;
+}
+
+td.mediatype-radio {
+}
+
+td.mediatype-icon {
+padding-right: 12px;
+}
+
+input#custom-add-below,
+input#custom-add-above {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+input#custom-add-below:hover,
+input#custom-add-below:active,
+input#custom-add-above:hover,
+input#custom-add-above:active {
+background: #f2f2b7;
+}
+
+
+
+/* SINGLE BOOK/MEDIA PAGE ***************************************************************************************************/
+
+#media-header {
+padding: 20px 0 0 0;
+}
+
+#media-header-left {
+float: left;
+}
+
+#media-header-middle {
+float: left;
+width: 350px;
+}
+
+#media-header-right {
+float: left;
+}
+
+.media-header-title {
+margin-bottom: 5px;
+overflow:auto;
+width:100%;
+}
+
+#media-header-image {
+float: left;
+margin-right: 15px;
+}
+
+#media-header-image img {
+border: 2px solid #000000;
+}
+
+#media-header-metadata {
+margin-bottom: 5px;
+}
+
+#media-header-metadata-logstatus {
+margin-bottom: 5px;
+}
+
+input#usermedia-toggle {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+input#usermedia-toggle:hover,
+input#usermedia-toggle:active/*
+,
+input#usermedia-toggle:focus
+*/ {
+background:#f2f2b7;
+}
+
+
+
+#media-header-library {
+background: #015F89;
+color:#FFFFFF;
+margin-top:10px;
+padding:12px 15px;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+}
+
+#media-header-library p {
+margin: 0;
+}
+
+ul#library-links li a {
+color: #ffffff;
+text-decoration: none;
+}
+
+ul#library-links li a:links,
+ul#library-links li a:visited {
+
+}
+
+ul#library-links li a:hover,
+ul#library-links li a:active,
+ul#library-links li a:focus {
+text-decoration: underline;
+}
+
+#media-bottom {
+margin-top: 20px;
+}
+
+.media-logger {
+margin-bottom: 7px;
+float: left;
+width: 85px;
+height: 80px;
+}
+
+img.media-type {
+border: none;
+margin-top: 3px;
+}
+
+a.review-likethis {
+background: #22A22A;
+border:2px solid #2BBF23;
+color:#FFFFFF;
+font-size:0.8em;
+font-weight:bold;
+padding:2px 6px;
+text-decoration:none;
+text-transform:uppercase;
+}
+
+a:hover.review-likethis,
+a:active.review-likethis,
+a:focus.review-likethis {
+background: #2BBF23;
+}
+
+div.review-content {
+margin-bottom: 10px;
+margin-right: 10px;
+}
+
+div.like-count {
+margin-bottom: 5px;
+}
+
+img.like-thumb {
+margin-right: 4px;
+}
+
+a.add-review {
+background:#F68627;
+border:2px solid #FDB829;
+color:#FFFFFF;
+font-size:0.9em;
+font-weight:bold;
+padding:2px 6px;
+text-transform:uppercase;
+text-decoration: none;
+}
+
+a:hover.add-review,
+a:active.add-review,
+a:focus.add-review {
+background: #FDB829;
+}
+
+div.media-reviews-add {
+float:left;
+margin: 8px 10px 5px 0;
+padding-top: 5px;
+/* width: 72%; */
+}
+
+form.media_reviews-form textarea {
+width:285px;
+font-size: 90%;
+}
+
+/* media log on profile pg */
+
+.media-log-item {
+float: left;
+margin-bottom: 30px;
+width: 100%;
+}
+
+.media-log-item a {
+/* float:left; */
+}
+
+.media-log-item-right {
+float: right;
+width: 77%;
+}
+
+.media-log-item-right .media-reviews-item-right {
+float: none;
+width: 100%;
+}
+
+/*
+#media-log .media-log-page .media-log-item .media-log-item-right .media-reviews {
+float: left;
+}
+*/
+
+a.seemore {
+background: #00A2CE;
+border:2px solid #95D6DA;
+color:#FFFFFF;
+float:left;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-size:0.9em;
+padding:2px 10px;
+text-decoration:none;
+text-transform:uppercase;
+}
+
+a:hover.seemore,
+a:active.seemore {
+background: #95D6DA;
+}
+
+/* stars */
+
+.fivestar-widget {
+margin-top: 3px;
+}
+
+form.fivestar-widget {
+background:#95D6DA;
+border:1px solid #0071A1;
+clear:both;
+display:block;
+padding:3px 3px 7px;
+width:86px;
+}
+
+.fivestar-label {
+color:#014669;
+font-size:0.8em;
+font-weight:bold;
+letter-spacing:0.05em;
+margin-top:20px;
+text-transform:uppercase;
+}
+
+
+/* media reviews */
+
+.media-log-item .media-log-item-right .media-reviews-item {
+width: 100%;
+clear: both;
+padding-bottom: 20px;
+}
+
+#media-page-reviews .media-reviews .media-reviews-item {
+width: 100%;
+clear: both;
+padding-bottom: 60px;
+}
+
+.media-reviews-item-right {
+float:right;
+width:80%;
+margin-bottom: 20px;
+}
+
+.media-reviews-loglabel
+{
+color:#00A2CE;
+font-size:85%;
+font-weight:bold;
+letter-spacing:0.03em;
+margin-bottom:3px;
+text-transform:uppercase;
+}
+
+a.review-content-more {
+color:#00A2CE;
+font-size:80%;
+font-weight:bold;
+text-transform:uppercase;
+}
+
+.review-safety
+{
+font-size: 12px;
+padding-bottom: 5px;
+}
+
+input.review-text-save {
+background: #F68627;
+border:2px solid #FDB829;
+color:#FFFFFF;
+font-weight:bold;
+letter-spacing:0.09em;
+padding:2px 6px;
+text-transform:uppercase;
+}
+
+input.review-text-save:hover,
+input.review-text-save:active {
+background: #FDB829;
+}
+
+input.review-text-cancel {
+background: #B4AEA9;
+border:2px solid #CBC8C1;
+color:#ffffff;
+letter-spacing:0.09em;
+padding:2px 6px;
+text-transform:uppercase;
+}
+
+input.review-text-cancel:hover,
+input.review-text-cancel:active {
+background: #CBC8C1;
+}
+
+
+/* SINGLE BADGE PAGE **************************************************************************************************/
+
+#badge-header {
+margin-top: 10px;
+}
+
+#badge-icon-large {
+float: left;
+margin-right: 30px;
+}
+
+#badge-icon-large img{
+border:5px solid #CFEAE5;
+}
+
+#badge-header-middle {
+float: left;
+width: 200px;
+margin-right: 30px;
+}
+
+#badge-description {
+}
+
+#badge-count {
+margin-top: 15px;
+}
+
+#badge-earn {
+border:2px solid #CFEAE5;
+color:#CFEAE5;
+float:left;
+padding:5px;
+width:230px;
+}
+
+.badge-winners {
+width: 930px;
+}
+
+#badge-winners-label {
+color:#CFEAE5;
+font-size:1em;
+font-weight:bold;
+margin:15px 0 10px;
+text-transform:uppercase;	
+}
+
+.badge-winner {
+margin-bottom: 7px;
+float: left;
+width: 90px;
+height: 80px;
+}
+
+
+
+/* BOOKLISTS ********************************************************************************************/
+
+#booklist-left {
+width: 420px;
+margin-right: 40px;
+float: left;
+}
+#booklist-right {
+width: 420px;
+float: left;
+}
+.booklist-heading {
+clear: both;
+font-size: 14px;
+font-weight: bold;
+padding: 25px 0 7px 0;
+}
+.booklist-item {
+padding-top: 15px;
+clear: both;
+}
+img.booklist-img {
+float: left;
+margin-right: 10px;
+}
+.booklist-data {
+font-size: 12px;
+}
+.booklist-title {
+font-weight: bold;
+margin-right: 3px;
+}
+.booklist-description {
+}
+.booklist-PDF a {
+float: right;
+font-size: 90%;
+}
+
+
+/** FOOTER ************************************************************************************************************/
+#footer {
+margin:0;
+overflow:hidden;
+padding:0;
+width:100%;
+background: #edea66;
+}
+
+#footer-inner {
+margin: 0;
+padding: 5px;
+}
+
+#footer-menus {
+color: #000000;
+float:left;
+font-size:85%;
+text-align: center;
+width: 100%;
+}
+
+#footer-menus a {
+text-decoration: none;
+}
+
+#footer-booklist-nav, #footer-main-nav {
+margin: 5px;
+padding: 0 5px;
+background: #f2f2b7;
+}
+
+span.footer-booklist-nav-item a:link,
+span.footer-booklist-nav-item a:visited,
+span.footer-main-nav-item a:link,
+span.footer-main-nav-item a:visited {
+color: #000000;
+text-decoration: none;
+}
+
+span.footer-booklist-nav-item a:hover,
+span.footer-booklist-nav-item a:focus,
+span.footer-booklist-nav-item a:active,
+span.footer-main-nav-item a:hover,
+span.footer-main-nav-item a:focus,
+span.footer-main-nav-item a:active {
+color: #000000;
+border-bottom: 2px solid;
+}
+
+#footer-right {
+float:left;
+margin:10px;
+width: 960px;
+}
+
+#footer-right img {
+margin-right:35px;
+}
+
+#block-block-6 .block-inner .content {
+width: 539px;
+margin: 10px auto;
+}
+
+#footer-message /* Wrapper for the footer message from Drupal's "Site information"
+and for any blocks placed in the footer region */
+{
+}
+
+
+
+
+/* ADMIN PAGES STYLES *****************************************************************************/
+
+body.section-administer #content-area,
+body.section-search #content-area,
+body.section-admin #content-area {
+/* background: #FFFFFF; */
+/* padding:10px 15px; */
+}
+
+/* Drupal pager overrides (find in admin pages) */
+
+ul.pager li a {
+background:  #015F89;
+color:#FFFFFF;
+display:inline;
+font-size:0.8em;
+list-style-type:none;
+padding:2px 5px;
+text-decoration:none;
+}
+
+ul.pager li a:hover,
+ul.pager li a:active,
+ul.pager li a:focus {
+background: #014669;
+}
+
+/* some admin form buttons */
+input#edit-preview,
+input#edit-delete {
+background: #00A2CE;
+border:2px solid #95D6DA;
+color:#FFFFFF;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+margin-bottom:5px;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+input#edit-preview:hover,
+input#edit-preview:active,
+input#edit-delete:hover,
+input#edit-delete:active {
+background: #95D6DA;
+}
+
+
+/* admin badges */
+
+.admin-badges-item
+{
+margin-bottom: 5px;
+}
+
+.admin-badges
+{
+margin-top: 15px;
+}
+
+
+/* admin reviews */
+
+.admin-reviews-item
+{
+margin-bottom: 5px;
+}
+
+.admin-reviews
+{
+margin-top: 15px;
+}
+
+
+/* admin media */
+
+.admin-media-item
+{
+margin-bottom: 3px;
+}
+
+.admin-media
+{
+margin-top: 15px;
+}
+
+
+
+
+/* admin tables */
+
+.admin-table {
+	padding: 25px 0 0 0;
+}
+.admin-table-heading-col {
+	font-weight: bold;
+	font-size: 14px;
+	padding: 3px 15px 5px 5px;
+	float: left;
+	border-bottom: #333 1px solid;
+	background-color: #EDEA66;
+}
+.admin-table-col {
+}
+.admin-table-row {
+	clear: both;
+}
+.admin-table-col {
+	float: left;
+	padding: 2px 15px 3px 5px;
+	font-size: 12px;
+}
+.admin-table-row-even {
+	background-color: white;
+}
+.admin-table-row-odd {
+	background-color: silver;
+}
+.admin-table-pager {
+	font-size: 12px;
+	font-weight: bold;
+}
+
+
+/* admin branch users */
+
+.admin-branchusers-heading-col0, .admin-branchusers-col0 {
+	width: 125px;
+}
+.admin-branchusers-heading-col1, .admin-branchusers-col1 {
+	width: 125px;
+}
+.admin-branchusers-heading-col2, .admin-branchusers-col2 {
+	width: 125px;
+}
+.admin-branchusers-heading-col3, .admin-branchusers-col3 {
+	width: 70px;
+}
+.admin-branchusers-heading-col4, .admin-branchusers-col4 {
+	width: 70px;
+}
+.admin-branchusers-heading-col5, .admin-branchusers-col5 {
+	width: 70px;
+}
+.admin-branchusers-heading-col6, .admin-branchusers-col6 {
+	width: 70px;
+}
+.admin-branchusers-heading-col7, .admin-branchusers-col7 {
+	width: 70px;
+}
+
+
+/* admin branch media */
+
+.admin-branchmedia-heading-col0, .admin-branchmedia-col0 {
+	width: 40px;
+}
+.admin-branchmedia-heading-col1, .admin-branchmedia-col1 {
+	width: 300px;
+}
+.admin-branchmedia-heading-col2, .admin-branchmedia-col2 {
+	width: 250px;
+}
+.admin-branchmedia-heading-col3, .admin-branchmedia-col3 {
+	width: 75px;
+}
+.admin-branchmedia-heading-col4, .admin-branchmedia-col4 {
+	width: 75px;
+}
+.admin-branchmedia-heading-col5, .admin-branchmedia-col5 {
+	width: 60px;
+}
+
+
+/* admin badges */
+
+.admin-badges-heading-col0, .admin-badges-col0 {
+	width: 400px;
+}
+.admin-badges-heading-col1, .admin-badges-col1 {
+	width: 50px;
+}
+.admin-badges-heading-col2, .admin-badges-col2 {
+	width: 250px;
+}
+.admin-badges-heading-col3, .admin-badges-col3 {
+	width: 75px;
+}
+
+
+/* admin reviews */
+
+.admin-reviews-heading-col0, .admin-reviews-col0 {
+	width: 500px;
+}
+.admin-reviews-heading-col1, .admin-reviews-col1 {
+	width: 300px;
+}
+
+
+/* admin branch ids */
+
+.admin-branchids-heading-col0, .admin-branchids-col0 {
+	width: 100px;
+}
+.admin-branchids-heading-col1, .admin-branchids-col1 {
+	width: 550px;
+}
+.admin-branchids-heading-col2, .admin-branchids-col2 {
+	width: 100px;
+}
+
+
+
+
+
+
+/* DEFAULT ELEMENT STUFF */
+
+
+/** NAVIGATION ***************/
+#navbar {
+}
+
+#navbar-inner {
+}
+
+#search-box /* Wrapper for the search form */
+{
+}
+
+#edit-search-theme-form-1-wrapper label /* Label that says "Search this site:" */
+{
+display: none;
+}
+
+#primary /* Primary links */
+{
+}
+
+#secondary /* Secondary links */
+{
+}
+
+#sidebar-left {
+}
+
+#sidebar-left-inner {
+}
+
+#sidebar-right {
+}
+
+#sidebar-right-inner {
+}
+
+
+#block-user-0 .item-list .last {
+/* hide 'request new password' menu item */
+display: none;
+}
+
+#zipfile {
+font-size: 0.85em;
+margin-bottom: 20px;
+}
+
+
+/** closure **/
+#closure-blocks /* Wrapper for any blocks placed in the closure region */
+{
+}
+
+/** Drupal nodes **/
+.node /* Node wrapper */
+{
+}
+
+.node-inner /* Additional wrapper for node */
+{
+}
+
+.sticky /* A sticky node (displayed before others in a list) */
+{
+}
+
+.node-unpublished /* Unpublished nodes */
+{
+/* background-color: #fff4f4; */ /* Drupal core uses a #fff4f4 background */
+}
+
+.node-unpublished div.unpublished, /* The word "Unpublished" displayed beneath the content. */
+.comment-unpublished div.unpublished
+{
+height: 0;
+overflow: visible;
+color: #d8d8d8;
+font-size: 75px;
+line-height: 1;
+font-family: Impact, "Arial Narrow", Helvetica, sans-serif;
+font-weight: bold;
+text-transform: uppercase;
+text-align: center;
+word-wrap: break-word; /* A very nice CSS3 property */
+}
+
+.node-mine /* A node created by the current user */
+{
+}
+
+.node-teaser /* A node displayed as teaser */
+{
+}
+
+/* All nodes are given a node-type-FOO class that describes the type of
+* content that it is. If you create a new content type called
+* "my-custom-type", it will receive a "node-type-my-custom-type" class.
+*/
+.node-type-page /* Page content node */
+{
+}
+
+.node-type-story /* Story content node */
+{
+}
+
+.node h2.title /* Node title */
+{
+}
+
+.marker /* "New" or "Updated" marker for content that is new or updated for the current user */
+{
+color: #c00;
+}
+
+.node .picture /* The picture of the node author */
+{
+}
+
+.node.node-unpublished .picture,
+.comment.comment-unpublished .picture
+{
+position: relative; /* Otherwise floated pictures will appear below the "Unpublished" text. */
+}
+
+.node .meta /* Wrapper for submitted and terms data */
+{
+}
+
+.node .submitted /* The "posted by" information */
+{
+}
+
+.node .terms /* Node terms (taxonomy) */
+{
+}
+
+.node .content /* Node's content wrapper */
+{
+}
+
+.node ul.links /* Node links. See also the ul.links declaration above. */
+{
+}
+
+.preview .node /* Preview of the content before submitting new or updated content */
+{
+/* background-color: #ffffea; */ /* Drupal core uses a #ffffea background */
+}
+
+
+
+
+
+/** Drupal comments ************************************************************************** **/
+#comments /* Wrapper for the list of comments and its title */
+{
+margin: 1em 0;
+}
+
+#comments-title /* Heading for the list of comments */
+{
+}
+
+.comment /* Wrapper for a single comment */
+{
+}
+
+.comment-inner /* Additional wrapper for a single comment */
+{
+}
+
+.comment-preview /* Preview of the comment before submitting new or updated comment */
+{
+}
+
+.comment.new /* A new comment since the user last viewed the page. */
+{
+}
+
+.comment.odd /* An odd-numbered comment in the list of comments */
+{
+}
+
+.comment.even /* An even-numbered comment in the list of comments */
+{
+}
+
+.comment.first /* The first comment in the list of comments */
+{
+}
+
+.comment.last /* The last comment in the list of comments */
+{
+}
+
+.comment-unpublished /* Unpublished comments */
+{
+/* background-color: #fff4f4; */ /* Drupal core uses a #fff4f4 background */
+}
+
+.comment-unpublished div.unpublished /* The word "Unpublished" displayed beneath the content. See also the div.unpublished declaration in the node section above. */
+{
+}
+
+.comment-published /* Published comments */
+{
+}
+
+.comment-by-anon /* A comment created by an anonymous user */
+{
+}
+
+.comment-by-author /* A comment created by the node's author */
+{
+}
+
+.comment-mine /* A comment created by the current user */
+{
+}
+
+.comment h3.title /* Comment title */
+{
+}
+
+.new /* "New" marker for comments that are new for the current user */
+{
+color: #c00;
+}
+
+.comment .picture /* The picture of the comment author */
+{
+}
+
+.comment .submitted /* The "posted by" information */
+{
+}
+
+.comment .content /* Comment's content wrapper */
+{
+}
+
+.comment .user-signature /* The user's signature */
+{
+}
+
+.comment ul.links /* Comment links. See also the ul.links declaration above. */
+{
+margin: 1em 0;
+}
+
+.indented /* Nested comments are indented */
+{
+/* margin-left: 25px; */ /* Drupal core uses a 25px left margin */
+}
+
+.preview .comment /* Preview of the comment before submitting new or updated comment */
+{
+/* background-color: #ffffea; */ /* Drupal core uses a #ffffea background */
+}
+
+/** END Drupal comments ************************************************************************** **/
+
+
+/** Drupal blocks **/
+.block /* Block wrapper */
+{
+margin-bottom: 1em;
+}
+
+.block.region-odd /* Zebra striping for each block in the region */
+{
+}
+
+.block.region-even /* Zebra striping for each block in the region */
+{
+}
+
+.block.odd /* Zebra striping independent of each region */
+{
+}
+
+.block.even /* Zebra striping independent of each region */
+{
+}
+
+.region-count-1 /* Incremental count for each block in the region */
+{
+}
+
+.count-1 /* Incremental count independent of each region */
+{
+}
+
+.block-inner /* Additional wrapper for block */
+{
+}
+
+.block h2.title /* Block title */
+{
+}
+
+.block .content /* Block's content wrapper */
+{
+}
+
+#block-aggregator-category-1 /* Block for the latest news items in the first category */
+{
+}
+
+#block-aggregator-feed-1 /* Block for the latest news items in the first feed */
+{
+}
+
+#block-block-1 /* First administrator-defined block */
+{
+}
+
+#block-blog-0 /* "Recent blog posts" block */
+{
+}
+
+#block-book-0 /* "Book navigation" block for the current book's table of contents */
+{
+}
+
+#block-comment-0 /* "Recent comments" block */
+{
+}
+
+#block-forum-0 /* "Active forum topics" block */
+{
+}
+
+#block-forum-1 /* "New forum topics" block */
+{
+}
+
+#block-menu-primary-links /* "Primary links" block */
+{
+}
+
+#block-menu-secondary-links /* "Secondary links" block */
+{
+}
+
+#block-node-0 /* "Syndicate" block for primary RSS feed */
+{
+}
+
+#block-poll-0 /* "Most recent poll" block */
+{
+}
+
+#block-profile-0 /* "Author information" block for the profile of the page's author */
+{
+}
+
+#block-search-0 /* "Search form" block */
+{
+}
+
+#block-statistics-0 /* "Popular content" block */
+{
+}
+
+#block-user-0 /* "User login form" block */
+{
+}
+
+#block-user-1 /* "Navigation" block for Drupal navigation menu */
+{
+}
+
+#block-user-2 /* "Who's new" block for a list of the newest users */
+{
+}
+
+#block-user-3 /* "Who's online" block for a list of the online users */
+{
+}
+
+/** Drupal boxes **/
+/* Wrapper for Comment form, Comment viewing options, Menu admin, and
+* Search results.
+*/
+.box /* Wrapper for box */
+{
+}
+
+.box-inner /* Additional wrapper for box */
+{
+}
+
+.box h2.title /* Box title */
+{
+}
+
+.box .content /* Box's content wrapper */
+{
+}
+
+/** Miscellaneous Drupal styles **/
+.error /* Errors that are separate from div.messages status messages (see above.) */
+{
+/* color: #e55; */ /* Drupal core uses a #e55 background */
+}
+
+.warning /* Warnings that are separate from div.messages status messages (see above.) */
+{
+/* color: #e09010; */ /* Drupal core uses a #e09010 background */
+}
+
+.more-link /* Aggregator, blog, and forum more link */
+{
+text-align: right;
+}
+
+#user-login-form /* Drupal's default login form */
+{
+text-align: left;
+}
+
+tr.even /* Some tables have rows marked even or odd. */
+{
+/* background-color: #eee; */ /* Drupal core uses a #eee background */
+}
+
+tr.odd
+{
+/* background-color: #eee; */ /* Drupal core uses a #eee background */
+}
+
+li a.active /* The active item in a Drupal menu */
+{
+color: #000;
+}
+
+
+/** Drupal forms **/
+.form-item, /* Wrapper for a form element (or group of form elements) and its label */
+.form-checkboxes,
+.form-radios
+{
+margin: 1em 0;
+}
+
+.form-item input.error, /* Highlight the form elements that caused a form submission error */
+.form-item textarea.error,
+.form-item select.error
+{
+border: 2px solid #c00;
+}
+
+.form-item label /* The label for a form element */
+{
+display: block;
+font-weight: bold;
+}
+
+.form-item label.option /* The label for a radio button or checkbox */
+{
+display: inline;
+font-weight: normal;
+}
+
+.form-required /* The part of the label that indicates a required field */
+{
+color: #c00;
+}
+
+.form-item .description /* The descriptive help text (separate from the label) */
+{
+font-size: 0.85em;
+}
+
+.form-checkboxes .form-item, /* Pack groups of checkboxes and radio buttons closer together */
+.form-radios .form-item
+{
+margin: 0.4em 0;
+}
+
+.form-submit /* The submit button */
+{
+}
+
+.container-inline div, .container-inline label /* Inline labels and form divs */
+{
+display: inline;
+}
+
+.tips /* Tips for Drupal's input formats */
+{
+margin: 0;
+padding: 0;
+font-size: 0.9em;
+}
+
+/** OpenID **/
+/* The default styling for the OpenID login link seems to assume Garland's
+* styling of list items.
+*/
+#user-login-form ul /* OpenID creates a new ul above the login form's links. */
+{
+margin-bottom: 0; /* Position OpenID's ul next to the rest of the links. */
+}
+
+#user-login-form li.openid-link /* The "Log in using OpenID" links. */
+{
+margin-top: 1em;
+margin-left: -20px; /* Un-do some of the padding on the ul list. */
+}
+
+#user-login-form li.user-link /* The "Cancel OpenID login" links. */
+{
+margin-top: 1em;
+}
+
+#user-login ul
+{
+margin: 1em 0;
+}
+
+#user-login li.openid-link, /* The OpenID links on the /user form. */
+#user-login li.user-link
+{
+margin-left: -2em; /* Un-do all of the padding on the ul list. */
+}
+
+/** Drupal admin tables **/
+/* We overrode these styles in html-elements.css, but restore them for the
+* forms on the site.
+*/
+form tbody
+{
+border-top: 1px solid #ccc;
+}
+
+form th
+{
+text-align: left;
+padding-right: 1em;
+border-bottom: 3px solid #ccc;
+}
+
+form tbody th
+{
+border-bottom: 1px solid #ccc;
+}
+
+form thead th
+{
+text-align: left;
+padding-right: 1em;
+border-bottom: 3px solid #ccc;
+}
+
+
+/**************************************************************************
+// new stuff sread added
+**************************************************************************/
+
+#avatar-noflash
+{
+	margin: 20px 0 20px 0;
+}	
+#avatar-list
+{
+	margin-top: 20px;
+}
+.avatar-list-item
+{
+	float: left;
+	width: 200px;
+	height: 200px;
+	margin: 0 20px 20px 0;
+}
+
+#top-container
+{
+margin: 28px 0 20px 0;
+}
+
+#bot-container
+{
+}
+
+.SN-bl {background: url(/sites/summerreading.org/files/images/bot_left.gif) 0 100% no-repeat #4fbedc; width: 62em}
+.SN-br {background: url(/sites/summerreading.org/files/images/bot_right.gif) 100% 100% no-repeat}
+.SN-tl {background: url(/sites/summerreading.org/files/images/top_left.gif) 0 0 no-repeat}
+.SN-tr {background: url(/sites/summerreading.org/files/images/top_right.gif) 100% 0 no-repeat; padding:2px 20px 10px 20px}
+.clear {font-size: 1px; height: 1px} 
+
+.AI-bl {background: url(/sites/summerreading.org/files/images/bot_left.gif) 0 100% no-repeat #4fbedc; width: 62em}
+.AI-br {background: url(/sites/summerreading.org/files/images/bot_right.gif) 100% 100% no-repeat}
+.AI-tl {background: url(/sites/summerreading.org/files/images/top_left.gif) 0 0 no-repeat}
+.AI-tr {background: url(/sites/summerreading.org/files/images/top_right.gif) 100% 0 no-repeat; padding:20px}
+.clear {font-size: 1px; height: 1px} 
+
+#div_screen_name_adjective
+{
+text-align:center;
+}
+  
+
+ #div_screen_name_adjective .form-item        
+  {
+	
+    font-size:16px;
+	display:inline;
+	margin:0 -2px;
+	  
+	  
+ }
+   
+
+ #btnDiv
+  {
+	 width:73%;
+	 height:50px
+	
+	
+	 
+ }
+  
+  #btnDiv  fieldset
+  {
+	
+    width:200px;
+    float:left;
+	
+ }
+ 
+ #btnDiv.form-item
+ {
+ margin-left:auto;
+ margin-right:auto;
+ }
+ 
+ #div_screen_name  fieldset
+  {
+    padding:0;
+	border:none;
+ }
+ 
+ #div_screen_name  fieldset legend
+  {
+	padding:0;
+	color:#edea66;
+	font-size:18px;
+	margin:2px;
+ }
+ 
+ #account_header
+ {
+ font-weight:bold;
+ color:#edea66;
+ }
+ 
+ #school_text
+  {
+	 width:900px;
+	 height:25px
+ }
+ 
+ #edit-school-wrapper  
+  {
+	 width:582px;
+	 float:left
+ }
+ 
+ #schoolDiv  .title
+  {
+	 font-weight:bold
+ }
+ 
+ #schoolDiv  .msg
+  {
+	font-size:0.85em
+ }
+ 
+ #edit-school-wrapper
+ {
+  margin-bottom:0;
+  margin-top:0;
+ }
+ #edit-is-other-wrapper 
+ {
+  margin-bottom:0;
+  width:300px;
+  float:left;
+  margin-top:0;
+ }
+ #div_screen_name  
+ {
+ }
+ #div_screen_name  .msg
+ {
+   font-size:0.85em
+ }
+ 
+ #div_screen_name  .description
+ {
+   font-size:0.85em
+ }
+
+ #account_header
+ {
+ font-size:18px;
+ }
+  
+    #feature2 p,
+#feature2 ul li,
+#feature2 ul li a {
+color: #ffffff;
+}
+
+#feature2  .first-graf {
+color:#EDEA66;
+font-size:1.8em;
+line-height:1.2em;
+width:350px;
+}
+
+#feature2 a.feature-link {
+color: #ffffff;
+font-size:1.5em;
+width:300px;
+}
+#feature1 h3, #feature2 h3 {
+    color: #FFFFFF;
+}
+
+#feature1 {
+    margin-right: 35px;
+}
+
+/**#feature1, #feature2 {
+    -moz-border-radius: 15px 15px 15px 15px;
+    -moz-box-shadow: -5px 5px 0 #015F89;
+    background: none repeat scroll 0 0 #0071A1;
+    float: left;
+    height: 350px;
+    padding: 10px 0 0 15px;
+    width: 400px;
+}**/
+
+
+
+/** time reading **/
+
+.topbox .SN-bl {background: url(/sites/summerreading.org/files/images/white_bl.gif) 0 100% no-repeat #ffffff; width: 62em}
+.topbox .SN-br {background: url(/sites/summerreading.org/files/images/white_br.gif) 100% 100% no-repeat}
+.topbox .SN-tl {background: url(/sites/summerreading.org/files/images/white_tl.gif) 0 0 no-repeat}
+.topbox .SN-tr {background: url(/sites/summerreading.org/files/images/white_tr.gif) 100% 0 no-repeat; padding:2px 20px 10px 20px}
+.clear {font-size: 1px; height: 1px} 
+
+.topbox .header {
+color:#23acd3;
+font-weight:bold;
+font-size:22px;
+}
+
+.notes {
+font-size:12px;
+letter-spacing:1px;
+}
+
+.topbox a {
+font-weight:bold;
+}
+
+#readtime .header {
+color:#ebec64;
+font-size:22px;
+font-weight:bold;
+}
+
+.timemsg {
+font-size:12px;
+}
+
+#profile-readtime {background: url(/sites/summerreading.org/files/images/img_crest.gif) 
+}
+
+
+

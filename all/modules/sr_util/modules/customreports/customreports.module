@@ -1,0 +1,706 @@
+<?php
+// $Id: customreports.module,v 1.4.2.4.2.1 2009/08/23 18:04:21 snufkin Exp $
+
+/**
+ * @file
+ *
+ * This module provides a sql input format and interface to select a report
+ * content type.
+ *
+ * Once configured it will allow authorized users to create and download SQL
+ * driven reports as CSV files
+ *
+ * @author Alex McFadyen <alex@openlyconnected.com>
+ * @author Balazs Dianiska <balazs@dianiska.net>
+ *
+ */
+
+
+/**
+ * 
+ * Steven Read
+ * Regarding Summer Reading 2010:
+ * 
+ * I edited this small module so that when the node is viewed normally, it prints
+ * the database results to the screen in a simple table with header. If you
+ * want to turn that off, you could go in the admin settings for this module
+ * and enter some text to display instead. The module is supposed to show either the
+ * SQL code or the entered admin text. So now it shows either the results or the
+ * admin text. Also keep in mind that the content type used for this needs to be
+ * called "report" in order for the node list to show up in the "statistics" section.
+ * 
+ */
+
+
+
+define('CUSTOMREPORTS_CREATE', 100);
+
+/**
+ * Implementation of hook_perm().
+ */
+function customreports_perm() {
+  return array(
+    'view custom reports',
+    'edit custom reports',
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function customreports_menu() {
+  $items = array();
+  /**
+   * Administration form.
+   */
+  $items['admin/settings/customreports'] = array(
+    'title' => 'Custom Reports',
+    'description' => t('Settings to control what nodes are classed as customreports and who can view them'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('customreports_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
+  
+  $items['node/%node/csv'] = array(
+    'title' => 'CSV export',
+    'page callback' => 'customreports_render',
+    'page arguments' => array('csv', 1),
+    'access callback' => 'customreports_access',
+    'access arguments' => array(1, 'view custom reports'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  $items['node/%node/xls'] = array(
+    'title' => 'XLS export',
+    'page callback' => 'customreports_render',
+    'page arguments' => array('xls', 1),
+    'access callback' => 'customreports_access',
+    'access arguments' => array(1, 'view custom reports'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  
+  return $items;
+}
+
+/**
+ * Combine node setting with access callback to determine if we can have a tab.
+ */
+function customreports_access($node, $perm) {
+  $customreport_type = variable_get('customreports_node_type', 'customreport');
+  return ($customreport_type == $node->type) && user_access($perm);
+}
+
+/**
+ * Menu callback - Admin settings form.
+ */
+function customreports_admin_settings() {
+  $form = array();
+  
+  $options = array(
+    0 => t('<please select a node type>'),
+    CUSTOMREPORTS_CREATE => t('<create a customreports node type'),
+  );
+  $types = node_get_types('names');
+  $options += $types;
+  
+  $form['customreports_node_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Node Type'),
+    '#options' => $options,
+    '#default_value' => variable_get('customreports_node_type', 'customreport'),
+    '#description' => t('Select the node type that corresponds to a custom report.
+                        This node type will be processed as a report when viewed.
+                        Changing this selection later may cause issues and you may need to !node_permissions.',
+                        array('!node_permissions' => l(t('rebuild node access permissions'), 'admin/content/node-settings/rebuild'))), 
+  );
+
+  $form['customreports_display_sql'] = array(
+    '#title' => 'SQL display',
+    '#type' => 'textarea',
+    '#description' => t('Enter any text you want to replace the SQL query with when the node is viewed. Note, this will not affect the rendering of the output. Leave empty to have the query displayed.'),
+    '#default_value' => variable_get('customreports_display_sql', ''),
+  );
+  
+  $form = system_settings_form($form);
+  $form['#submit'][] = 'customreports_admin_settings_custom_submit';
+  return $form;
+}
+
+/**
+ * Implementation of hook_submit - Create customreports node type
+ */
+function customreports_admin_settings_custom_submit($form_id, $form_values) {
+  if (CUSTOMREPORTS_CREATE == $form_values['values']['customreports_node_type']) {
+    // The user would like a customreport node type created
+    $node_types = node_get_types('names');
+    // Check to make sure there isn't already a node type of "customreport"
+    if (isset($node_types['customreport'])) {
+      //Just make the customreport node type the default value and let the user know.
+      variable_set('customreports_node_type', 'customreport');
+      drupal_set_message(t('There is already a node type of %type. The node type is being used.', array('%type' => 'customreport')));
+    }
+    else {
+      //Generate the new node type.
+      $node_type = new stdClass();
+      $node_type->type = 'customreport';
+      $node_type->name = t('Custom Report');
+      $node_type->module = 'node'; // We trick node module into believing this is his own node type.
+      $node_type->has_title = 1;
+      $node_type->title_label = t('Report Name');
+      $node_type->has_body = 1;
+      $node_type->body_label = t('Report Code');
+      $node_type->description = t('Custom reports are used to create a report that can then be viewed in different formats.');
+      $node_type->help = t('Enter the code to generate the rows of the report. Be sure to select the corresponding input format.');
+      $node_type->min_word_count = 1; //Require the report code
+      $node_type->custom = 1;
+      $node_type->modified = TRUE;
+      $node_type->locked = 0;
+      $node_type->orig_type = 'customreport';
+      $node_type->status = 1;
+      if (module_exists('comment')) {
+        $node_type->comment = COMMENT_NODE_DISABLED;
+      }
+      node_type_save($node_type);
+      variable_set('customreports_node_type', 'customreport');
+      drupal_set_message(t('Created new node type %type.', array('%type' => 'customreport')));
+      //Rebuild the menu so the new content type shows up
+      menu_rebuild();
+    }
+  }
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function customreports_nodeapi(&$node, $op, $a3, $a4) {
+  if ($node->type == variable_get("customreports_node_type", 'customreport')) {
+    if ('view' == $op) {
+      if ($message = trim(variable_get('customreports_display_sql', ''))) {
+        unset($node->content['body']);
+        $node->content['body']['#value'] = $message;
+      } else {
+      	// SSR: hack! to show results
+      	//$body = customreports_render('csv', $node, "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", '', false);
+      	$body = customreports_render('csv', $node, '', '', false);
+      	unset($node->content['body']);
+        $node->content['body']['#value'] = $body;
+      }
+    }
+  }
+}
+
+/**
+ * Central interpreter for the query and arguments.
+ */
+function customreports_render($type, $node, $separator = ',', $delimiter = '"', $print = true) {
+
+  $args = func_get_args();
+  unset($args[0]);
+  unset($args[1]);
+  // Allow parameters to be passed as arguments.
+  
+// Modifying the following line in order to create a case statement to get around using sql to build reports. 
+// Using direct sql injection from the body of a node seems absolutely bugshit insane to me. I'm disallowing it. -K. Kelly
+// HERE'S THE ORIGINAL LINE:   
+// $result = db_query($node->body, $args); 
+
+// NEW LINES TO FOLLOW: 
+
+// First I'm going to set up the queries I'm going to be using later. This is where they should be defined, not in some node body to be executed at will. 
+
+  	// Review Like Count by Age Group
+	$query_like_count_by_age_group = "SELECT name AS 'age group', 
+					         total AS 'reviews with likes', 
+							 total1 AS 'number of likes'
+					 		FROM sr_admin_statistics where type='%s'";
+					
+	// Badges Awarded by Badge Type and Age Group				
+	$query_badges_awarded_by_type_and_age_group = "SELECT Name AS 'badge type',
+							Name1 AS 'age group',
+							Total AS 'awarded count'
+							FROM sr_admin_statistics where type='%s'";
+														
+    // Review count by Age Group
+	$query_count_by_age_group = "SELECT name AS 'age group',
+							total AS 'media with reviews',
+							total1 AS 'number of reviews'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Time Entry by Borough and Branch
+	$query_time_entry_by_borough_and_branch = "SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'users who entered time',
+							total1 AS 'time punches',
+							total2 AS 'total minutes entered'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Time Entry by Age Group
+	$query_time_entry_by_age_group = "SELECT name AS 'age group',
+							total AS 'users who entered time',
+							total1 AS 'time punches',
+							total2 AS 'minutes entered'
+							FROM sr_admin_statistics where type='%s'";
+
+	// Media Log Count by Media Type and Age Group
+	$query_media_log_count_by_type_and_age_group = "SELECT name AS 'age group',name1 as 'media type',
+							total AS 'worldcat-entered media log count',
+							total1 AS 'user-entered media log count'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Media Log Count by Media Type
+	$query_media_log_count_by_type = "SELECT name AS 'media type',
+							total AS 'worldcat-entered media log count',
+							total1 AS 'user-entered media log count'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Registrants by Borough and Branch
+	$query_registrants_by_borough_and_branch = "SELECT distinct sr.name AS 'borough',
+							name1 AS 'branch',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_branch sb on sb.name=sr.name1
+							  left join sr_pre_reg_stats s on s.branchid=sb.branchid
+							 where type='%s'
+							 union
+							 SELECT distinct 'Total',
+							'Total',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_pre_reg_stats s on s.branchid=0
+							 where type='Registrants by Borough and Branch' AND sr.name='total'
+							 union
+							 SELECT distinct 'Bronx',
+							'Bronx Total',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_pre_reg_stats s on s.branchid=900
+							 where type='Registrants by Borough and Branch' AND sr.name='Bronx' and sr.name1='borough total'
+							  union
+							 SELECT distinct 'Manhattan',
+							'Manhattan Total',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_pre_reg_stats s on s.branchid=800
+							 where type='Registrants by Borough and Branch' AND sr.name='Manhattan' and sr.name1='borough total'
+							  union
+							 SELECT distinct 'Staten Island',
+							'Staten Island Total',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_pre_reg_stats s on s.branchid=700
+							 where type='Registrants by Borough and Branch' AND sr.name='Staten Island' and sr.name1='borough total'
+							  union
+							 SELECT distinct 'Brooklyn',
+							'Brooklyn Total',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_pre_reg_stats s on s.branchid=600
+							 where type='Registrants by Borough and Branch' AND sr.name='Brooklyn' and sr.name1='borough total'
+							   union
+							 SELECT distinct 'Queens',
+							'Queens Total',
+							(ifnull(total, 0)+ifnull(s.users, 0))  AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics sr
+							  left join sr_pre_reg_stats s on s.branchid=500
+							 where type='Registrants by Borough and Branch' AND sr.name='Queens' and sr.name1='borough total'
+							 ";
+	
+	// Registrants by Age Group
+	$query_registrants_by_age_group = "SELECT name AS 'age group',
+							total AS 'registrants created',
+							total1 AS 'registrants visited'
+							FROM sr_admin_statistics where type='%s'";
+						
+	// Review counts for toddlers by borough and branch
+	$query_review_counts_for_toddlers = "SELECT name AS 'borough',
+							name1 AS 'branch', 
+							total AS 'media with reviews from toddlers',
+							total1 AS 'number of reviews by toddlers'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Review counts for kids by borough and branch
+	$query_review_counts_for_kids = "SELECT name AS 'borough',
+							name1 AS 'branch', 
+							total AS 'media with reviews from kids',
+							total1 AS 'number of reviews by kids'
+						    FROM sr_admin_statistics where type='%s'";
+	
+	// Review counts for teenagers by borough and branch
+	$query_review_counts_for_teens = "SELECT name AS 'borough',
+							name1 AS 'branch', 
+							total AS 'media with reviews from teens',
+							total1 AS 'number of reviews by teens'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Review counts for adults by borough and branch
+	$query_review_counts_for_adults = "SELECT name AS 'borough',
+							name1 AS 'branch', 
+							total AS 'media with reviews from adults',
+							total1 AS 'number of reviews by adults'
+                            FROM sr_admin_statistics where type='%s'";
+							
+	// Badges awarded to toddlers by badge type, borough, and branch
+	$query_badges_for_toddlers = "SELECT name AS 'badge type',
+							name1 AS 'borough',
+							name2 AS 'branch', 
+							total AS 'awarded count for toddlers'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Badges awarded to kids by badge type, borough, and branch
+	$query_badges_for_kids = "SELECT name AS 'badge type',
+							name1 AS 'borough',
+							name2 AS 'branch', 
+							total AS 'awarded count for kids'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Badges awarded to teenagers by badge type, borough, and branch
+	$query_badges_for_teens = " SELECT name AS 'badge type',
+							name1 AS 'borough',
+							name2 AS 'branch', 
+							total AS 'awarded count for teens'
+							FROM sr_admin_statistics where type='%s'";
+		
+	// Badges awarded to adults by badge type, borough, and branch
+	$query_badges_for_adults = "SELECT name AS 'badge type',
+							name1 AS 'borough',
+							name2 AS 'branch', 
+							total AS 'awarded count for adults'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Time entry for toddlers by borough and branch
+	$query_time_for_toddlers = "SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'toddlers who entered time',
+							total1 AS 'time punches',
+							total2 AS 'total minutes entered'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Time entry for kids by borough and branch
+	$query_time_for_kids = " SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'kids who entered time',
+							total1 AS 'time punches',
+							total2 AS 'total minutes entered'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Time entry for teenagers by borough and branch
+	$query_time_for_teens = "SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'teens who entered time',
+							total1 AS 'time punches',
+							total2 AS 'total minutes entered'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Time entry for adults by borough and branch
+	$query_time_for_adults = " SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'adults who entered time',
+							total1 AS 'time punches',
+							total2 AS 'total minutes entered'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Media log count for toddlers by media type, borough, and branch
+	$query_media_log_for_toddlers = "SELECT name AS 'media type',
+							name1 AS 'borough',
+							name2 AS 'branch',
+							total AS 'worldcat-entered media log count',
+							total1 AS 'toddler-entered media log count'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Media log count for kids by media type, borough, and branch
+	$query_media_log_for_kids = "SELECT name AS 'media type',
+							name1 AS 'borough',
+							name2 AS 'branch',
+							total AS 'worldcat-entered media log count',
+							total1 AS 'kid-entered media log count'
+							FROM sr_admin_statistics where type='%s'";
+
+	// Media log count for teenagers by media type, borough, and branch
+	$query_media_log_for_teens = " SELECT name AS 'media type',
+							name1 AS 'borough',
+							name2 AS 'branch',
+							total AS 'worldcat-entered media log count',
+							total1 AS 'teen-entered media log count'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Media log count for adults by media type, borough, and branch
+	$query_media_log_for_adults = "SELECT name AS 'media type',
+							name1 AS 'borough',
+							name2 AS 'branch',
+							total AS 'worldcat-entered media log count',
+							total1 AS 'adult-entered media log count'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Registration numbers for toddlers by borough and branch
+	$query_registration_for_toddlers = " SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'toddlers registered',
+							total1 AS 'toddlers visited'
+							FROM sr_admin_statistics where type='%s'";	
+							
+	// Registration numbers for kids by borough and branch
+	$query_registration_for_kids = "SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'kids registered',
+							total1 AS 'kids visited'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Registration numbers for teenagers by borough and branch
+	$query_registration_for_teens = "SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'teens registered',
+							total1 AS 'teens visited'
+							FROM sr_admin_statistics where type='%s'";
+	
+	// Registration numbers for adults by borough and branch 
+	$query_registration_for_adults = "SELECT name AS 'borough',
+							name1 AS 'branch',
+							total AS 'adults registered',
+							total1 AS 'adults visited'
+							FROM sr_admin_statistics where type='%s'";
+							
+	$args=$node->title;
+	switch ($node->title) {
+		case 'Review Like Count by Age Group': // Review Like Count by Age Group report 
+		  $result = db_query($query_like_count_by_age_group, $args);
+		  break;
+		case 'Badges Awarded by Badge Type and Age Group': // Badges Awarded by Badge Type and Age Group report
+		  $result = db_query($query_badges_awarded_by_type_and_age_group, $args);
+		  break;
+		case 'Review Count by Age Group': // Review count by Age group report
+		  $result = db_query($query_count_by_age_group, $args);
+		  break;
+		case 'Time Entry by Borough and Branch': // Time entry by Borough and Branch report
+		  $result = db_query($query_time_entry_by_borough_and_branch, $args);
+		  break;
+		case 'Time Entry by Age Group': // Time entry by age group report
+		  $result = db_query($query_time_entry_by_age_group, $args);
+		  break;
+		case 'Media Log Count by Media Type and Age Group': // Media log count by media type and age group report
+		  $result = db_query($query_media_log_count_by_type_and_age_group, $args);
+		  break;
+		case 'Media Log Count by Media Type': // Media log count by media type report
+		  $result = db_query($query_media_log_count_by_type, $args);
+		  break;
+		case 'Registrants by Borough and Branch': // Registrants by borough and branch report
+		  $result = db_query($query_registrants_by_borough_and_branch, $args);
+		  break;
+		case 'Registrants by Age Group': // Registrants by age group report 
+		  $result = db_query($query_registrants_by_age_group, $args);
+		  break;
+		case 'Review counts for toddlers by borough and branch': 
+		  $result = db_query($query_review_counts_for_toddlers, $args);
+		  break;
+		case 'Review counts for kids by borough and branch': 
+		  $result = db_query($query_review_counts_for_kids, $args);
+		  break;
+		case 'Review counts for teenagers by borough and branch': 
+		  $result = db_query($query_review_counts_for_teens, $args);
+		  break;
+		case 'Review counts for adults by borough and branch':  
+		  $result = db_query($query_review_counts_for_adults, $args);
+		  break;
+		case 'Badges awarded to toddlers by badge type, borough, and branch':  
+		  $result = db_query($query_badges_for_toddlers, $args);
+		  break;
+		case 'Badges awarded to kids by badge type, borough, and branch':  
+		  $result = db_query($query_badges_for_kids, $args);
+		  break;
+		case 'Badges awarded to teenagers by badge type, borough, and branch': 
+		  $result = db_query($query_badges_for_teens, $args);
+		  break;
+		case 'Badges awarded to adults by badge type, borough, and branch': 
+		  $result = db_query($query_badges_for_adults, $args);
+		  break;
+		case 'Time entry for toddlers by borough and branch': 
+		  $result = db_query($query_time_for_toddlers, $args);
+		  break;
+	    case 'Time entry for kids by borough and branch': 
+		  $result = db_query($query_time_for_kids, $args);
+		  break;
+		case 'Time entry for teenagers by borough and branch': 
+		  $result = db_query($query_time_for_teens, $args);
+		  break;
+		case 'Time entry for adults by borough and branch': 
+		  $result = db_query($query_time_for_adults, $args);
+		  break;
+		case 'Media log count for toddlers by media type, borough, and branch': 
+		  $result = db_query($query_media_log_for_toddlers, $args);
+		  break;
+		case 'Media log count for kids by media type, borough, and branch': 
+		  $result = db_query($query_media_log_for_kids, $args);
+		  break;
+		case 'Media log count for teenagers by media type, borough, and branch': 
+		  $result = db_query($query_media_log_for_teens, $args);
+		  break;
+		case 'Media log count for adults by media type, borough, and branch': 
+		  $result = db_query($query_media_log_for_adults, $args);
+		  break;
+		case 'Registration numbers for toddlers by borough and branch': 
+		  $result = db_query($query_registration_for_toddlers, $args);
+		  break;
+		case 'Registration numbers for kids by borough and branch': 
+		  $result = db_query($query_registration_for_kids, $args);
+		  break;
+		case 'Registration numbers for teenagers by borough and branch': 
+		  $result = db_query($query_registration_for_teens, $args);
+		  break;
+		case 'Registration numbers for adults by borough and branch': 
+		  $result = db_query($query_registration_for_adults, $args);
+		  break;
+		default:
+		  $result = db_query($query_count_by_age_group, $args);
+		  // $result = db_query($node->body, $args); NEVER use the node body! NEVER!
+	  }
+
+  while ($item = db_fetch_array($result)) {
+    $data[] = $item;
+  }
+  
+  if (count($data)) {
+    // Any element will hold the field names, lets pick the first one.
+    foreach ($data[0] as $key => $value) {
+      $header[] = $key;
+    }
+  }
+  
+  if (is_array($header) && is_array($data)) {
+    $function = 'customreports_render_'. $type;
+    if (function_exists($function)) {
+      return call_user_func($function, $header, $data, $separator, $delimiter, $print);
+    }
+    else {
+      drupal_set_message(t('Requested render type not available, falling back to table display.'), 'warning');
+      return theme('table', $header, $data);
+    }
+  }
+  else {
+    drupal_set_message(t('No output from query.'), 'warning');
+    return '';
+  }
+}
+
+/**
+ * Render a CSV file from the input.
+ * @param array $header
+ *   Array of items to be rendered as the CSV header.
+ * @param array $rows
+ *   Array of items to be rendered as the CSV content.
+ * @param string $separator
+ *   The data column separator string.
+ * @param string $delimiter
+ *   The field delimiter string.
+ */
+function customreports_render_csv($header, $rows, $separator = ',', $delimiter = '"', $print = true) {
+  $timestamp = date("d-m-y"); // Create a timestamp for the filename.
+  if ($print) {
+  	header("Content-type: text/csv");
+  	header('Content-Disposition: attachment; filename="customreports-' . $timestamp . '.csv"');
+  }
+  /**
+   * Warning, we are replacing double quotes with single quotes so the delimiter will 
+   * not get confused.
+   */
+  array_walk_recursive($header, '_clean_quotes');
+  array_walk_recursive($rows, '_clean_quotes');
+
+  if ($print) {
+	  $output = $delimiter . implode('"'. $separator .'"', $header) . $delimiter ."\n"; // header
+	  foreach ($rows as $row) { // loop through all rows
+	    $output .= $delimiter . implode('"'. $separator .'"', $row) . $delimiter . "\n"; // create CSV of rows
+	  }
+  	print $output;
+  	
+  } else {
+	  //$output = "<br><strong>" . $delimiter . implode($separator, $header) . $delimiter ."</strong><br>"; // header
+	  $output = "<table cellspacing=3 border=0><tr><td><strong>" . implode("</strong></td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>", $header) . "</strong></td></tr>"; // header
+  	foreach ($rows as $row) { // loop through all rows
+	    //$output .= $delimiter . implode($separator, $row) . $delimiter . "<br>"; // create CSV of rows
+	    $output .= "<tr><td>" . implode("</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $row) . "</td></tr>"; // create CSV of rows
+  	}
+  	$output .= "</table>";
+  	return $output;
+  }
+
+  exit;
+}
+
+/**
+ * Render an XLS file from the input.
+ * @param array $header
+ *   Array of items to be rendered as the header of the XLS table.
+ * @param array $rows
+ *   Array of items to be rendered as the XLS content.
+ */
+function customreports_render_xls($header, $rows) {
+  $timestamp = date("d-m-y"); // Create a timestamp for the filename.
+  $filename = 'customreports-'. $timestamp .'.xls';
+
+  header('Content-type: application/vnd.ms-excel');
+  header('Content-Disposition: attachment; filename="'. $filename .'"');
+  $output = '<html>';
+  $output .= '<head><meta http-equiv=Content-Type content="text/html; charset=utf-8"></head>';
+  $output .= '<body>';
+  $output .= theme('table', $header, $rows);
+  $output .= "</body></html>";
+  print $output;
+  exit;
+}
+
+
+/**
+ * Note: since we trick node module to take ownership for the dynamically
+ * created new content type (so we get the forms and submission handlers for free),
+ * we can not use the hook_access() to define our own permission handling.
+ */
+
+/**
+ * Implementation of hook_node_grants().
+ * Declare our realm and add the role keys to it that we use as grant id.
+ * @see customreports_node_access_records().
+ */
+function customreports_node_grants($account, $op) {
+  return array(
+    'customreports' => array_keys($account->roles),
+  );
+ 
+}
+
+/**
+ * Implementation of hook_node_access_records()
+ * For our content type allow only signed in users with access content
+ * permission, and then check if they have the 'edit custom reports' 
+ * permission for edit, or delete, and the 'view custom reports' to view.
+ */
+function customreports_node_access_records($node) {
+  $grants = array();
+  if ($node->type == variable_get("customreports_node_type", 'customreport')) {
+    //Load all the roles with the custom reports view role.
+    $view_reports_roles = user_roles(FALSE, 'view custom reports');
+    $edit_reports_roles = user_roles(FALSE, 'edit custom reports');
+    //Step through all the users with the "access content" role and set
+    //permissions to either allow viewing of the report or deny it
+    foreach (user_roles(TRUE, 'access content') as $rid => $role) {
+      $grants[$rid] = array(
+        'grant_view' => isset($view_reports_roles[$rid]),
+        'grant_update' => isset($edit_reports_roles[$rid]),
+        'grant_delete' => isset($edit_reports_roles[$rid]),
+        'realm' => 'customreports',
+        'gid' => $rid
+        );
+    }
+  }
+  return $grants;
+}
+
+function _clean_quotes(&$item, $key) {
+  $item = str_replace('"', "'", $item);
+}
+

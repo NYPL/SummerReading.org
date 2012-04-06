@@ -1,0 +1,185 @@
+<?php
+/* $Id: rounded_corners.module,v 1.1.4.1.2.1 2010/10/18 08:18:42 amitaibu Exp $ */
+
+/**
+ * @file
+ * Add round corners via JS.
+ */
+
+/**
+ * API function to add corners on an element.
+ *
+ * @code
+ *   // foo class will get default corners.
+ *   $commands[] = array('selector' => '.foo');
+ *
+ *   $commands[] = array(
+ *    'selector' => '#bar',
+ *    'effect' => 'round', // Use the "round" effect.
+ *    'corners' => 'top', // Round the top let and right corners.
+ *    'width' => '10', // Do not include the "px".
+ *   );
+ *
+ *   rounded_corners_add_corners($commands);
+ * @endcode
+ *
+ * @param $options
+ *  Array of keyed arrays with the following keys:
+ *  - selector: The CSS selector. This can be any selector jquery uses in $().
+ *  - effect: The name of the effect to apply, such as round, bevel, notch,
+ *    bite, etc (default is round).
+ *    All commands can be seen in @link http://www.malsup.com/jquery/corner/ @endlink
+ *  - corners: One or more of: top, bottom, tr, tl, br, or bl. Default is all
+ *    corners.
+ *  - width: Width of the effect; in the case of rounded corners this is the
+ *    radius. specify this pixel value without the px suffix.
+ *  - image wrapper: TRUE if the selector is a <div> wrapping an image, and thus
+ *    it's width and height needs to be set according to the image dimensions.
+ *    When set to TRUE $disable_native is automatically set to FALSE. Defaults to
+ *    FALSE.
+ *
+ *  @param $disable_native
+ *    FALSE if the browser's native support for rounded corners should be
+ *    disabled. This is usually used when corners of an image should be rounded,
+ *    and we need to make sure the rounding isn't done with the native rounding,
+ *    as it doesn't support images.
+ *    In order to round the corners of an image, the selector should not be on
+ *    the <img> tag itself, but on a wrapping <div>, that should be the same
+ *    width and height, as explained in @link http://jquery.malsup.com/corner/image.html @endlink
+ *    if the "iamge wrapper" property is set to TRUE in one of the commands,
+ *    then this property is automatically set to FALSE.
+ *    Defaults to TRUE. see rounded_corners_disable_native().
+ */
+function rounded_corners_add_corners($commands = array(), $use_native = TRUE) {
+  // Add the corner JS plugin.
+  rounded_corners_add_js();
+
+  $settings['rounded_corners']['commands'] = array();
+
+  $wrap_divs = array();
+
+  foreach ($commands as $command) {
+    if (!empty($command['selector'])) {
+      // Add default values.
+      $command += array(
+        'effect' => '',
+        'corners' => '',
+        'width' => '',
+        'image wrapper' => FALSE,
+      );
+      $settings['rounded_corners']['commands'][] = $command;
+
+      if ($command['image wrapper']) {
+        // The element is a <div> wrapping an image element, so make sure it
+        // has the same width and height.
+        $wrap_divs[] = array('selector' => $command['selector']);
+      }
+    }
+  }
+  if ($wrap_divs) {
+    rounded_corners_set_image_wrapping_div($wrap_divs);
+    $use_native = FALSE;
+  }
+
+  // If there are multiple calls to this function, make sure that even the last
+  // call may disable the native support.
+  if (!$use_native) {
+    // Disable native support.
+    rounded_corners_disable_native();
+  }
+
+  drupal_add_js($settings, 'setting');
+}
+
+/**
+ * Set the height and width on the div wrapping an element.
+ *
+ * @param unknown_type $commands
+ */
+function rounded_corners_set_image_wrapping_div($commands = array()) {
+  $settings['rounded_corners']['wrapping_divs'] = array_merge(array(), $commands);
+
+  drupal_add_js($settings, 'setting');
+
+  // Add the corner JS plugin.
+  rounded_corners_add_js();
+}
+
+/**
+ * Add the corner jQuery plugin.
+ *
+ * This function can be called many times, but the plugin will be added only
+ * once.
+ */
+function rounded_corners_add_js() {
+  static $added = FALSE;
+  if (!$added) {
+    drupal_add_js(drupal_get_path('module', 'rounded_corners') . '/jquery.corner.js');
+
+    // Add our JS file.
+    drupal_add_js(drupal_get_path('module', 'rounded_corners') . '/rounded_corners.js');
+    $added = TRUE;
+  }
+}
+
+/**
+ * Set the value of $.fn.corner.defaults.useNative to FALSE.
+ *
+ * Browsers with rounded corners support (e.g. firefox, chrome) will not use the
+ * built in round corners support. This can be used when wanting to round the
+ * corners of images.
+ */
+function rounded_corners_disable_native() {
+  static $added = FALSE;
+  if (!$added) {
+    $settings['rounded_corners']['settings'] = array();
+
+    $settings['rounded_corners']['settings']['useNative'] = FALSE;
+
+    drupal_add_js($settings, 'setting');
+  }
+}
+
+/**
+ * Provide legacy information for upgrading users.
+ *
+ * @param $version
+ *   The version being used.
+ * @return
+ *   HTML with explanation on the upgrade and current state of the
+ *   'rounded_corners_all_pages' variable.
+ */
+function rounded_corners_legacy_message($version = '2') {
+  $output = '';
+
+  if ($version == 2) {
+    $output .= t('Rounded corners is no longer working by setting a variable with the jQuery command, but rather uses an API function that is called via code <code>rounded_corners_add_corners()</code>.') . '<br/>';
+
+    if ($vars = variable_get('rounded_corners_all_pages', '')) {
+      $vars = explode("\r\n", $vars);
+      $list = array();
+      foreach ($vars as &$var) {
+        // Sanitize variables.
+        $list[] = array('data' => check_plain($var));
+      }
+      $list = theme('item_list', $list);
+      $output .= t('Your current configuration is :!list', array('!list' => $list)) . '<br/>';
+      $output .= t('This variable is now obsolete and its data is not used, thus you should copy the values and place it in your code.') . '<br/>';
+      $output .= t("If for example the first line of your configuration is <code>$('.foo').corner('top 5px');</code> then it should be replaced with:") . '<br/>';
+      // No need to pass the code via t().
+      $output .= '<code><br/>';
+      $output .= '$commands = array();<br/>';
+      $output .= "\$commands[] = array('selector => '.foo', 'corners' => 'top', 'width' => 5);<br/>";
+      $output .= 'rounded_corners_add_corners($commands);<br/>';
+      $output .= '</code><br/>';
+
+      $output .= t("After moving the data from the variable to the code you may delete the variable by executing <code>variable_del('rounded_corners_all_pages');</code> or re-installing the module.") . '<br/>';
+    }
+    else {
+      $output .= t('Your rounded corners configuration is empty, so your are not affected by the change.') . '<br/>';
+    }
+
+    $output .= t('Refer to the README.txt for more guidance on the new syntax.');
+  }
+  return $output;
+}

@@ -1,0 +1,8 @@
+; $Id$
+name = SR Media
+description = Custom module for handling media functionality within SummerReading.org
+package = Summer Reading
+core = 6.x
+php = 5.x
+version = 6.x-1.x-dev
+dependencies[] = sr_util

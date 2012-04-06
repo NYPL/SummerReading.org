@@ -1,0 +1,3683 @@
+/* $Id: zen.css,v 1.14.2.6 2009/11/05 11:03:32 johnalbin Exp $ */
+
+/*
+ * ZEN STYLES
+ *
+ * This is an example stylesheet. Sub-themes should NOT include the zen/zen.css
+ * file, but instead copy this CSS to their own stylesheets.
+ *
+ * In this stylesheet, we have included all of the classes and IDs from this
+ * theme's tpl.php files. We have also included many of the useful Drupal core
+ * styles to make it easier for theme developers to see them.
+ *
+ * Many of these styles are over-riding Drupal's core stylesheets, so if you
+ * remove a declaration from here, the styles may still not be what you want
+ * since Drupal's core stylesheets are still styling the element. See the
+ * drupal6-reference.css file for a list of all Drupal 5.x core styles.
+ *
+ * In addition to the style declarations in this file, other Drupal styles that
+ * you might want to override or augment are those for:
+ *
+ *   Book Navigation  See line 74  of Zen's drupal6-reference.css file
+ *   Forum            See line 197 of Zen's drupal6-reference.css file
+ *   Menus            See line 667 of Zen's drupal6-reference.css file
+ *   News Aggregator  See line 20  of Zen's drupal6-reference.css file
+ *   Polls            See line 287 of Zen's drupal6-reference.css file
+ *   Search           See line 320 of Zen's drupal6-reference.css file
+ *   User Profiles    See line 945 of Zen's drupal6-reference.css file
+ */
+
+
+ 
+
+/** BODY **/
+body {
+margin: 0;
+padding: 0;
+font-family: "Lucida Grande", Tahoma, Arial, sans-serif;
+color:#00354F;
+}
+
+#page {
+background: #26ABCF;
+width: 960px;
+}
+
+#page-inner {
+
+}
+
+a:link, a:visited {
+color:#00354F;
+}
+
+a:hover,
+a:focus,
+a:active {
+color:#95D6DA;
+}
+
+
+
+/** HEADER **********************************************************************************************/
+#header {
+padding: 20px 0 20px 40px;
+}
+
+#header-inner {
+}
+
+#logo-title /* Wrapper for logo, website name, and slogan */
+{
+}
+
+#logo /* Wrapper for logo */
+{
+margin: 0 10px 0 0;
+padding: 0;
+}
+
+#logo-image /* The actual logo image */
+{
+}
+
+h1#site-name, div#site-name /* The name of the website */
+{
+margin: 0;
+font-size: 2em;
+line-height: 1.3em;
+}
+
+#site-name a:link,
+#site-name a:visited {
+color: #000;
+text-decoration: none;
+}
+
+#site-name a:hover, 
+#site-name a:active, 
+#site-name a:focus {
+text-decoration: underline;
+}
+
+#site-slogan /* The slogan (or tagline) of a website */
+{
+}
+
+#logo-year {
+color: #EDEA66;
+}
+
+#header-blocks /* Wrapper for any blocks placed in the header region */
+{
+}
+
+#summerreading-logo {
+font-size: 2.5em;
+line-height: 1.1em;
+margin: 0;
+float:left;	
+margin: -9px 0 0 0;
+}
+
+#summerreading-logo a {
+color: #fff;
+text-decoration: none;
+font-weight: normal;
+}
+
+.region-header {
+margin:0px 0px 0px 20px;
+float: left;
+width: 364px;
+}
+
+#header-intro-leadin {
+color:#EDEA66;
+font-size:1.3em;
+font-weight:bold;
+}
+
+#header-intro {
+color:#FFFFFF;
+font-size:12px;
+font-weight:bold;
+}
+
+#header-right {
+padding: 20px 40px;
+width: 245px;
+}
+
+#header-nav {
+width: 341px;
+}
+
+#header-nav-left {
+width: 30%;
+float: left;
+}
+
+#header-nav-right {
+float:right;
+width: 70%;
+}
+
+
+#header-nav-avatar {
+margin-right: 20px;
+}
+
+a img#header-nav-avatar{
+
+}
+a:link img#header-nav-avatar,
+a:visited img#header-nav-avatar {
+border: 5px solid #CFEAE5;
+}
+a:hover img#header-nav-avatar,
+a:active img#header-nav-avatar,
+a:focus img#header-nav-avatar {
+border: 5px solid #0071A1;
+}
+
+#header-nav-logout {
+float: left;
+text-align: center;
+}
+
+span#header-nav-logout a {
+color: #ffffff;
+text-decoration: none;
+font-size: .9em;
+font-weight:bold;
+}
+
+#header-nav-logout a:hover, 
+#header-nav-logout a:active, 
+#header-nav-logout a:focus {
+text-decoration: underline;
+}
+
+#header-nav-screenname {
+color: #EDEA66;
+/* font-size: 2.5em; */ /* trying to fit long screen names */
+margin-bottom: 5px;
+}
+
+#header-search {
+
+color:#000000;
+font-size:90%;
+font-weight:bold;
+padding:5px 15px 15px 15px;
+margin-bottom: 10px;
+
+}
+
+#header-search .form-cnr-tl {
+	background:   url(images/corner_dyellow_top_left.gif) no-repeat left top;
+}
+
+#header-search  .form-cnr-tr {
+	background: url(images/corner_dyellow_top_right.gif) no-repeat right top;
+}
+
+#header-search  .form-cnr-br {
+	background: url(images/corner_dyellow_bottom_right.gif) no-repeat right bottom;
+}
+#header-search .form-cnr-bl {
+	background: url(images/corner_dyellow_bottom_left.gif) no-repeat left bottom;
+}
+#header-search form input { 
+	float: left;
+	display: block;
+}
+
+#header-search form input#search_submit { 
+	margin: 0 0 0 5px;
+}
+
+#header-search form input[type="submit"] {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px;
+text-transform:uppercase;
+}
+
+
+#header-search form input[type="image"] {
+/*padding-top:5px;*/
+}
+
+/* HEADER: USER LOGIN *****************************************************************************/
+
+#user-login {
+color: #000000;
+padding: 10px 7px 0 10px;
+width: 220px;
+/* CSS3 effects */
+
+}
+
+.region-header-right  .form-cnr-tl {
+	background:  #eeea65 url(images/corner_dyellow_top_left.gif) no-repeat left top;
+}
+
+.region-header-right  .form-cnr-tr {
+	background: url(images/corner_dyellow_top_right.gif) no-repeat right top;
+}
+
+.region-header-right  .form-cnr-br {
+	background: url(images/corner_dyellow_bottom_right.gif) no-repeat right bottom;
+}
+
+.region-header-right  .form-cnr-bl {
+	background: url(images/corner_dyellow_bottom_left.gif) no-repeat left bottom;
+}
+
+#user-login input {
+display: inline-block;
+margin: 6px 0;
+}
+
+#login-register {
+/* color: #ffffff; */
+/*font-size: 85%;
+font-weight:bold;
+display: inline-block;*/
+display:none;
+}
+
+.skipandgotoprofile {
+	float: right;
+	display: inline;
+	margin-top: -15px;
+}
+
+#login-register a {
+/* color: #ffffff; */
+color:#3c807f;
+font-weight: bold;
+}
+#login-register a:link, 
+#login-register a:visited {
+/* color: #ffffff; */
+}
+#login-register a:hover,
+#login-register a:active,
+#login-register a:focus {
+color: #000000;
+font-weight: bold;
+}
+
+#user-login-form .item-list ul {
+padding: 0 0 0 0;
+}
+
+#user-login-form .item-list ul li {
+list-style-image: none;
+list-style-position: none;
+list-style-type: none;
+}
+
+#badge-code-form { width: 500px; }
+
+#badge-code-form #edit-submit{ width: 114px; height: 39px; background: url(images/btn-submit.gif) no-repeat; text-indent: -999em;}
+#badge-code-form #edit-submit:hover, #badge-code-form #edit-submit:active{ width: 114px; height: 39px; background: url(images/btn-submit.gif) no-repeat;}
+
+
+form#user-login input#edit-submit {
+margin: 10px 0px;
+height: 25px;
+width:75px;
+background: url(/sites/summerreading.org/files/images/btn_login.gif) no-repeat;
+border:0px none #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:0px;
+text-transform:uppercase;
+font-size: 0;
+text-indent: -999em;
+}
+
+/*form#user-login input#edit-submit:hover,
+form#user-login input#edit-submit:active {
+background: #f2f2b7;
+}*/
+
+/* WIDTH EXCEPTION FOR USER LOGIN IN CONTENT AREA (case: wrong login) */
+#content-area form#user-login {
+background:#4FBEDC;
+width:637px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	padding: 20px;
+}
+
+#content-area form#user-login input#edit-submit {
+	background: url(images/btn-user-login.gif) no-repeat;
+	width: 100px;
+	height: 38px;
+}
+
+/* WIDTH EXCEPTION FOR USER LOGIN IN CONTENT AREA (case: wrong login) */
+#content-area form#user-pass {
+background:#4FBEDC;
+width:550px;
+padding: 20px;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+}
+
+#content-area form#user-pass #edit-name {
+		display: inline-block;
+		margin: 6px 0;
+
+}
+
+#content-area form#user-pass input#edit-submit{
+	background: url(images/btn-email-password.gif) no-repeat;
+	width: 215px;
+	height: 39px;
+	margin-top: 30px;
+	text-indent: -999em;
+}
+
+#content-area form#user-pass input#edit-submit:hover{
+	background: url(images/btn-email-password.gif) no-repeat;
+}
+
+#content-area form#user-pass label#edit-name{
+	color: #00334E;
+	
+}
+
+#content-area #edit-name-wrapper label{
+	color: #00334E;
+	
+}
+
+
+/** MAIN CONTENT AREAS AND STYLES *************************************************************************************/
+#main {
+border-top: 10px solid #fff;
+border-bottom: 10px solid #fff;
+padding-bottom: 20px;
+padding-top: 20px;
+}
+
+#main-inner {
+/*margin: 10px 30px;*/
+margin: 0px 30px;
+}
+
+#content {
+min-height: 350px;
+}
+
+#content,
+.no-sidebars #content /* overrides for layout.css styles */
+{
+width: 100%;
+margin-right: 0px;
+}
+
+#content-inner {
+}
+
+#mission /* The mission statement of the site (displayed on homepage) */
+{
+}
+
+#content-top /* Wrapper for any blocks placed in the "content top" region */
+{
+}
+
+#content-header /* Wrapper for breadcrumb, title, messages, tabs, and help */
+{
+	display: block;
+}
+
+.breadcrumb /* The path to the current page in the form of a list of links */
+{
+padding-bottom: 0; /* Undo system.css */
+}
+
+h1.title, /* The title of the page */
+h2.title, /* Block title or the title of a piece of content when it is given in a list of content */
+h3.title /* Comment title */
+{
+color:#EDEA66;
+font-weight:normal;
+margin:0;
+
+}
+
+h1.title {
+	margin: 10px 0;
+}
+
+.print-syslink {
+	display: none;
+}
+
+div.messages /* Important messages (status, warning, and error) for the user */
+{
+	padding: 20px 20px 20px 50px;
+	border: 0;
+}
+
+div.status /* Normal priority messages */
+{
+}
+
+div.warning, tr.warning /* Medium priority messages */
+{
+/* border: 1px solid #f0c020; */ /* Drupal core uses: 1px solid #f0c020 */
+}
+
+div.error, tr.error /* High priority messages. See also the .error declaration below. */
+{
+}
+
+div.messages.error {
+
+}
+
+div.messages, div.status, div.warning, div.error {
+background-color:#F2F2B7;
+background-image:url("images/img_alert.png");
+background-position:5px center;
+background-repeat:no-repeat;
+color:#000000;
+margin:5px 0;
+min-height:21px;
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+margin-bottom: 30px;
+}
+
+div.error ul {
+	list-style: none;
+	font-weight: bold;
+	color: #ee652e;
+}
+
+div.tabs /* See also the tabs.css file. */
+{
+	border: 0;
+	position: relative;
+	height: 1%;
+}
+
+div.tabs ul.primary {
+	border: 0;
+	clear: both;
+}
+
+div.tabs ul.primary li {
+	/*background: #0071A3;*/
+	border: 0;
+}
+
+div.tabs ul.primary li a {
+	/*width: 110px;*/
+	padding: 0 35px;
+	text-align: center;
+	color: #F0F1B7;
+	display: block;
+	float: left;
+	border: 0;
+	text-transform: uppercase;
+	height: 27px;
+	line-height: 27px;
+	/* CSS3 effects */
+	-webkit-border-radius: 5px 5px 0 0;
+	-moz-border-radius: 5px 5px 0 0;
+	border-radius: 5px 5px 0 0;
+	background: url(images/admin-menu/admin-menu-primary-bg-idle.gif) repeat-x;
+	
+	
+}
+
+div.tabs ul.primary li.active a {
+	background: #EF7B30;
+	background: url(images/admin-menu/admin-menu-primary-bg-active.gif) repeat-x;
+}
+
+div.tabs ul.secondary {
+	border: 0;
+	clear: both;
+	position: absolute;
+	top: 42px;
+}
+
+div.tabs ul.secondary li:last-child {
+	border: 0;
+}
+
+div.tabs ul.secondary li a:hover{
+	text-decoration: underline;
+	color: #00354D;
+}
+
+div.tabs ul.secondary li {
+	border-color : #00354D;
+}
+
+div.tabs ul.secondary li a{
+	color: #00354f;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+div.tabs ul.secondary li.active a{
+	border: 0;
+	color: #EF632E;
+}
+
+div.tabs ul.secondary li.active:hover a{
+	text-decoration: none;
+}
+
+.help /* Help text on a page */
+{
+margin: 1em 0;
+}
+
+.more-help-link /* Link to more help */
+{
+font-size: 0.85em;
+text-align: right;
+}
+
+#content-area /* Wrapper for the actual page content */
+{
+	clear: both;
+	width: 900px;
+
+}
+
+ul.links /* List of links */
+{
+margin: 1em 0;
+padding: 0;
+}
+
+ul.links.inline {
+margin: 0;
+display: inline;
+}
+
+ul.links li {
+display: inline;
+list-style-type: none;
+padding: 0 0.5em;
+}
+
+.pager /* A list of page numbers when more than 1 page of content is available */
+{
+clear: both;
+margin: 1em 0;
+text-align: center;
+}
+
+.pager a, .pager strong.pager-current {
+padding: 0.5em;
+}
+
+.feed-icons /* The links to the RSS or Atom feeds for the current list of content */
+{
+margin: 1em 0;
+}
+
+#content-bottom /* Wrapper for any blocks placed in the "content bottom" region */
+{
+}
+
+
+
+
+/* OTHER PAGE CONTENT & REUSED STYLES ***************************************************/
+
+/* Time Spent Reading */
+form#sr-user-readtime .box {
+background:#CFEAE5;
+margin:10px 0;
+padding:10px;
+width: 400px;
+/* CSS3 effects */
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+}
+
+form#sr-user-readtime .form-item {
+margin-top: 0;
+margin-bottom: 1em;
+}
+
+/* Sponsors page needs 3 columns */
+#sponsor1, #sponsor2, #sponsor3 {
+float: left;
+width: 250px;
+margin-right: 20px;
+}
+
+#sponsor1, #sponsor2 {
+margin-right: 20px;
+}
+
+/* user and media pages reused styles */
+#media-log, 
+#badge-list,
+#media-page-reviews,
+#media-loggers,
+#fact-list,
+#media-reviews-users,
+#inbox {
+width: 440px;
+float: left;
+}
+
+#fact-list-custom-page { 
+	float: right;
+	width: 270px;
+	
+}
+
+#fact-list-custom-page .padding-20   {
+	padding: 20px 20px 20px 30px; 
+}
+
+#fact-list-custom-page .list-title { 
+	text-transform: none; 
+	font-size: 30px;
+	text-align: center;
+	font-weight: normal;
+	padding: 15px 0;
+}
+
+#badge-list {
+	float: right;
+	clear: right;
+	display: inline;
+}
+
+#inbox {
+  margin-bottom: 20px; /* give some space before the badges (or fact list) block */
+  /*padding: 0px 0px 10px 20px;*/
+  width: 100%;
+  min-height: 200px;
+  height: auto !important;
+  height: 200px;
+  background: none;
+  padding: 0px;
+}
+
+#inbox-inner { 
+    min-height: 200px;
+  min-height: 200px;
+  height: auto !important;
+  height: 200px;
+	
+}
+
+#fact-list {
+	float: right;
+	padding-left: 20px;
+	clear: right;
+}
+
+#badge-list,
+#media-loggers {
+padding-left: 15px;
+}
+
+#media-log {
+clear: left;
+/*margin-right: 20px;*/
+}
+
+#media-log  p.empty-text{
+	line-height: 26px;
+}
+
+#media-page-reviews {
+margin-right: 20px;
+}
+
+.media-log-title, 
+.badge-list-title,
+.list-title,
+#media-loggers-label, 
+#media-reviews-pagelabel {
+color:#00A2CE;
+font-size:1em;
+font-weight:bold;
+margin-bottom:10px;
+text-transform:uppercase;
+}
+
+.padding-20 {
+	padding: 20px;
+}
+
+.padding-10 {
+	padding: 10px;
+}
+
+/* style for FAQ content */
+.question {
+font-weight: bold;
+}
+
+/* thumbnails on book list pages */
+img.booklist-img {
+border:1px solid #000000;
+}
+
+/* HOME PAGE **********************************************************************************************************/
+
+#map-header {
+margin-bottom:10px;
+margin-left:45px;
+}
+
+#map-header h1 {
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+color:#EDEA66;
+}
+
+#map-header p {
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+color:#ffffff;
+font-size:14px;
+font-weight:bold;
+}
+
+#map_bg {
+background: #4fbedc;
+float: left;
+margin-left:32px;
+margin-bottom:32px;
+padding:20px 15px 20px 15px;
+width: 800px;
+height: 380px;
+display: inline;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+-webkit-box-shadow:-5px 5px 0px #015F89;
+/*-moz-box-shadow:-5px 5px 0px #015F89;*/
+/*box-shadow:-5px 5px 0px #015F89;*/
+-webkit-linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+-moz-linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+}
+
+#map_canvas {
+height: 320px;
+width: 800px;
+}
+
+#map-key{
+margin-top:10px;
+}
+
+#map-key h1 {
+font-size:14px;
+margin: 0 0 10px 0;
+}
+
+.key-info {
+float:left;
+height:50px;
+}
+.key-info-green {
+height:50px;
+float:left;
+}
+
+/*#map-key p {
+float:left;
+font-weight:bold;
+font-size:14px;
+margin:0 15px 0 0;
+position:center;
+}*/
+
+#map-key img {
+margin-right:10px;
+float:left;
+}
+
+.key-info p {
+float:left;
+font-weight:bold;
+font-size:14px;
+margin:0 15px 0 0;
+position:center;
+}
+
+.key-info img {
+margin-right:10px;
+float:left;
+}
+
+.key-info-green img {
+margin-right:10px;
+margin-top:-5px;
+float:left;
+}
+
+.key-info-green p {
+float:left;
+font-weight:bold;
+font-size:14px;
+margin:0 15px 0 0;
+
+}
+
+#feature1 {
+background: #4fbedc;
+float: left;
+margin-left:15px;
+padding:10px 0 0 28px;   /*left padding was 15px */
+width: 400px;
+height: 400px;
+display: inline;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+/*-webkit-box-shadow:-5px 5px 0px #015F89;*/
+/*-moz-box-shadow:-5px 5px 0px #015F89;
+box-shadow:-5px 5px 0px #015F89;*/
+-webkit-linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+-moz-linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+}
+
+#feature2 {
+background: #ffffff;
+float: left;
+padding:10px 0 0 15px;
+width: 400px;
+height: 400px;
+display: inline;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+-webkit-box-shadow:-5px 5px 0px #015F89;
+-moz-box-shadow:-5px 5px 0px #015F89;
+box-shadow:-5px 5px 0px #015F89;
+-webkit-linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+-moz-linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+linear-gradient:(45% 65% 90deg,#00A2CE, #014669, #014669 100%);
+}
+
+#feature1 object,
+#feature2 object { 
+width: 380px;
+height: 304px;
+}
+
+#feature1 embed,
+#feature2 embed { 
+width: 380px;
+height: 304px;
+}
+
+#feature1 {
+margin-right: 35px;
+}
+
+#feature1 h3 {
+color:#EDEA66;
+}
+
+#feature2 h3 {
+color: #ffffff;
+}
+
+#feature2 p {
+    color: #EDEA66;
+    font-size: 18px;    
+    line-height: 1.2em;
+    width: 345px;     /*changed from 350px*/
+}}
+#feature2 ul li,
+#feature2 ul li a,
+#feature1 a {
+color: #ffffff;
+margin:0 auto;
+width:170px;
+}
+
+
+
+/* USER PROFILE PAGE ***************************************************************************************************/
+
+.profile-avatar {
+margin: 10px 15px 20px 0;
+float: left;
+}
+
+#msg_box { 
+	float: right;
+	width: 440px;
+	clear: right;
+}
+
+img.avatar-small-list {
+/* NO BORDER PLS */
+}
+
+#badge-winners-outer .badge-winner a:link img.avatar-small-list,
+#badge-winners-outer .badge-winner a:visited img.avatar-small-list {
+border:none;
+}
+
+#badge-winners-outer .badge-winner a:hover img.avatar-small-list,
+#badge-winners-outer .badge-winner a:active img.avatar-small-list,
+#badge-winners-outer .badge-winner a:focus img.avatar-small-list {
+border:none;
+}
+
+img.avatar-small {
+/* NO BORDER PLS */
+}
+
+img.avatar-large {
+border:5px solid #CFEAE5;
+}
+
+a.avatar-link {
+text-decoration: none;
+float: left;
+}
+
+#profile-header-block {
+	padding-bottom: 20px;
+}
+
+#profile-header-left {
+float: left;
+display: inline;
+}
+
+#profile-header-middle {
+float: left;
+width: 295px;
+/*padding-bottom: 40px;*/
+display: inline;
+}
+
+#profile-header-right {
+float: right;
+/* margin-bottom:120px; */
+display: inline;
+width: 360px;
+}
+
+#profile-edit-menu form  /* for logged-in admins: assign badge */
+{
+/**background: #015F89;**/
+color:#FFFFFF;
+font-size:90%;
+margin-bottom:10px;
+margin-top:10px;
+padding:8px 15px 18px;
+width: 310px;
+height: 65px; **/
+/* CSS3 effects */
+/*-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;*/
+}
+
+#user-profile-form {
+	padding: 40px 20px;
+	background: white;
+	/* CSS3 effects */
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	-webkit-box-shadow:-5px 5px 0px #015F89;
+	-moz-box-shadow:-5px 5px 0px #015F89;
+	box-shadow:-5px 5px 0px #015F89;
+	
+}
+
+#search-form {
+		padding: 20px 20px;
+	background: white;
+	/* CSS3 effects */
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	-webkit-box-shadow:-7px 7px 0px #015F89;
+	-moz-box-shadow:-7px 7px 0px #015F89;
+	box-shadow:-7px 7px 0px #015F89;
+
+}
+
+.node-type-report {
+		padding: 40px 20px;
+	background: white;
+	/* CSS3 effects */
+	-webkit-border-radius: 15px;
+	-moz-border-radius: 15px;
+	border-radius: 15px;
+	-webkit-box-shadow:-7px 7px 0px #015F89;
+	-moz-box-shadow:-7px 7px 0px #015F89;
+	box-shadow:-7px 7px 0px #015F89;
+
+}
+
+#search-form  input#edit-submit {
+	width: 113px;
+	height: 37px;
+	background: url(images/btn-submit_onwhite.gif) no-repeat;
+	text-indent:-9999px;
+}
+
+#search-form  input#edit-submit:hover {
+	background: url(images/btn-submit_onwhite.gif) no-repeat;
+
+}
+
+#user-profile-form fieldset{
+	border: 0;
+	
+	
+}
+
+#user-profile-form fieldset legend{
+	display: none;
+	
+}
+
+#profile-edit-menu form select {
+margin: 5px 0;
+width: 300px;
+}
+
+#profile-edit-menu form input[type="submit"] /* for logged-in admins: assign badge */
+{
+background:#00A2CE;
+border:2px solid #95D6DA;
+color:#FFFFFF;
+float:left;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+#profile-edit-menu form input[type="submit"]:hover,
+#profile-edit-menu form input[type="submit"]:active {
+background:#95D6DA;
+}
+
+#profile-readtime {
+padding: 15px 0 0 0;
+font-size:12px;
+letter-spacing:1px;
+
+}
+
+#profile-readtime-amount {
+font-weight: bold;
+}
+
+#profile-links {
+margin: 15px 0 0 0;
+}
+
+#profile-links-item {
+padding-bottom:5px;
+font-size:12px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
+.profile_box_side  {
+	background: white url(images/rounded-shadow-MID.gif) repeat-y left top;
+}
+
+.profile_box_bottom  {
+	background: transparent url(images/rounded-shadow-bottom.gif) repeat-x left bottom;
+}
+.profile_box_tl {
+	background: transparent  url(images/rounded-shadow-TL.gif) no-repeat left top;
+}
+.profile_box_tr {
+	background: transparent url(images/rounded-shadow-TR.gif) no-repeat right top;
+}
+.profile_box_br {
+	background: transparent url(images/rounded-shadow-BR.gif) no-repeat right bottom;
+}
+.profile_box_bl { /*bottom left bg */
+	background: transparent url(images/rounded-shadow-BL.gif) no-repeat left bottom;
+}
+
+
+img.media-header-image {
+border: 1px solid #000000;
+float: left;
+}
+
+
+/* profile badge list */
+
+.badge-list-item {
+float: left;
+width: 80px;
+height: 80px;
+display: inline;
+padding: 10px 0;
+}
+
+.badge-list-item-icon {
+}
+
+
+.administer_mainbox  {
+	background: white  url(images/rounded-shadow-MID.gif) repeat-y left top;
+	margin: 0 auto;
+	clear: both;
+	
+}
+
+.administer_mainbox  .list-title{
+	display: none;
+}
+
+.administer_mainbox  .stats-header, .administer_mainbox  .stats-title {
+	 display: none;
+}
+
+
+.administer_mainbox  .hr {
+	padding: 0;
+	margin: 0;
+	height: 2px;
+	width: 100%;
+	background: #335E71;
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+
+.administer_mainbox_bottom  {
+	background: transparent url(images/rounded-shadow-bottom.gif) repeat-x left bottom;
+}
+.administer_mainbox_tl {
+	background: transparent  url(images/rounded-shadow-TL.gif) no-repeat left top;
+}
+.administer_mainbox_tr {
+	background: transparent url(images/rounded-shadow-TR.gif) no-repeat right top;
+}
+.administer_mainbox_br {
+	background: transparent url(images/rounded-shadow-BR.gif) no-repeat right bottom;
+}
+.administer_mainbox_bl { /*bottom left bg */
+	background: transparent url(images/rounded-shadow-BL.gif) no-repeat left bottom;
+	width: 810px;
+	min-height: 410px;
+	height:auto !important;
+	height: 410px;
+	padding: 50px 35px 35px 35px;
+}
+
+
+.administer_mainbox #fact-list {
+	/* CSS3 effects */
+
+float: left;
+width: 510px;
+	
+}
+
+.administer_mainbox #fact-list .facts-all-reg {
+	float: left;
+	width: 240px;
+	display: inline;
+}
+
+
+.administer_mainbox #fact-list .top-icons {
+	float: right;
+	width: 240px;
+	display: inline;
+}
+
+.administer_mainbox .current-stats {
+	/*float: left;*/
+	padding: 20px 0;
+	width: 470px;
+	height: 20px;
+}
+
+.administer_mainbox #fact-list .imgclear {
+	clear: none;
+}
+
+.administer_mainbox #output {
+	float: right;
+	width: 235px;
+	padding: 15px; 
+	background: #EBE1E2;
+}
+
+.administer_mainbox #output .btn {
+	float: left;
+	display: inline;
+	margin-right: 8px;
+}
+
+
+.administer_mainbox #output .msg{
+	margin: 10px 0;
+	clear: both;
+	font-size: 14px;
+	color: #00354f;
+}
+
+.administer_mainbox #output .msgbold{
+	margin: 10px 0 20px 0;
+	font-weight: bold;
+	clear: both;
+	padding-top: 20px;
+}
+
+
+/** BOOKS/MEDIA SEARCH ******************************************************************************************************/
+
+
+input#edit-submit {
+background: url(images/send-message.gif) no-repeat;
+border:none;
+color:#006B99;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+margin-bottom:5px;
+padding:10px 30px;
+text-transform:uppercase;
+cursor: pointer;
+}
+
+#mediasearch input#edit-submit {
+	width: 113px;
+	height: 37px;
+	background: url(images/btn_search.gif) no-repeat;
+	text-indent:-9999px;
+}
+
+#books-and-media-search {
+	width: 700px;
+}
+
+#books-and-media-search input#edit-submit {
+	width: 113px;
+	height: 37px;
+	background: url(images/btn_search.gif) no-repeat;
+	text-indent:-9999px;
+}
+
+input#edit-submit:hover,
+input#edit-submit:active {
+background: #95D6DA;
+}
+
+#mediasearch-noresult {
+padding-top: 15px;
+}
+
+.mediasearch-results-rule {
+width: 100%;
+border-top: solid 1px black;
+margin-top: 25px;
+}
+
+#mediasearch-results-container {
+padding-top: 25px;
+}
+
+.mediasearch-results-item {
+padding-bottom: 65px;
+}
+
+.mediasearch-results-pager-heading {
+
+}
+
+.mediasearch-results-pager {
+margin: 10px 0;
+}
+
+.mediasearch-results-pager a {
+background: #0071A1;
+color:#FFFFFF;
+font-size:0.7em;
+letter-spacing:0.09em;
+margin:10px 0;
+padding:3px 7px;
+text-decoration:none;
+text-transform:uppercase;
+}
+
+.mediasearch-results-pager a:hover,
+.mediasearch-results-pager a:active {
+background: #015F89;
+}
+
+.mediasearch-results-pager-spacer {
+padding: 0 0 0 10px;
+}
+
+.mediasearch-type-icon {
+}
+
+.mediasearch-results-item-title {
+float: left;
+width: 500px;
+}
+
+.mediasearch-results-item-cover-image {
+border:1px solid #000000;
+}
+
+.mediasearch-results-item-cover {
+float: left;
+padding-right: 10px;
+margin-bottom: 5px;
+}
+
+.mediasearch-results-item input {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+margin-bottom:5px;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+.mediasearch-results-item input:hover, 
+.mediasearch-results-item input:active {
+background: #f2f2b7;
+}
+
+td.mediatype-radio {
+}
+
+td.mediatype-icon {
+padding-right: 12px;
+}
+
+input#custom-add-below,
+input#custom-add-above {
+background: #EDEA66;
+border:1px solid #000000;
+color:#000000;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+input#custom-add-below:hover,
+input#custom-add-below:active,
+input#custom-add-above:hover,
+input#custom-add-above:active {
+background: #f2f2b7;
+}
+
+
+
+/* SINGLE BOOK/MEDIA PAGE ***************************************************************************************************/
+
+#media-header {
+padding: 20px 0 0 0;
+}
+
+#media-header-left {
+float: left;
+}
+
+#media-header-middle {
+float: left;
+width: 350px;
+}
+
+#media-header-right {
+float: left;
+}
+
+.media-header-title {
+margin-bottom: 5px;
+overflow:auto;
+width:100%;
+}
+
+.media-title {
+	font-weight: bold;
+	font-size: 21px;	
+}
+
+
+
+.media-details {
+ font-size: 14px;
+ font-weight: normal;
+ margin: 5px 0 10px 0;
+ 
+}
+
+#media-header-image {
+float: left;
+margin-right: 15px;
+}
+
+#media-header-image img {
+border: 2px solid #000000;
+}
+
+#media-header-metadata {
+margin-bottom: 5px;
+}
+
+#media-header-metadata-logstatus {
+margin-bottom: 10px;
+}
+
+#media-header-metadata-logstatus a{
+ font-weight: bold; 
+}
+
+input#usermedia-toggle {
+background: url(images/remove-from-your-log.gif) no-repeat;
+width: 196px; 
+height: 29px; 
+border: 0;
+text-align: center;
+text-transform: uppercase;
+font-weight: bold;
+color: #257D9D;
+cursor: pointer;
+}
+
+.mediasearch-results-item input {
+background: url(images/remove-from-your-log.gif) no-repeat;
+width: 196px; 
+height: 29px; 
+border: 0;
+text-align: center;
+text-transform: uppercase;
+font-weight: bold;
+color: #257D9D;
+cursor: pointer;
+}
+
+.mediasearch-results-item input:hover {
+background: url(images/remove-from-your-log.gif) no-repeat;
+}
+
+input#usermedia-toggle:hover,
+input#usermedia-toggle:active/*
+,
+input#usermedia-toggle:focus
+*/ {
+background: url(images/remove-from-your-log.gif) no-repeat;
+}
+
+
+
+#media-header-library {
+background: #015F89;
+color:#FFFFFF;
+margin-top:10px;
+padding:12px 15px;
+/* CSS3 effects */
+-webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+width: 220px;
+}
+
+#media-header-library p {
+margin: 0;
+}
+
+ul#library-links li a {
+color: #ffffff;
+text-decoration: none;
+}
+
+ul#library-links li a:links,
+ul#library-links li a:visited {
+
+}
+
+ul#library-links li a:hover,
+ul#library-links li a:active,
+ul#library-links li a:focus {
+text-decoration: underline;
+}
+
+#media-bottom {
+margin-top: 20px;
+}
+
+.media-logger {
+margin-bottom: 7px;
+float: left;
+width: 85px;
+height: 80px;
+}
+
+img.media-type {
+border: none;
+margin-top: 3px;
+}
+
+a.review-likethis {
+background: url(images/like-this-review.gif) no-repeat;
+display: block; 
+width: 137px;
+height: 27px;
+}
+
+a:hover.review-likethis,
+a:active.review-likethis,
+a:focus.review-likethis {
+background: url(images/like-this-review.gif) no-repeat;
+}
+
+div.review-content {
+margin-bottom: 10px;
+margin-right: 10px;
+font-size: 14px; 
+color: #00354f;
+text-transform: none;
+font-weight: normal;
+}
+
+
+div.review-content p {
+margin: 5px 0;
+font-size: 14px; 
+color: #00354f;
+text-transform: none;
+font-weight: normal;
+
+}
+
+div.like-count {
+margin-bottom: 5px;
+font-size: 11px; 
+color: #4ebedc;
+font-weight: normal;
+text-transform: none;
+}
+
+img.like-thumb {
+margin-right: 4px;
+}
+
+a.add-review {
+background: url(images/add-a-review.gif) no-repeat;
+width: 116px;
+height: 28px;
+display: block;
+}
+
+a:hover.add-review,
+a:active.add-review,
+a:focus.add-review {
+background: url(images/add-a-review.gif) no-repeat;
+}
+
+div.media-reviews-add {
+float:left;
+margin: 8px 10px 5px 0;
+padding-top: 5px;
+/* width: 72%; */
+}
+
+form.media_reviews-form textarea {
+width:285px;
+font-size: 90%;
+}
+
+/* media log on profile pg */
+
+.media-log-item {
+float: left;
+margin-bottom: 30px;
+width: 100%;
+}
+
+.media-log-item a {
+font-weight: bold;
+font-size: 14px;
+}
+
+.media-log-item-right {
+float: right;
+width: 305px;
+}
+
+.media-log-item-right .media-reviews-item-right {
+float: none;
+width: 100%;
+}
+
+/*
+#media-log .media-log-page .media-log-item .media-log-item-right .media-reviews {
+float: left;
+}
+*/
+
+a.seemore {
+background: #00A2CE;
+border:2px solid #95D6DA;
+color:#dddddd;
+/*float:left;*/
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-size:0.9em;
+padding:2px 10px;
+text-decoration:none;
+text-transform:uppercase;
+
+}
+
+a:hover.seemore,
+a:active.seemore {
+background: #95D6DA;
+}
+
+a.seemorelog {
+background: #00A2CE;
+border:2px solid #95D6DA;
+color:#dddddd;
+/*float:left;*/
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-size:0.9em;
+padding:2px 10px;
+text-decoration:none;
+text-transform:uppercase;
+
+}
+
+a:hover.seemorelog,
+a:active.seemorelog {
+background: #95D6DA;
+}
+
+/* stars */
+
+.fivestar-widget {
+margin-top: 3px;
+}
+
+form.fivestar-widget {
+
+
+clear:both;
+display:block;
+padding:3px 3px 7px;
+width:146px;
+}
+
+.fivestar-label {
+
+font-size:14px;
+font-weight:bold;
+
+margin-top:20px;
+text-transform:none;
+}
+
+#media-log .fivestar-label {
+margin-top: 0px;
+}
+
+/* media reviews */
+
+.media-log-item .media-log-item-right .media-reviews-item {
+width: 100%;
+clear: both;
+padding-bottom: 20px;
+}
+
+#media-page-reviews .media-reviews .media-reviews-item {
+width: 100%;
+clear: both;
+padding-bottom: 60px;
+}
+
+#media-reviews-users .screenname-link {
+	text-transform: none;
+}
+
+.media-reviews-item-right {
+float:right;
+width:80%;
+margin-bottom: 20px;
+}
+
+.media-reviews-loglabel
+{
+color:#00A2CE;
+font-size:85%;
+font-weight:bold;
+letter-spacing:0.03em;
+margin-bottom:3px;
+text-transform:uppercase;
+}
+
+a.review-content-more {
+color:#00A2CE;
+font-size:80%;
+font-weight:bold;
+text-transform:uppercase;
+}
+
+.review-safety
+{
+font-size: 12px;
+padding-bottom: 5px;
+}
+
+input.review-text-save {
+background: #F68627;
+border:2px solid #FDB829;
+color:#FFFFFF;
+font-weight:bold;
+letter-spacing:0.09em;
+padding:2px 6px;
+text-transform:uppercase;
+}
+
+input.review-text-save:hover,
+input.review-text-save:active {
+background: #FDB829;
+}
+
+input.review-text-cancel {
+background: #B4AEA9;
+border:2px solid #CBC8C1;
+color:#ffffff;
+letter-spacing:0.09em;
+padding:2px 6px;
+text-transform:uppercase;
+}
+
+input.review-text-cancel:hover,
+input.review-text-cancel:active {
+background: #CBC8C1;
+}
+
+
+/* SINGLE BADGE PAGE **************************************************************************************************/
+
+#badge-header {
+margin-top: 10px;
+padding-bottom: 10px;
+}
+
+#badge-title {
+	font-size: 21px;
+	font-weight: bold;
+	line-height: 23px;
+	margin-bottom: 5px;
+}
+
+#badge-icon-large {
+float: left;
+margin-right: 30px;
+}
+
+#badge-icon-large img{
+border:5px solid #CFEAE5;
+}
+
+#badge-header-middle {
+float: left;
+width: 230px;
+margin-right: 30px;
+}
+
+#badge-description {
+}
+
+#badge-count {
+margin-top: 15px;
+}
+
+#badge-earn {
+
+float:left;
+padding:5px;
+width:320px;
+}
+
+#badge-earn p{
+color: white;
+}
+
+.badge-winners {
+width: 930px;
+}
+
+#badge-winners-label {
+color:#00A2CE;
+font-size:1em;
+font-weight:bold;
+margin:10px 0 10px;
+text-transform:uppercase;	
+}
+
+p.badge-award-time { 
+	color: white;
+}
+
+.blue-cnr-tl { background: #055F89 url(images/corner_dblue_top_left2.gif) no-repeat left top; }
+.blue-cnr-tr { background: url(images/corner_dblue_top_right2.gif) no-repeat right top; }
+.blue-cnr-br { background: url(images/corner_dblue_bottom_right2.gif) no-repeat right bottom; }
+.blue-cnr-bl { background: url(images/corner_dblue_bottom_left2.gif) no-repeat left bottom; }
+
+.badge-winner {
+margin-bottom: 7px;
+float: left;
+width: 90px;
+height: 80px;
+}
+
+
+
+/* BOOKLISTS ********************************************************************************************/
+
+#booklist-left {
+width: 420px;
+margin-right: 40px;
+float: left;
+}
+#booklist-right {
+width: 420px;
+float: left;
+}
+.booklist-heading {
+clear: both;
+font-size: 14px;
+font-weight: bold;
+padding: 25px 0 7px 0;
+}
+.booklist-item {
+padding-top: 15px;
+clear: both;
+}
+img.booklist-img {
+float: left;
+margin-right: 10px;
+}
+.booklist-data {
+font-size: 12px;
+}
+.booklist-title {
+font-weight: bold;
+margin-right: 3px;
+}
+.booklist-description {
+}
+.booklist-PDF a {
+float: right;
+font-size: 90%;
+}
+
+
+/** FOOTER ************************************************************************************************************/
+#footer {
+margin:0;
+overflow:hidden;
+padding:0;
+width:100%;
+background: #edea66;
+clear: both;
+}
+
+#footer-inner {
+margin: 0;
+padding: 5px;
+}
+
+#footer-menus {
+color: #000000;
+float:left;
+font-size: 12px;
+text-align: center;
+width: 100%;
+}
+
+#footer-menus a {
+text-decoration: none;
+font-size: 12px;
+font-weight: normal;
+}
+
+#footer-booklist-nav, #footer-main-nav {
+margin: 5px;
+padding: 0 5px;
+background: #f2f2b7;
+}
+
+span.footer-booklist-nav-item a:link,
+span.footer-booklist-nav-item a:visited,
+span.footer-main-nav-item a:link,
+span.footer-main-nav-item a:visited {
+color: #000000;
+text-decoration: none;
+}
+
+span.footer-booklist-nav-item a:hover,
+span.footer-booklist-nav-item a:focus,
+span.footer-booklist-nav-item a:active,
+span.footer-main-nav-item a:hover,
+span.footer-main-nav-item a:focus,
+span.footer-main-nav-item a:active {
+color: #000000;
+border-bottom: 2px solid;
+}
+
+#footer-right {
+float:left;
+margin:10px;
+width: 960px;
+}
+
+#footer-right img {
+margin-right:35px;
+}
+
+#block-block-6 .block-inner .content {
+width: 539px;
+margin: 10px auto;
+}
+
+#footer-message /* Wrapper for the footer message from Drupal's "Site information"
+and for any blocks placed in the footer region */
+{
+}
+
+
+
+
+/* ADMIN PAGES STYLES *****************************************************************************/
+
+body.section-administer #content-area,
+body.section-search #content-area,
+body.section-admin #content-area {
+/* background: #FFFFFF; */
+/* padding:10px 15px; */
+}
+
+/* Drupal pager overrides (find in admin pages) */
+
+ul.pager li a {
+background:  #015F89;
+color:#FFFFFF;
+display:inline;
+font-size:0.8em;
+list-style-type:none;
+padding:2px 5px;
+text-decoration:none;
+}
+
+ul.pager li a:hover,
+ul.pager li a:active,
+ul.pager li a:focus {
+background: #014669;
+}
+
+/* some admin form buttons */
+input#edit-preview,
+input#edit-delete {
+background: #00A2CE;
+border:2px solid #95D6DA;
+color:#FFFFFF;
+font-family:"Lucida Grande",Tahoma,Arial,sans-serif;
+font-weight:bold;
+margin-bottom:5px;
+padding:2px 5px;
+text-transform:uppercase;
+}
+
+input#edit-preview:hover,
+input#edit-preview:active,
+input#edit-delete:hover,
+input#edit-delete:active {
+background: #95D6DA;
+}
+
+
+/* admin badges */
+
+.admin-badges-item
+{
+margin-bottom: 5px;
+}
+
+.admin-badges
+{
+margin-top: 15px;
+}
+
+
+/* admin reviews */
+
+.admin-reviews-item
+{
+margin-bottom: 5px;
+}
+
+.admin-reviews
+{
+margin-top: 15px;
+}
+
+
+/* admin media */
+
+.admin-media-item
+{
+margin-bottom: 3px;
+}
+
+.admin-media
+{
+margin-top: 15px;
+}
+
+#page .tabs ul {
+
+}
+
+
+/* admin tables */
+
+.admin-table {
+	padding: 25px 0 0 0;
+}
+.admin-table-heading-col {
+	font-weight: bold;
+	font-size: 14px;
+	padding: 3px 15px 5px 5px;
+	float: left;
+	border-bottom: #333 1px solid;
+	background-color: #EDEA66;
+}
+.admin-table-col {
+	
+}
+.admin-table-row {
+	clear: both;
+}
+.admin-table-col {
+	float: left;
+	padding: 2px 15px 3px 5px;
+	font-size: 12px;
+	min-height: 20px;
+	height: auto !important;
+	height: 20px;
+}
+.admin-table-row-even {
+	background-color: white;
+}
+.admin-table-row-odd {
+	background-color: silver;
+}
+.admin-table-pager {
+	font-size: 12px;
+	font-weight: bold;
+}
+
+
+/* admin branch users */
+
+.admin-branchusers-heading-col0, .admin-branchusers-col0 {
+	width: 120px;
+}
+.admin-branchusers-heading-col1, .admin-branchusers-col1 {
+	width: 120px;
+}
+.admin-branchusers-heading-col2, .admin-branchusers-col2 {
+	width: 120px;
+}
+.admin-branchusers-heading-col3, .admin-branchusers-col3 {
+	width: 60px;
+}
+.admin-branchusers-heading-col4, .admin-branchusers-col4 {
+	width: 60px;
+}
+.admin-branchusers-heading-col5, .admin-branchusers-col5 {
+	width: 55px;
+}
+.admin-branchusers-heading-col6, .admin-branchusers-col6 {
+	width: 55px;
+}
+.admin-branchusers-heading-col7, .admin-branchusers-col7 {
+	width: 55px;
+}
+
+
+/* admin branch media */
+
+.admin-branchmedia-heading-col0, .admin-branchmedia-col0 {
+	width: 40px;
+}
+.admin-branchmedia-heading-col1, .admin-branchmedia-col1 {
+	width: 220px;
+}
+.admin-branchmedia-heading-col2, .admin-branchmedia-col2 {
+	width: 250px;
+}
+.admin-branchmedia-heading-col3, .admin-branchmedia-col3 {
+	width: 75px;
+}
+.admin-branchmedia-heading-col4, .admin-branchmedia-col4 {
+	width: 65px;
+}
+.admin-branchmedia-heading-col5, .admin-branchmedia-col5 {
+	width: 40px;
+}
+
+
+/* admin badges */
+
+.admin-badges-heading-col0, .admin-badges-col0 {
+	width: 385px;
+}
+.admin-badges-heading-col1, .admin-badges-col1 {
+	width: 50px;
+}
+.admin-badges-heading-col2, .admin-badges-col2 {
+	width: 220px;
+}
+.admin-badges-heading-col3, .admin-badges-col3 {
+	width: 75px;
+}
+
+
+/* admin reviews */
+
+.admin-reviews-heading-col0, .admin-reviews-col0 {
+	width: 470px;
+}
+.admin-reviews-heading-col1, .admin-reviews-col1 {
+	width: 300px;
+}
+
+
+/* admin branch ids */
+
+.admin-branchids-heading-col0, .admin-branchids-col0 {
+	width: 100px;
+}
+.admin-branchids-heading-col1, .admin-branchids-col1 {
+	width: 550px;
+}
+.admin-branchids-heading-col2, .admin-branchids-col2 {
+	width: 100px;
+}
+
+
+#sr-util-message-form .form-submit {
+	background: url(images/btn_sendmessage.gif) no-repeat;
+	width: 146px;
+	height: 36px;
+	text-indent: -999em;
+}
+
+#sr-util-message-form .form-submit:hover {
+	background: url(images/btn_sendmessage.gif) no-repeat;
+}
+
+
+
+/* DEFAULT ELEMENT STUFF */
+
+
+/** NAVIGATION ***************/
+#navbar {
+}
+
+#navbar-inner {
+}
+
+#search-box /* Wrapper for the search form */
+{
+}
+
+#edit-search-theme-form-1-wrapper label /* Label that says "Search this site:" */
+{
+display: none;
+}
+
+#primary /* Primary links */
+{
+}
+
+#secondary /* Secondary links */
+{
+}
+
+#sidebar-left {
+}
+
+#sidebar-left-inner {
+}
+
+#sidebar-right {
+}
+
+#sidebar-right-inner {
+}
+
+
+#block-user-0 .item-list .last {
+/* hide 'request new password' menu item */
+display: none;
+}
+
+#zipfile {
+font-size: 0.85em;
+margin-bottom: 20px;
+}
+
+
+/** closure **/
+#closure-blocks /* Wrapper for any blocks placed in the closure region */
+{
+}
+
+/** Drupal nodes **/
+.node /* Node wrapper */
+{
+}
+
+.node-inner /* Additional wrapper for node */
+{
+}
+
+.sticky /* A sticky node (displayed before others in a list) */
+{
+}
+
+.node-unpublished /* Unpublished nodes */
+{
+/* background-color: #fff4f4; */ /* Drupal core uses a #fff4f4 background */
+}
+
+.node-unpublished div.unpublished, /* The word "Unpublished" displayed beneath the content. */
+.comment-unpublished div.unpublished
+{
+height: 0;
+overflow: visible;
+color: #d8d8d8;
+font-size: 75px;
+line-height: 1;
+font-family: Impact, "Arial Narrow", Helvetica, sans-serif;
+font-weight: bold;
+text-transform: uppercase;
+text-align: center;
+word-wrap: break-word; /* A very nice CSS3 property */
+}
+
+.node-mine /* A node created by the current user */
+{
+}
+
+.node-teaser /* A node displayed as teaser */
+{
+}
+
+/* All nodes are given a node-type-FOO class that describes the type of
+* content that it is. If you create a new content type called
+* "my-custom-type", it will receive a "node-type-my-custom-type" class.
+*/
+.node-type-page /* Page content node */
+{
+}
+
+.node-type-story /* Story content node */
+{
+}
+
+.node h2.title /* Node title */
+{
+}
+
+.marker /* "New" or "Updated" marker for content that is new or updated for the current user */
+{
+color: #c00;
+}
+
+.node .picture /* The picture of the node author */
+{
+}
+
+.node.node-unpublished .picture,
+.comment.comment-unpublished .picture
+{
+position: relative; /* Otherwise floated pictures will appear below the "Unpublished" text. */
+}
+
+.node .meta /* Wrapper for submitted and terms data */
+{
+}
+
+.node .submitted /* The "posted by" information */
+{
+}
+
+.node .terms /* Node terms (taxonomy) */
+{
+}
+
+.node .content /* Node's content wrapper */
+{
+}
+
+.node ul.links /* Node links. See also the ul.links declaration above. */
+{
+}
+
+.preview .node /* Preview of the content before submitting new or updated content */
+{
+/* background-color: #ffffea; */ /* Drupal core uses a #ffffea background */
+}
+
+
+.node-type-custom-home-page {  }
+.node-type-custom-home-page .content { width: 590px; float: left; display: inline; overflow: hidden; }
+.node-type-custom-home-page .content font { font-size: 14px; line-height: 16px; }
+.node-type-custom-home-page .content img { margin: 0 15px 15px 0;    }
+.node-type-custom-home-page .content h2 { color: white; font-size: 30px; font-weight: normal;}
+.node-type-custom-home-page .content .tr { overflow: hidden; }
+
+
+
+/** Drupal comments ************************************************************************** **/
+#comments /* Wrapper for the list of comments and its title */
+{
+margin: 1em 0;
+}
+
+#comments-title /* Heading for the list of comments */
+{
+}
+
+.comment /* Wrapper for a single comment */
+{
+}
+
+.comment-inner /* Additional wrapper for a single comment */
+{
+}
+
+.comment-preview /* Preview of the comment before submitting new or updated comment */
+{
+}
+
+.comment.new /* A new comment since the user last viewed the page. */
+{
+}
+
+.comment.odd /* An odd-numbered comment in the list of comments */
+{
+}
+
+.comment.even /* An even-numbered comment in the list of comments */
+{
+}
+
+.comment.first /* The first comment in the list of comments */
+{
+}
+
+.comment.last /* The last comment in the list of comments */
+{
+}
+
+.comment-unpublished /* Unpublished comments */
+{
+/* background-color: #fff4f4; */ /* Drupal core uses a #fff4f4 background */
+}
+
+.comment-unpublished div.unpublished /* The word "Unpublished" displayed beneath the content. See also the div.unpublished declaration in the node section above. */
+{
+}
+
+.comment-published /* Published comments */
+{
+}
+
+.comment-by-anon /* A comment created by an anonymous user */
+{
+}
+
+.comment-by-author /* A comment created by the node's author */
+{
+}
+
+.comment-mine /* A comment created by the current user */
+{
+}
+
+.comment h3.title /* Comment title */
+{
+}
+
+.new /* "New" marker for comments that are new for the current user */
+{
+color: #c00;
+}
+
+.comment .picture /* The picture of the comment author */
+{
+}
+
+.comment .submitted /* The "posted by" information */
+{
+}
+
+.comment .content /* Comment's content wrapper */
+{
+}
+
+.comment .user-signature /* The user's signature */
+{
+}
+
+.comment ul.links /* Comment links. See also the ul.links declaration above. */
+{
+margin: 1em 0;
+}
+
+.indented /* Nested comments are indented */
+{
+/* margin-left: 25px; */ /* Drupal core uses a 25px left margin */
+}
+
+.preview .comment /* Preview of the comment before submitting new or updated comment */
+{
+/* background-color: #ffffea; */ /* Drupal core uses a #ffffea background */
+}
+
+/** END Drupal comments ************************************************************************** **/
+
+
+/** Drupal blocks **/
+.block /* Block wrapper */
+{
+margin-bottom: 1em;
+}
+
+.block.region-odd /* Zebra striping for each block in the region */
+{
+}
+
+.block.region-even /* Zebra striping for each block in the region */
+{
+}
+
+.block.odd /* Zebra striping independent of each region */
+{
+}
+
+.block.even /* Zebra striping independent of each region */
+{
+}
+
+.region-count-1 /* Incremental count for each block in the region */
+{
+}
+
+.count-1 /* Incremental count independent of each region */
+{
+}
+
+.block-inner /* Additional wrapper for block */
+{
+}
+
+.block h2.title /* Block title */
+{
+}
+
+.block .content /* Block's content wrapper */
+{
+}
+
+#block-aggregator-category-1 /* Block for the latest news items in the first category */
+{
+}
+
+#block-aggregator-feed-1 /* Block for the latest news items in the first feed */
+{
+}
+
+#block-block-1 /* First administrator-defined block */
+{
+}
+
+#block-blog-0 /* "Recent blog posts" block */
+{
+}
+
+#block-book-0 /* "Book navigation" block for the current book's table of contents */
+{
+}
+
+#block-comment-0 /* "Recent comments" block */
+{
+}
+
+#block-forum-0 /* "Active forum topics" block */
+{
+}
+
+#block-forum-1 /* "New forum topics" block */
+{
+}
+
+#block-menu-primary-links /* "Primary links" block */
+{
+}
+
+#block-menu-secondary-links /* "Secondary links" block */
+{
+}
+
+#block-node-0 /* "Syndicate" block for primary RSS feed */
+{
+}
+
+#block-poll-0 /* "Most recent poll" block */
+{
+}
+
+#block-profile-0 /* "Author information" block for the profile of the page's author */
+{
+}
+
+#block-search-0 /* "Search form" block */
+{
+}
+
+#block-statistics-0 /* "Popular content" block */
+{
+}
+
+#block-user-0 /* "User login form" block */
+{
+}
+
+#block-user-1 /* "Navigation" block for Drupal navigation menu */
+{
+}
+
+#block-user-2 /* "Who's new" block for a list of the newest users */
+{
+}
+
+#block-user-3 /* "Who's online" block for a list of the online users */
+{
+}
+
+/** Drupal boxes **/
+/* Wrapper for Comment form, Comment viewing options, Menu admin, and
+* Search results.
+*/
+.box /* Wrapper for box */
+{
+}
+
+.box-inner /* Additional wrapper for box */
+{
+}
+
+.box h2.title /* Box title */
+{
+}
+
+.box .content /* Box's content wrapper */
+{
+}
+
+/** Miscellaneous Drupal styles **/
+.error /* Errors that are separate from div.messages status messages (see above.) */
+{
+/* color: #e55; */ /* Drupal core uses a #e55 background */
+}
+
+.warning /* Warnings that are separate from div.messages status messages (see above.) */
+{
+/* color: #e09010; */ /* Drupal core uses a #e09010 background */
+}
+
+.more-link /* Aggregator, blog, and forum more link */
+{
+text-align: right;
+}
+
+#user-login-form /* Drupal's default login form */
+{
+text-align: left;
+}
+
+tr.even /* Some tables have rows marked even or odd. */
+{
+/* background-color: #eee; */ /* Drupal core uses a #eee background */
+}
+
+tr.odd
+{
+/* background-color: #eee; */ /* Drupal core uses a #eee background */
+}
+
+li a.active /* The active item in a Drupal menu */
+{
+color: #000;
+}
+
+
+/** Drupal forms **/
+.form-item, /* Wrapper for a form element (or group of form elements) and its label */
+.form-checkboxes,
+.form-radios
+{
+margin: 1em 0;
+}
+
+.form-item input.error, /* Highlight the form elements that caused a form submission error */
+.form-item textarea.error,
+.form-item select.error
+{
+border: 2px solid #ee652e;
+}
+
+.form-item label /* The label for a form element */
+{
+display: block;
+font-weight: bold;
+}
+
+.form-item label.option /* The label for a radio button or checkbox */
+{
+display: inline;
+font-weight: normal;
+}
+
+.form-required /* The part of the label that indicates a required field */
+{
+color: #c00;
+}
+
+.form-item .description /* The descriptive help text (separate from the label) */
+{
+font-size: 0.85em;
+}
+
+.form-checkboxes .form-item, /* Pack groups of checkboxes and radio buttons closer together */
+.form-radios .form-item
+{
+margin: 0.4em 0;
+}
+
+.form-submit /* The submit button */
+{
+}
+
+.container-inline div, .container-inline label /* Inline labels and form divs */
+{
+display: inline;
+}
+
+.tips /* Tips for Drupal's input formats */
+{
+margin: 0;
+padding: 0;
+font-size: 0.9em;
+}
+
+/** OpenID **/
+/* The default styling for the OpenID login link seems to assume Garland's
+* styling of list items.
+*/
+#user-login-form ul /* OpenID creates a new ul above the login form's links. */
+{
+margin-bottom: 0; /* Position OpenID's ul next to the rest of the links. */
+}
+
+#user-login-form li.openid-link /* The "Log in using OpenID" links. */
+{
+margin-top: 1em;
+margin-left: -20px; /* Un-do some of the padding on the ul list. */
+}
+
+#user-login-form li.user-link /* The "Cancel OpenID login" links. */
+{
+margin-top: 1em;
+}
+
+#user-login ul
+{
+margin: 1em 0;
+}
+
+#user-login li.openid-link, /* The OpenID links on the /user form. */
+#user-login li.user-link
+{
+margin-left: -2em; /* Un-do all of the padding on the ul list. */
+}
+
+/** Drupal admin tables **/
+/* We overrode these styles in html-elements.css, but restore them for the
+* forms on the site.
+*/
+form tbody
+{
+border-top: 1px solid #ccc;
+}
+
+form th
+{
+text-align: left;
+padding-right: 1em;
+border-bottom: 3px solid #ccc;
+}
+
+form tbody th
+{
+border-bottom: 1px solid #ccc;
+}
+
+form thead th
+{
+text-align: left;
+padding-right: 1em;
+border-bottom: 3px solid #ccc;
+}
+
+
+/**************************************************************************
+// new stuff sread added
+**************************************************************************/
+
+#avatar-noflash
+{
+	margin: 20px 0 20px 0;
+}	
+#avatar-list
+{
+	margin-top: 20px;
+}
+.avatar-list-item
+{
+	float: left;
+	width: 200px;
+	height: 200px;
+	margin: 0 20px 20px 0;
+}
+
+#top-container
+{
+margin: 28px 0 20px 0;
+}
+
+#bot-container
+{
+}
+
+
+.SN-bl {background: url(/sites/summerreading.org/files/images/bot_left.gif) 0 100% no-repeat #4fbedc;
+  /* width: 62em;*/ /* Commented this out because it was breaking the profile page. 33em seems to work, though. -Fureigh */
+  }
+.SN-br {background: url(/sites/summerreading.org/files/images/bot_right.gif) 100% 100% no-repeat}
+.SN-tl {background: url(/sites/summerreading.org/files/images/top_left.gif) 0 0 no-repeat}
+.SN-tr {background: url(/sites/summerreading.org/files/images/top_right.gif) 100% 0 no-repeat; padding:2px 20px 20px 20px; margin-bottom:18px}
+.clear {font-size: 1px; height: 1px} 
+
+.AI-bl {background: url(/sites/summerreading.org/files/images/bot_left.gif) 0 100% no-repeat #4fbedc; width: 62em}
+.AI-br {background: url(/sites/summerreading.org/files/images/bot_right.gif) 100% 100% no-repeat}
+.AI-tl {background: url(/sites/summerreading.org/files/images/top_left.gif) 0 0 no-repeat}
+.AI-tr {background: url(/sites/summerreading.org/files/images/top_right.gif) 100% 0 no-repeat; padding:20px}
+.clear {font-size: 1px; height: 1px} 
+
+#div_screen_name_adjective
+{
+text-align:center;
+margin-top:28px;
+}
+  
+
+ #div_screen_name_adjective .form-item        
+  {
+	font-weight:bold;
+    font-size:16px;
+	display:inline;
+	margin:0 -2px;
+	  
+	  
+ }
+   
+
+ #btnDiv
+  {
+	 width:73%;
+	 height:50px
+	
+	
+	 
+ }
+  
+  #btnDiv  fieldset
+  {
+	
+    width:200px;
+    float:left;
+	
+ }
+ 
+ #btnDiv.form-item
+ {
+ margin-left:auto;
+ margin-right:auto;
+ }
+ 
+ #div_screen_name  fieldset
+  {
+    padding:0;
+	border:none;
+ }
+ 
+ #div_screen_name  fieldset legend
+  {
+	padding:0;
+	color:#edea66;
+	font-size:18px;
+	padding:0px 0px 10px 0;
+ }
+ 
+ #account_header
+ {
+ font-weight:bold;
+ color:#edea66;
+ padding-top: 20px;
+ display: block;
+ }
+ 
+ #school_text
+  {
+	 width:900px;
+	 height:25px
+ }
+ 
+ #edit-school-wrapper  
+  {
+	 width:528px;
+	 float:left
+ }
+ 
+ #schoolDiv  .title
+  {
+	 font-weight:bold
+ }
+ 
+ #schoolDiv  .msg
+  {
+	font-size:0.85em;
+	clear: both;
+	padding-top: 10px;
+	
+ }
+ 
+ #edit-school-wrapper
+ {
+  margin-bottom:0;
+  margin-top:0;
+ }
+ #edit-is-other-wrapper 
+ {
+  margin-bottom:0;
+  width:370px;
+  float:right;
+  margin-top:0;
+ }
+ #div_screen_name  
+ {
+ }
+ #div_screen_name  .msg
+ {
+   font-size:0.85em
+ }
+ 
+ #div_screen_name  .description
+ {
+   font-size:0.85em
+ }
+
+ #account_header
+ {
+ font-size:18px;
+ }
+   #edit-password-wrapper .form-item
+ {
+ margin: 1em 0 0 0;
+ }
+
+  
+#feature2 p,
+#feature2 ul li,
+#feature2 ul li a {
+color: #4FBEDC;
+font-size: 14px;
+list-style: none;
+}
+
+#feature2 ul {
+list-style: none;
+padding: 0;
+}
+#feature2 ul li {
+margin:0 auto;
+width:170px;
+}
+
+#feature2 p {
+color:#EDEA66;
+font-size: 18px;
+line-height:1.2em;
+width:350px;
+
+}
+
+#feature2  p.first-graf {
+
+font-size: 22px;
+line-height:1.2em;
+color:#4688a8;
+font-weight: bold;
+}
+
+#feature2 .features-bottom img {
+width:263px;
+margin-top:20px;
+margin-left:58px;
+margin-bottom:20px;
+}
+
+#feature2 a.feature-link {
+color: #4FBEDC;
+font-size:1.5em;
+width:300px;
+}
+#feature1 h3
+{color:#EDEA66;
+}
+
+#feature2 h3 {
+    color: #FFFFFF;
+}
+
+#feature1 {
+    margin-right: 35px;
+}
+
+#feature1 {
+    /*-moz-border-radius: 15px 15px 15px 15px;*/
+    /*-moz-box-shadow: -5px 5px 0 #015F89;*/
+    background: none repeat scroll 0 0 #4FBEDC;
+    float: left;
+    height: 300px;   /*height was 350px*/
+    padding: 10px 0 0 28px;
+    width: 400px;
+}
+
+#feature2 {
+    /*-moz-border-radius: 15px 15px 15px 15px;*/
+    /*-moz-box-shadow: -5px 5px 0 #015F89;*/
+    background: none repeat scroll 0 0 #ffffff;
+    float: left;
+    height: 300px;
+    padding: 10px 0 0 15px;
+    width: 400px;
+}
+
+
+
+
+/** register **/
+.administer_mainbox .SN-bl, .administer_mainbox .SN-br, .administer_mainbox .SN-tl, .administer_mainbox .SN-tr {
+	background: none;
+}
+
+.administer_mainbox  #register {
+	margin: 0 auto;
+	width: 860px; 
+	
+}
+
+#librarycard #top-container{
+
+}
+
+#librarycard {
+margin-top:31px;
+}
+
+#librarycarddiv span{
+color:#26abcc;
+font-weight:bold;
+font-size:18px;
+margin-left:16px;
+
+}
+
+/**#librarycarddiv .SN-bl {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_bottom_left.gif) 0 100% no-repeat #eef2b7; width: 62em}
+#librarycarddiv .SN-br {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_bottom_right.gif) 100% 100% no-repeat}
+#librarycarddiv .SN-tl {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_top_left.gif) 0 0 no-repeat}
+#librarycarddiv  .SN-tr {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_top_right.gif) 100% 0 no-repeat; padding:20px 20px 10px 20px}
+.clear {font-size: 1px; height: 1px}**/
+
+
+
+/**#librarycarddiv {
+background: url(/sites/summerreading.org/files/images/border_yellow_left.gif) repeat-y #eef2b7; width:878px; 
+}
+
+#librarycarddiv .header { 
+background: url(/sites/summerreading.org/files/images/border_yellow_top.gif) no-repeat left top; width:878px;
+padding-top:18px;
+padding-left:20px;
+padding-right:20px;
+}
+
+#librarycarddiv .top-container {
+background: url(/sites/summerreading.org/files/images/border_yellow_bottom.gif) no-repeat left bottom;
+padding-bottom:20px;
+}**/
+
+#librarycard{
+background: url(/sites/summerreading.org/files/images/border_yellow_center3.gif) repeat-y /*#eef2b7*/ transparent; width:898px; 
+padding-left:0px;
+padding-right:2px;
+}
+
+#librarycarddiv  { 
+background: url(/sites/summerreading.org/files/images/border_yellow_top2.gif) no-repeat left top; width:898px;
+padding-top:24px;
+padding-left:0px;
+padding-right:20px;
+}
+
+#librarycarddiv .top-container {
+background: url(/sites/summerreading.org/files/images/border_yellow_bottom2.gif) no-repeat left bottom;
+padding-bottom:20px;
+}
+
+ .topbox .SN-bl {background: url(/sites/summerreading.org/files/images/white_bl.gif) 0 100% no-repeat #ffffff; width: 64em;}
+ .topbox .SN-br {background: url(/sites/summerreading.org/files/images/white_br.gif) 100% 100% no-repeat}
+ .topbox .SN-tl {background: url(/sites/summerreading.org/files/images/white_tl.gif) 0 0 no-repeat}
+ .topbox .SN-tr {background: url(/sites/summerreading.org/files/images/white_tr.gif) 100% 0 no-repeat; padding:20px 20px 20px 20px}
+.clear {font-size: 1px; height: 1px} 
+
+
+.description {
+font-size:10px;
+}
+
+/** timereading **/
+
+#sr-user-readtime .submitBtn {
+padding: 36px 0 20px 0;
+}
+
+
+.topbox .SN-tr { font-size:14px;}
+
+.header { color:#22aad0; font-weight:bold; font-size:20px; }
+
+.box .header { color:#eee967;}
+
+.notes { font-size:12px; letter-spacing:1px;}
+.notes a {font-weight:bold;}
+
+#readtime .header {
+color:#edea66;
+margin-top:20px;
+margin-bottom:15px;
+width:300px;
+}
+
+#readtime .SN-tr {
+font-size: 12px;
+padding-bottom: 100px;
+}
+
+#cardadd .header {
+color:#edea66;
+width:300px;
+margin-top:20px;
+}
+
+#cardadd .description {
+width:388px;
+padding-top:14px;
+font-size:12px;
+}
+
+#cardadd .btn {
+width:215px;
+padding-top:58px;
+}
+
+#cardadd .cardimage {
+float:right;
+}
+
+#cardadd .cardimage img {
+float:right;
+margin-left:5px;
+}
+
+.imgclear {
+clear:both;
+}
+
+#dissociate_wrap legend {
+color:#26ABCC;
+padding-left:16px;
+}
+
+#dissociate_wrap .form-submit {
+margin:26px 0 0 16px;
+}
+
+#readtime .form-item {
+width:300px;
+}
+
+#profile-readtime_img {
+width:300px;
+float:right;
+}
+
+/** edit profile **/
+
+.submitBtn  input#edit-submit{
+ background: none repeat scroll 0 0;/**#26abce;**/
+    border: 0 none #FFFFFF;
+    color: #FFFFFF;
+    font-family: "Lucida Grande",Tahoma,Arial,sans-serif;
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 2px 0px;
+    text-transform: uppercase;
+	}
+	
+
+.submitBtn {
+width:300px;
+}
+	
+/**.submitBtn input#edit-submit:hover,
+.sbumitBtn input#edit-submit:active {
+background: #26abce;**/
+}
+	
+#dissociate_wrap legend {color:#26aad0;}
+
+#dissociate_wrap fieldset {
+border:none;
+font-size:16px;
+}
+
+#dissociate_wrap .left {
+width:405px; 
+font-size:12px;
+}
+
+/**#dissociate_wrap  .SN-bl {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_bottom_left.gif) 0 100% no-repeat #eef2b7; width: 62em}
+#dissociate_wrap  .SN-br {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_bottom_right.gif) 100% 100% no-repeat}
+#dissociate_wrap  .SN-tl {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_top_left.gif) 0 0 no-repeat}
+#dissociate_wrap   .SN-tr {background: url(/sites/summerreading.org/files/images/corner_yellowoutline_top_right.gif) 100% 0 no-repeat; padding:10px 20px 0px 10px}
+.clear {font-size: 1px; height: 1px}**/
+
+#dissociate_wrap{
+background: url(/sites/summerreading.org/files/images/border_yellow_center3.gif) repeat-y /*#eef2b7*/ transparent; width:898px; 
+padding-left:0px;
+padding-right:2px;
+}
+
+#dissociate_wrap_content { 
+background: url(/sites/summerreading.org/files/images/border_yellow_top2.gif) no-repeat left top; width:898px;
+padding-top:18px;
+padding-left:0px;
+padding-right:20px;
+}
+
+#dissociate_wrap .top-container {
+background: url(/sites/summerreading.org/files/images/border_yellow_bottom2.gif) no-repeat left bottom;
+padding-bottom:2px;
+}
+
+
+#dissociate_wrap {
+margin-top:21px;
+}
+
+#dissociate_wrap .cardimage {
+float:right;
+padding-right:40px;
+}
+
+#dissociate_wrap .description {
+font-size:12px;
+padding-left:16px;
+width:475px;
+letter-spacing:1px;
+}
+
+#edit-librarycard-number-wrapper {
+width:486px;
+margin-left:16px;
+}
+#edit-librarycard-pin-wrapper {
+width:486px;
+margin-left:16px;
+}
+
+#librarycard .cardimage {
+width:260px;
+margin-left:5px;
+float:right;
+padding-right:40px;
+}
+
+#librarycard .cardimage img {
+
+width:260px;
+height:142px;
+}
+
+.policy-description {
+font-size:10px;
+margin:10px 5px 0 20px;
+width:834px;
+}
+
+
+#edit-hours-wrapper .description {
+font-size:12px;
+letter-spacing:1px;
+}
+
+#edit-minutes-wrapper .description {
+font-size:12px;
+letter-spacing:1px;
+}
+#readtime .timemsg {
+
+}
+
+#sr-user-readtime #profile-readtime {
+background: url(/sites/summerreading.org/files/images/img_crest.png) no-repeat transparent; width:265px; height:226px;
+float:right;
+margin:-44px 30px 0 0;
+padding-top: 40px;
+}
+
+#profile-readtime .timemsg {
+color:#ffffff;
+font-weight:bold;
+font-size:12px;
+text-align:center;
+letter-spacing:0px;
+
+}
+
+#profile-readtime .timehour{
+color:#ffffff;
+font-weight:bold;
+font-size:12px;
+letter-spacing:0px;
+margin: 30px auto 0;
+/*width:20%;*/
+text-align: center;
+}
+
+
+#sr-user-readtime #profile-readtime-amount {
+color:#ffffff;
+margin: 20px auto 0;
+font-size:46px;
+/*width:38%;*/ /*why?*/
+text-align:center;
+display: block;
+}
+.page-subtitle {
+font-size:12px;
+letter-spacing:1px;
+margin: 0 0 20px;
+}
+
+#manhattan_policy { 
+margin:10px 0 0 18px;
+}
+
+#brooklyn_policy {
+margin: 10px 0 0 18px;
+}
+
+#profile-readtime-amount {
+color:#000000;
+font-size:16px;
+}
+
+.imgclear {
+clear:both;
+height: 1px;
+width: 1px;
+}
+
+.list-item-left {
+width:85px;
+float:left;
+padding-left:10px;
+}
+
+.list-item-right {
+font-size: 33px;
+width: 123px;
+padding: 16px 0 0 28px;
+
+}
+
+.list-item-msg {
+font-size:14px;
+font-weight:bold;
+text-transform: uppercase;
+width: 113px;
+padding-left:0;
+text-align:center;
+}
+
+.two-items {
+width:100px;
+margin-left:80px;
+}
+
+.facts-all {
+	float: left;
+	display: inline;
+	width: 240px;
+	font-weight: bold;
+	padding: 20px 10px 20px 0;
+}
+
+.facts-all img {
+	float: left;
+	display: inline;
+	
+}
+
+.facts-all .list-item-right {
+	float: left;
+	display: inline;
+	width: 160px;
+	text-align: center;
+	padding: 15px 0 15px 0;
+}
+
+.facts-all .list-item-left {
+	float: left;
+	display: inline;
+	width: 140px;
+	text-align: center;
+	padding: 15px 0 0 0;
+}
+
+.facts-all .list-item-msg {
+	float: left;
+	display: inline;
+	width: 140px;
+	text-align: center;
+	padding: 10px 0 0 0;
+}
+
+.facts-all-reg .list-item-right {
+color:#f15928;
+font-weight:bold;
+}
+
+.facts-all-books .list-item-right {
+color:#89c742;
+font-weight:bold;
+}
+.facts-all-media .list-item-right {
+color:#8458a3;
+font-weight:bold;
+}
+
+.facts-all-badges .list-item-right {
+color:#f8951e;
+font-weight:bold;
+}
+
+.facts-all-minutes  .list-item-right{
+color:#467bbd;
+font-weight:bold;
+}
+
+#profile-edit-badge {
+font-weight:bold;
+color:#ffffff;
+letter-spacing:1px;
+font-size:12px;
+width: 360px;
+}
+
+#profile-edit-badge .SN-bl {background: url(images/corner_dblue_bottom_left2.gif) 0 100% no-repeat #065f89;
+   /*width: 36em;*/  /* Commented this out because it was breaking the profile page. -Fureigh, 04.11.11 */
+  }
+#profile-edit-badge .SN-br {background: url(images/corner_dblue_bottom_right2.gif) 100% 100% no-repeat}
+#profile-edit-badge .SN-tl {background: url(images/corner_dblue_top_left2.gif) 0 0 no-repeat}
+#profile-edit-badge .SN-tr {background: url(images/corner_dblue_top_right2.gif) 100% 0 no-repeat; padding:2px 20px 10px 20px; margin-bottom:18px}
+.clear {font-size: 1px; height: 1px} 
+
+
+
+#mediasearch  .SN-bl {background: url(/sites/summerreading.org/files/images/bot_left.gif) 0 100% no-repeat #4fbedc;
+   width: 430px;  /* Commented this out because it was breaking the profile page. -Fureigh, 04.11.11 */
+  }
+#mediasearch .SN-br {background: url(/sites/summerreading.org/files/images/bot_right.gif) 100% 100% no-repeat}
+#mediasearch .SN-tl {background: url(/sites/summerreading.org/files/images/top_left.gif) 0 0 no-repeat}
+#mediasearch .SN-tr {background: url(/sites/summerreading.org/files/images/top_right.gif) 100% 0 no-repeat; padding:2px 20px 10px 20px; margin-bottom:18px}
+#mediasearch .clear {font-size: 1px; height: 1px}
+
+#mediasearch  #edit-keyword{
+width:384px;
+}
+
+/* Hide the 'Cancel' link on the new privatemsg form */
+form#privatemsg-new a#edit-cancel {
+  display: none;
+}
+
+div.privatemsg-message ul.privatemsg-message-actions {
+  float: right;
+  clear: both;
+  
+}
+
+.privatemsg-author-name a {
+	font-weight: bold;
+}
+
+.message-actions {
+	text-align: right;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.privatemsg-message-header {
+	
+}
+
+.privatemsg-message-header p {
+	margin: 0px;
+	padding: 5px 20px 0px 20px;
+	line-height: 43px;
+}
+
+.privatemsg-message-mid {
+	
+	background: url(images/message-mid.gif) repeat-x;
+}
+
+.privatemsg-message-leftcnr {
+	background: url(images/message-left.gif) no-repeat left top;
+}
+
+.privatemsg-message-rightcnr {
+	background: url(images/message-right.gif) no-repeat right top;
+	height: 51px;
+	width: 100%;
+}
+
+.privatemsg-subject {
+	padding: 10px 20px;
+}
+
+.privatemsg-message-body {
+	padding: 10px 20px;
+}
+
+.privatemsg-nav {
+	padding: 10px 20px;
+	text-align: center;
+	font-size: 12px;	
+}
+
+	
+.privatemsg-message-header img.avatar-small {
+  float: right;
+  width: 33px;
+  height: 33px;
+  border: 1px solid #79C7B9;
+  background: #D8EDE8;
+  padding: 2px;
+  display: inline;
+}
+
+span#privatemsg-previous,
+span#privatemsg-next {
+  font-weight: bold;
+  padding: 0px 10px;
+  
+}
+
+span#privatemsg-previous a.message_link,
+span#privatemsg-next a.message_link {
+  padding: 0 10px;
+
+}
+
+span#privatemsg-previous a:hover, span#privatemsg-next a:hover{
+  color: #EF632E;
+}
+
+span#privatemsg-previous {
+	background: url(images/message-action-left-arrow.gif) no-repeat left center;
+}
+
+span#privatemsg-next {
+	background: url(images/message-action-right-arrow.gif) no-repeat right center;
+}
+
+#myaccount {
+/*margin-bottom:-19px;*/
+margin-top:29px;
+}
+
+#header-nav-right {
+font-weight:bold;
+}
+
+#header-nav-logout {
+font-weight:bold;
+font-size:12px;
+}
+
+#librarylog .header {
+color:#edea66;
+margin-top:20px;
+margin-bottom:15px;
+width:300px;
+}
+
+#search_submit {
+margin-top:5px;
+} 
+
+
+#librarylog .media-log-item {
+float: left;
+margin-bottom: 30px;
+width: 276px;
+padding-right: 10px;
+}
+
+#librarylog .media-log-item-right {
+float: right;
+width: 62%;
+}
+
+#librarylog  img.media-header-image {
+	width: 80px; height: 120px; background: transparent;
+}
+/* report review popup */
+
+
+#review-popup { background: url(images/report-popup.png) no-repeat; width: 683px; height: 452px; position: fixed; top: 20%; left: 20%; z-index:102; }
+#review-popup-inner { padding: 130px 0 0 140px; }
+#review-popup-inner h1 { margin: 10px 0; font-weight: bold; font-size: 41px; color: #26abcf; }
+#review-popup-inner p { margin: 10px 0; font-weight: norma; font-size: 18px; color: #00354f; }
+#review-popup-inner p#review-popup-submit { margin: 30px 0 0 0; font-weight: bold; font-size: 14px;}
+#review-popup-inner p#review-popup-submit a { text-decoration: underline; font-weight: bold; font-size: 14px;color: #00354f; }
+#review-popup-inner #close-btn { position: absolute; width: 40px; height: 40px; top: 40px; right: 40px; display: block; z-index: 103;  }
+
+#review-report-overlay  { position:fixed; top:0;  right:0; bottom:0; left:0; height:100%;  width:100%; margin:0; padding:0; background:#fff; opacity:.33;  -moz-opacity: 0.33; filter: alpha(opacity=33); z-index:101;  }
+
+/* games page */
+#allgames { padding-left: 20px;}
+#game1 {float:left; margin-right:200px;} 
+#game2 {float:left; position:relative;} 
+#allgames ul { list-style:none;}
+#allgames h1 {color:#EDEA66;}

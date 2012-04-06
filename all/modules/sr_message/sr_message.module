@@ -1,0 +1,391 @@
+<?php
+/**
+ * Implementation of hook_user()
+ */
+function sr_message_perm() {
+  return array('send message admin');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_message_menu() {
+
+   $items['privatemsg/position/%/%'] = array(
+   // 'title' => 'Message',
+    'page callback' => 'sr_message_get_msg', 
+	'page arguments' => array(2,3),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['privatemsg/delete/%/%/%'] = array(
+   // 'title' => 'Message',
+    'page callback' => 'sr_message_del_msg', 
+	'page arguments' => array(2,3,4),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['administer/myunit/message'] = array(
+		'title' => 'Send a Message to Your Users',
+		'page callback' => 'sr_util_administer_myunit',
+		'page arguments' => array(2),
+		'access arguments' => array('send message admin'),
+		'weight' => 1,
+		'type' => MENU_LOCAL_TASK
+	);
+  return $items;
+}
+
+function sr_message_render() {
+ $output .=drupal_get_form('sr_message_form');
+ return $output;
+}
+
+function sr_message_form() {
+	  $form[] = array(
+		'#value' => t('Use the fields below to send messages to your users to update them on the latest news.'),
+	  ); 
+	  
+	  $form['subject'] = array(
+		'#title' => t('Title'), 
+		'#type' => 'textfield',
+		'#size'               => 50,
+		'#maxlength'          => 100,
+		'#default_value'      => isset($form_state['values']['subject']) ? $form_state['values']['subject'] : '',
+		//'#weight'             => -5,
+		'#description' => t("Enter a title for your message(max 100 characters)"),
+		'#required' => true,
+	  );
+	  $form['body'] = array(
+		'#type'               => 'textarea',
+		'#title'              => t('Message'),
+		'#rows'               => 6,
+		//'#weight'             => -3,
+		'#resizable'          => TRUE,
+		'#maxlength'          => 2000,
+		// Avoid loosing the message body during preview.
+		'#default_value'      => isset($form_state['values']['body']) ? $form_state['values']['body'] : '',
+		'#description' => t("Enter the message you would like to send to your users.(max 2000 characters)"),
+		'#required' => true,
+     );
+	 $form['expire_date'] = array(
+		'#title' => t('Expiration Date'), 
+		'#type' => 'textfield',
+		'#size'               => 50,
+		'#maxlength'          => 20,
+		'#default_value'      => isset($form_state['values']['expire_date']) ? $form_state['values']['expire_date'] : '',
+		//'#weight'             => -5,
+		'#description' => t("(mm/dd/yyyy) Unless specified, messages will automatically be deleted after 30 days."),
+		//'#required' => true,
+	  );
+	$form['submit'] = array(
+		'#type'     => 'submit',
+		'#value'    => t('Send message'),
+		'#submit'   => array('sr_message_form_submit'),
+		'#validate'   => array('sr_message_form_validate'),
+	  );
+	 
+	  return $form;
+}
+
+function sr_message_form_validate($form, &$form_state)
+{
+  
+  if (!$form_state['values']['expire_date'] == '') {
+     if(!strtotime($form_state['values']['expire_date']))
+      form_set_error('expire_date', t('Invalid date format.(mm/dd/yyyy)'));
+	 else
+	 {
+	    if(strtotime($form_state['values']['expire_date'])<time())
+			form_set_error('expire_date', t('Invalid date time(later than today)'));
+		else
+			$form_state['values']['expire_date'] = strtotime($form_state['values']['expire_date']);
+	 }
+   }
+}
+
+function sr_message_form_submit($form, &$form_state) {
+    $message = $form_state['values'];
+    $message['timestamp'] = time();
+    // Avoid subjects which only consist of a space as these can not be clicked.
+    $message['subject'] = trim($message['subject']);
+    $trimed_body = check_markup(trim(truncate_utf8(strip_tags($message['body']), 50, TRUE, TRUE)), 1, false);
+	
+  global $user;
+  profile_load_profile($user);  
+  $unit="";
+  $value="";
+  if (sr_user_nodb_isBoroughAdmin($user)) {
+      $unit = 'borough';
+      // Get the unit admin's borough.
+      $value = $user->{profile_borough};
+  }
+  else if (sr_user_nodb_isBranchAdmin($user)) {
+      $unit = 'branch';
+      // Get the unit admin's branch ID.
+      $value = (string)$user->{profile_branch};
+  }
+  else if (sr_user_nodb_isSchoolAdmin($user)) {
+      $unit = 'school';
+      // Get the unit admin's school ID.
+      $value = $user->{profile_school};
+  }
+  if($unit!="")
+  {
+	  // 1) Save the message body first.
+	  $args = array();
+	  $args[] = $message['subject'];
+	  $args[] = $message['body'];
+	  $args[] = $user->uid;
+	  $args[] = $unit;
+	  $args[] = $value;
+	  $args[] = $message['timestamp'];
+	  $args[] = $message['expire_date'];
+	  $args[] = $user->{profile_borough};
+	  $message_sql = "INSERT INTO {sr_messages} (title, body, author,type, value, timestamp,expire_date, borough) VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, '%s' )";
+	  db_query($message_sql, $args);
+	  
+	  drupal_set_message(t('The message was successfully sent.'));
+  }
+  else
+    drupal_set_message(t('Only unit admin can send message.'));
+  
+}
+
+/**
+ * ajax call for message.
+ */
+function sr_message_get_msg($position, $strMsgs) {
+   //global $user;
+	if(!empty($_POST['js']))
+	{
+        $output .= sr_message_display_message_box($position,$strMsgs);
+		drupal_json(array('data' => $output));
+		exit();
+    }
+	//drupal_goto('/profile/'.urlencode($user->name));	
+}
+
+/**
+ * ajax call for message.
+ */
+function sr_message_del_msg($mid, $position,$strMsgs) {
+    global $user;
+    db_query("INSERT INTO {sr_message_del} VALUES (%d, %d, %d) ON DUPLICATE KEY UPDATE timestamp=%d;",  $mid, $user->uid,time(), time());
+	$strMsgs = str_replace('_'.$mid.'_', "_", $strMsgs);
+	
+	$strMsgs = str_replace("__", "_", $strMsgs);
+	if(sr_message_startsWith($strMsgs, '_'))
+	   $strMsgs=substr($strMsgs, 1, strlen($strMsgs)); 
+	if(sr_message_endsWith($strMsgs, '_'))
+	   $strMsgs=substr($strMsgs, 0, strlen($strMsgs)-1); 
+	if(trim($strMsgs)=='_')
+	    $strMsgs=="";
+	if(!empty($_POST['js']))
+	{
+	    if(strlen($strMsgs)>0)
+		{
+          $output .= sr_message_display_message_box($position,$strMsgs);
+		}
+		else
+		  $output .= "";
+		drupal_json(array('data' => $output));
+		exit();
+    }
+   //drupal_goto('/profile/'.urlencode($user->name));	
+}
+
+function sr_message_display_message($position)
+{ 
+  drupal_add_js(drupal_get_path('module', 'sr_message') . '/privatemsg.js');
+  global $user;
+  $uid = $user->uid;
+  profile_load_profile($user);  
+
+  $borough=isset($user->{profile_borough})?$user->{profile_borough}:'';
+  $branch=isset($user->{profile_branch})?(string)$user->{profile_branch}:'';
+  $school=isset($user->{profile_school})?$user->{profile_school}:'';
+  $query="";
+  $args = array();
+	
+  if($borough!='')
+  { 
+    $args[]=$user->uid;
+    $args[]=$borough;
+	
+	if($query!="")
+		$query.= " union ";
+	$query .="select m.mid from {sr_messages} m left join {sr_message_del} d on m.mid = d.mid and uid =%d
+	          where type='borough' and value='%s'  and d.mid is null";
+  }
+  if($branch!='')
+  {
+      $args[]=$user->uid;
+      $args[]=$branch;
+	 
+	  if($query!="")
+			$query.= " union ";
+	  $query .="select m.mid from {sr_messages} m left join {sr_message_del} d on m.mid = d.mid and uid =%d
+	          where type='branch' and value='%s' and d.mid is null";
+  }
+  if($school!='')
+  {
+      $args[]=$user->uid;
+      $args[]=$school;
+	  $args[]=$borough;
+	 
+	  if($query!="")
+			$query.= " union ";
+	  $query .="select m.mid from {sr_messages} m left join {sr_message_del} d on m.mid = d.mid and uid =%d
+	          where type='school' and value='%s' and borough='%s' and d.mid is null";
+  }
+  if($query!=''){
+	  $result = db_query($query.' order by mid desc', $args);
+
+	  $inbox = array();
+	  $strMsgs='';
+	  while($row =  db_fetch_array($result)) {
+		$strMsgs.=$row['mid'].'_';
+	  }
+	  if(strlen($strMsgs)>0)
+	  {
+		$strMsgs = substr($strMsgs, 0, strlen($strMsgs)-1); 
+	    $output.=sr_message_display_message_box($position, $strMsgs);
+	
+		return $output;
+	  }
+  }
+  return '';//$content;
+}
+
+function sr_message_display_message_box($position, $strMsgs)
+{ 
+  $inbox=split('_', $strMsgs);
+  $output="";
+  if(strlen($strMsgs)>0 && count($inbox)>0) 
+  {   
+      $output='<script type="text/javascript">movemsg();</script>';
+	  $output.='<div style="padding-bottom: 20px;"><div class="profile_box_side"><div class="profile_box_bottom">
+				<div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block">';
+	  $output .= '<div id="inbox">';
+	  $output .= '<div id="inbox-inner">';
+	  
+	  if($position>=count($inbox))
+	  {
+		 $position=count($inbox)-1;
+	  }
+      if($inbox[$position]>0)
+	  {
+		  $result = db_query("SELECT * FROM {sr_messages} WHERE mid = %d", $inbox[$position]);
+		  if ($message = db_fetch_object($result)) {
+		  
+			  if($message && isset($message->author))
+			  {	
+				$author = user_load($message->author);
+				$author_name_link = l(check_plain($author->name), 'profile/'.urlencode($author->name));
+				$author_avatar = '<img class="avatar-small" 
+								 src="'. sr_user_makeAvatarURL($message->author, "S") .'" 
+								 alt="'. check_plain($userReq->name) .'" />';
+				 
+				$delete_link=l("delete message", 'privatemsg/delete/'. $message->mid.'/'.$position.'/_'.$strMsgs.'_',
+							array('attributes'=>array('class'=>'message_link')));	
+				
+				$output.=' <div class="privatemsg-message-column">
+							  <div class="privatemsg-message-header">
+							  <div class="privatemsg-message-mid">
+							  <div class="privatemsg-message-leftcnr">
+							  <div class="privatemsg-message-rightcnr">
+							  <p>New Mail Message(s) from <span class="privatemsg-author-name">
+							  '.$author_name_link.'</span>'.$author_avatar.'
+							  </p>
+							  </div>
+							  </div>
+							  </div>
+							  </div>
+							  <div class="privatemsg-subject">
+							   <div class="message-actions">
+								'.$delete_link.'
+							   </div>
+								<h3>'.check_plain($message->title).'</h3>
+							 </div>
+							 <div class="privatemsg-message-body">
+							  '.check_markup($message->body).'
+							 </div>
+						</div>
+						<div class="privatemsg-clearfix"></div>';
+			 }
+			 else
+			 {
+			   $output .= sr_message_noMsg();
+			 }
+		 }
+		 else
+		 {
+		   $output .= sr_message_noMsg();
+		 }
+	 }
+	 else
+	 {
+	   $output .= sr_message_noMsg(); 
+     }
+  
+	$output .= '</div>';
+	$output .= '<div class="privatemsg-nav">';
+	if($position>0)
+	{
+		$output .='<span id="privatemsg-previous">' . l(t('Previous'), "privatemsg/position/".($position-1).'/'.$strMsgs, array('attributes'=>array('class'=>'message_link')) )  . '|</span>';
+	}
+	
+	$position++;
+	$output .= "Message " .$position." of ".count($inbox);
+	
+	if($position<count($inbox))
+	{
+	  $output .= '<span id="privatemsg-next">|' . l(t('Next'), "privatemsg/position/".$position.'/'.$strMsgs, array('attributes'=>array('class'=>'message_link')) ) . '</span>';
+	}
+	$output .= '</div>';
+	$output .= '</div>';
+	
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';		
+	$output .= '</div>';
+  }
+	return $output;
+}
+
+function sr_message_noMsg() 
+{
+     $output.=' <div class="privatemsg-message-column">
+					  <div class="privatemsg-message-header">
+					  <div class="privatemsg-message-mid">
+					  <div class="privatemsg-message-leftcnr">
+					  <div class="privatemsg-message-rightcnr">
+					  
+					  </div>
+					  </div>
+					  </div>
+					  </div>
+					  <div class="privatemsg-subject">
+						<h3></h3>
+					 </div>
+					 <div class="privatemsg-message-body">
+					 This Message might be deleted.
+					 </div>
+				</div>
+			    <div class="privatemsg-clearfix"></div>';
+	return $output;
+ }
+ 
+ function sr_message_startsWith($haystack,$needle) 
+ {
+     return preg_match('/^'.preg_quote($needle)."/", $haystack);
+ }
+
+ function sr_message_endsWith($haystack,$needle) 
+ {
+     return preg_match("/".preg_quote($needle) .'$/', $haystack);
+ }

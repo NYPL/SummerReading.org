@@ -1,0 +1,164 @@
+<?php
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_print_menu() {
+
+  $items['myprint/%/%'] = array(
+    'title' => 'My Avatar',
+    'page callback' => 'sr_print_render', 
+	'page arguments' => array(1, 2),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/* Printer friendly function - Tyler Abrams 05/06/11*/
+function sr_print_render($args, $uid)
+{
+  global $user;
+
+  //print avatar for public and admins
+  if($args=='avatar')
+  {
+		//$output .= '' ;
+		$amount = sr_util_time_getReadingTime($user->uid);
+		$hours = (int)($amount / 4);
+		$mins = ($amount % 4) * 15;
+		$output ='
+			<style>
+				.avatar-large { width: 500px;  margin: 0 auto; display: block; }
+				.print-site_name { height: 37px; }
+				#plain_hours {	position: absolute;	top: 76px; left: 703px;	z-index: 3;	font-size: 39px; color: white;	text-align: center;	width: 170px; }
+				#plain_name { color: #57C2DC; font-size: 22px;	left: 325px; position: absolute; text-align: center; top: 730px; width: 618px;	}				
+			</style>
+			<div id="plain_hours">'.check_plain($hours).'</div>
+			<div id="plain_name">'.check_plain($user->name).'</div>
+			<img id="avatar-header" src="/sites/all/themes/summerreading/images/print/avatar-header.jpg" />
+			<img class="avatar-large" src="'. sr_user_makeAvatarURL($user->uid, "L") .'" alt="'. check_plain($user->name) .'" />
+		';	  
+  }
+  
+  //print log for public and admins
+  if($args=='mylog')
+  {
+	if(!sr_user_nodb_isAdmin($user)) // public user
+	{
+		$amount = sr_util_time_getReadingTime($user->uid);
+		$hours = (int)($amount / 4);
+		$mins = ($amount % 4) * 15;
+		$output .= '<div id="PF-award-section">';
+		$output .='<img id="PF-award-bg" src="/sites/all/themes/summerreading/images/print/Banner_words.png" />';
+		$output .='<img id="PF-award-scissors" width="900"  src="/sites/all/themes/summerreading/images/print/scissors.png" />';
+		if($mins>0)
+			$output .='<div id="profile-readtime"><div class="timemsg">To date,<br/> you\'ve read</div>
+			<div id="profile-readtime-amount"><div class="hournum">'. $hours .'</div><div class="timehour">Hours</div></div><div class="timemin"><strong>'.$mins.' </strong>minutes</div></div>';
+		else
+			$output .='<div id="profile-readtime"><div class="timemsg">To date,<br/> you\'ve read</div>
+			<div id="profile-readtime-amount"><div class="hournum">'. $hours .'</div><div class="timehour">Hours</div></div></div>';
+		
+		$output .='<div id="plain_name">'.check_plain($user->name).'</div>';
+		$output .='</div>';
+		
+		//output avatar
+		$output .= '<img class="profile-avatar" src="'. sr_user_makeAvatarURL($user->uid, "L") .'" alt="'. check_plain($user->name) .'" />' ;
+		
+		//output badges
+		$output .= '<div id="badge-list">';
+		$output .= '<div class="badge-list-title">'. t("My Badges") . "</div>";
+		$output .= sr_badge_makeUserBadgeList($user);
+		$output .= "</div>";
+		
+		//output media log
+		$output .= '<div id="media-log">' ;
+		$output .= '<a name="medialog">';
+		$output .= '<div class="media-log-title">'. t("My Log") ."</div>";
+		$output .= "</a>";
+		$output .= sr_media_makeMediaLog($user);
+		$output .= "</div>";
+	}
+	
+	else //admin
+	{
+		profile_load_profile($user);
+		if(sr_user_nodb_isSiteAdmin($user))
+			$name="";
+		else if(sr_user_nodb_isBoroughAdmin($user)){
+			$name=$user->{profile_borough};
+		}
+		else if(sr_user_nodb_isBranchAdmin($user))
+		{
+		  $ret = array();
+		  $sql = "SELECT TRIM(name) FROM sr_branch WHERE branchid=%d";
+		  $name = trim(db_result(db_query($sql,$user->{profile_branch})));
+		}
+		else if(sr_user_nodb_isSchoolAdmin($user))
+		{
+		  $name=$user->{profile_school};
+		}
+		$output .='
+			<style>
+				#media-log {display: none; }
+				.print-site_name { display: none; }
+				.profile-avatar { display: none; }
+			</style>
+			<img id="PF-award-bg-admin" src="/sites/all/themes/summerreading/images/print/print-header-admin.jpg" />
+			<div id="admin_plain_name">'.check_plain($name).'</div>
+			<div id="achievement-title">Summer Reading Achievements</div>
+			<img id="registrants-icon" src="/sites/all/themes/summerreading/images/print/facts-registrant-large.gif" />
+			<img id="footer-banner" src="/sites/all/themes/summerreading/images/print/print-header-admin.gif" />
+		';
+
+		$output .="<div id='fact-list'>";	
+		$output .=sr_user_admin_stats('profile',$user);
+		$output .= "</div>";
+	}
+	
+  }
+  
+  //print certificate for a specific user
+  if($args=='certificate')
+  {
+        if (!is_numeric($uid)) {
+		  return '';
+	    }
+		//added text to the certficate print page. changed the height (was 300px) to fit text -Stephanie Rodrigues 5/16/11
+		//changed #PF-award-bg height from 300px to 500px -Stephanie Rodrigues 5/16/11
+		//changed #footber-banner position from 600px to 750px -Stephanie Rodrigues 5/16/11
+	    $userReq = user_load($uid);
+		$name = $userReq->name;
+		$output .='
+			<style>
+				.facts-all-reg { display: none; }
+				#PF-award-bg { position: static; display: block; margin: 0 auto; }
+				.admin_plain_name { position: static; }
+				#achievement-title { position: static; text-transform: none;}
+				.profile-avatar { position: static; margin: 0 auto; display: block; margin-bottom: 30px; }
+				#PF-award-section { height: 500px; }
+				#footer-banner { top: 750px; }
+				#congrats {margin:0 auto; width:550px;}
+				#library-line { color: #116B8D; font-size: 20px; font-weight: bold; width: 250px; text-align: center; margin-right:50px; float:left;} 
+				#librarian-line {color: #116B8D; font-size: 20px; font-weight: bold; width: 250px; text-align: center; float:left;}
+			</style>
+			<div id="PF-award-section">
+			<img class="profile-avatar" src="'. sr_user_makeAvatarURL($userReq->uid, "L") .'" alt="'. check_plain($userReq->name) .'" />
+			<div id="admin_plain_name">'.check_plain($name).'</div>
+			<div id="achievement-title">Congratulations to: ____________________<br/><br/> for participating in Summer Reading at your public library.</div>
+			<div id="congrats">
+			<div id="library-line">____________________<br/>Library</div>
+			<div id="librarian-line">____________________<br/>Librarian</div></div>
+			</div>
+			<img id="footer-banner" src="/sites/all/themes/summerreading/images/print/print-header-admin.gif" />
+		';
+
+		$output .="<div id='fact-list'>";	
+		$output .=sr_user_admin_stats('profile',$userReq);
+		$output .= "</div>";
+	
+  }
+  
+  return $output;
+}

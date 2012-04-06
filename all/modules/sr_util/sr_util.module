@@ -1,0 +1,1184 @@
+<?php 
+// $Id: sr_util.module
+
+/**
+* @file
+* Utilities and data for the Summer Reading website
+*/
+
+// Collection object definition
+module_load_include('php', 'sr_util', 'Collection');
+
+// some useful constants
+class Util {
+	CONST RID_BRANCH_ADMIN = 3;
+	CONST RID_SUMMER_READER = 4;
+	CONST RID_SITE_ADMIN = 5;
+	CONST RID_SYSTEM_ADMIN = 6;
+	CONST RID_INTERN = 8;
+	CONST RID_SCHOOL_ADMIN = 9;
+	CONST RID_BOROUGH_ADMIN = 11;
+	CONST FID_PROFILE_BRANCH = 7;
+	CONST FID_PROFILE_FIRSTNAME = 1;
+	CONST FID_PROFILE_LASTNAME = 9;
+	CONST FID_PROFILE_AGE = 5;
+	CONST FID_PROFILE_BOROUGH= 12;
+	CONST FID_PROFILE_SCHOOL= 13;
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_util_menu() {
+    $items['home'] = array(
+		'title' => 'Summer Reading',
+		'page callback' => 'sr_util_home_render', 
+		'access arguments' => array('access content'),
+		'type' => MENU_NORMAL_ITEM,
+    );
+ 
+	$items['branchids'] = array(
+		'title' => 'Branch IDs',
+		'page callback' => 'sr_util_branchids',
+		'access arguments' => array('search content'),
+		'type' => MENU_NORMAL_ITEM
+	);
+	
+	$items['administer'] = array(
+		'title' => 'Administer Summer Reading',
+		'page callback' => 'sr_util_administer',
+		'access arguments' => array('search content'),
+		'type' => MENU_NORMAL_ITEM
+	);
+	$items['administer/users'] = array(
+		'title' => 'Users',
+		'access arguments' => array('search content'),
+		'weight' => 0,
+		'type' => MENU_DEFAULT_LOCAL_TASK
+	);
+	$items['administer/users/preregister'] = array(
+		'title' => 'Pre-Register User',
+		'page callback' => 'sr_util_administer_users',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 0,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/users/browse'] = array(
+		'title' => 'Edit Users',
+		'page callback' => 'sr_util_administer_users',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 1,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/users/search'] = array(
+		'title' => 'Search Users',
+		'page callback' => 'sr_util_administer_users',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/users/branch'] = array(
+		'title' => 'Users at your Branch',
+		'title callback' => 'sr_util_administer_userunit_title',
+		'page callback' => 'sr_util_administer_users',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 3,
+		'type' => MENU_LOCAL_TASK
+	);
+   $items['administer/media'] = array(
+		'title' => 'Media',
+		'access arguments' => array('search content'),
+		'weight' => 1,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/media/reviews'] = array(
+		'title' => 'Administer Unpublished Reviews',
+		'page callback' => 'sr_util_administer_media',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 0,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/media/reportreviews'] = array(
+		'title' => 'Administer Reported Reviews',
+		'page callback' => 'sr_util_administer_media',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 0,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/media/search'] = array(
+		'title' => 'Search Media & Reviews',
+		'page callback' => 'sr_util_administer_media',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/badges'] = array(
+		'title' => 'Badges',
+		'access arguments' => array('search content'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/badges/create'] = array(
+		'title' => 'Create New Badge',
+		'page callback' => 'sr_util_administer_badges',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 0,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/badges/browse'] = array(
+		'title' => 'Administer Badges',
+		'page callback' => 'sr_util_administer_badges',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 1,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/branches'] = array(
+		'title' => 'Branches',
+		'access arguments' => array('search content'),
+		'weight' => 3,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/branches/users'] = array(
+		'title' => 'Users at your Branch',
+		'page callback' => 'sr_util_administer_branches',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 0,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/branches/media'] = array(
+		'title' => 'Media at your Branch',
+		'page callback' => 'sr_util_administer_branches',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/branches/ids'] = array(
+		'title' => 'Branch IDs',
+		'page callback' => 'sr_util_administer_branches',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 10,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/stats'] = array(
+		'title' => 'Statistics',
+		'page callback' => 'sr_util_administer_stats',
+		'access arguments' => array('search content'),
+		'weight' => 4,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit'] = array(
+		'title' => 'my branch',
+		'title callback' => 'sr_util_administer_myunit_title',
+		'access arguments' => array('search content'),
+		'weight' => 5,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/csv'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3),
+		'access arguments' => array('search content'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/xls'] = array(
+		'title' => 'XLS export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3),
+		'access arguments' => array('search content'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/topcsv/1'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3,4),
+		'access arguments' => array('create users'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/topcsv/2'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3,4),
+		'access arguments' => array('create users'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/topcsv/3'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3,4),
+		'access arguments' => array('create users'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/topcsv/4'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3,4),
+		'access arguments' => array('create users'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/school/2'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3,4),
+		'access arguments' => array('create users'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report/srid/1'] = array(
+		'title' => 'CSV export',
+		'page callback' => 'sr_util_report_render',
+		'page arguments' => array(3,4),
+		'access arguments' => array('create users'),
+		'weight' => 2,
+		'type' => MENU_LOCAL_TASK
+	);
+	$items['administer/myunit/report'] = array(
+		'title' => 'Your Statistics',
+		'page callback' => 'sr_util_administer_myunit',
+		'page arguments' => array(2),
+		'access arguments' => array('search content'),
+		'weight' => 3,
+		'type' => MENU_LOCAL_TASK
+	);
+	
+  return $items;
+}
+
+/**
+* renter home page
+*/
+function sr_util_home_render() {
+       global $user;
+       drupal_add_js(drupal_get_path('module', 'sr_util') . '/googlemap.js');
+	   $markers=array();
+	   $results = db_query("SELECT s.branchid, s.name, l.lat, l.lon, l.address, a.dst, (ifnull(sat.total, 0) + ifnull(sat3.users, 0) ) as total, 
+	                        (ifnull(sat2.total, 0)+ifnull(sat3.books, 0)) as total2 FROM {sr_branch_locations} l 
+	                        INNER JOIN {sr_branch} s on s.branchid=l.branchid 
+							INNER JOIN {sr_custom_page} p on p.name=s.branchid
+							INNER JOIN {url_alias} a on a.src = CONCAT('node/',p.nid)
+							LEFT JOIN {sr_admin_statistics} sat ON sat.name=s.name and sat.borough=s.borough and sat.type='user'
+							LEFT JOIN {sr_admin_statistics} sat2 ON sat2.name=s.name and sat2.borough=s.borough and sat2.type='book'
+							left join sr_pre_reg_stats sat3 on sat3.branchid=s.branchid");
+ 
+	  while ($result=db_fetch_array($results)) {
+	    if(strlen($result['lat'])>0 && strlen($result['lon'])>0)
+		{
+			$result['total']=isset($result['total'])?$result['total']:'0';
+			$result['total2']=isset($result['total2'])?$result['total2']:'0';
+			
+			$markers[] = $result['name']. '|'.$result['lat']. '|'.$result['lon']. 
+			           '|'.$result['address'].'|'.$result['dst']. '|'.$result['total'].'|'.$result['total2'];
+		}
+	  }
+
+	   drupal_add_js(array('markers' => $markers), 'setting'); 
+	   if ($user->uid>0)
+	   {
+	      $msg="Summer Reading 2011 is now over, but please come back again in Summer 2012!";
+	     
+	   }
+	   else
+	   {
+	       $msg="Come back and see us again in Summer 2012!";
+	   
+	   }
+       $output .= '<p><style type="text/css">
+					#feature1 h3 {
+					font-size:21px;
+					color:#EDEA66;
+					}
+					
+					#feature1 .features-bottom iframe {
+					margin-left:50px;
+					}
+					
+					#feature2 p {
+					color: #4688A8;
+					font-size: 17px;
+					font-weight:bold;
+					line-height: 1.2em;
+					width: 350px;
+					margin:0 auto;
+					}
+					
+					#feature2  p.first-graf {
+					color:#4688A8;
+					font-size:21px;
+					line-height:1.2em;
+					width:350px;
+					margin: 0 auto;
+					text-align:center;
+					
+					}
+					#feature2 ul
+					{width:480px;}
+					#feature2 ul li,
+					#feature2 ul li a {
+					color: #4FBEDC;
+					font-weight:bold;
+					text-align:left;
+					line-height:24px;
+					width:480px;
+					}
+
+					#feature2  p {
+					color:#4688A8;
+					font-size:1.2em;
+					line-height:1.2em;
+					width:480px;
+					//margin: 0 auto;
+					text-align:left;
+					
+					}
+
+					#feature2 a.feature-link {
+					//color: #4FBEDC;
+					font-size:1.5em;
+					//width:480px;
+					}
+
+					</style></p>
+					    <div id="feature1">
+						
+							<div class="features-mid">
+								<div class="features-top">
+									<div class="features-bottom"><h3 style="margin-left:50px;">Summer Reading 2011</h3><iframe width="270" height="218" src="http://www.youtube.com/embed/R9OhzHDa4ls?rel=0" frameborder="0" allowfullscreen=""></iframe>
+									
+									</div>
+									
+								</div>
+							</div>
+						</div>
+						<div id="feature2">
+							<div class="features-mid">
+
+								<div class="features-top">
+									<div class="features-bottom">
+									<p class="first-graf" style="margin-top:17px;"><!--<br />-->
+									'.$msg.'</p><br/>
+									<p>Visit your local NYC public library at:</p>
+									<!--Join Summer Reading today!-->
+									<!--<a href="/user/register"><img src="sites/summerreading.org/files/images/start_btn.jpg"/></a>
+									<p>What\'s New at your Library?</p>-->
+									<ul>
+									<!--<li><a href="http://www.brooklynpubliclibrary.org/teachers/teachercard.jsp">Teacher Library Cards at Brooklyn Public Library </a></li>-->
+									<li><a href="http://www.brooklynpubliclibrary.org">Brooklyn Public Library </a></li>
+									<!--<li><a href="http://www.nypl.org/node/128531">Read Down Your Fines at The New York Public Library</a></li>-->
+									<li><a href="http://www.nypl.org/node/128531">New York Public Library</a></li>
+									<!--<li><a href="http://www.queenslibrary.org/index.aspx?page_nm=Fines+Fees#fines">Read Down Your Fees at Queens Library  </a></li>-->
+									<li><a href="http://www.queenslibrary.org/index.aspx?page_nm=Fines+Fees#fines">Queens Library  </a></li>
+
+									</ul>
+									<!--<p>You can also watch &quot;How To Use Summerreading.org&quot; on <a href="http://got.im/7fw4">SchoolTube</a>.</p>-->
+								</div>
+							</div>
+						</div>
+					</div>
+				<div style="clear: both; 1px;"><!-- --></div>  </div>';
+				//$output .= '<div id="map-header"><p>Check out how many people have joined at your local library. <br/>Use your mouse to drag around the map below!</p></div>
+					//<div id="map_bg">
+				  // <div id="map-mid">
+				  // <div id="map-top">
+				  // <div id="map-bottom">
+				  // <div id="map_canvas"></div>
+				  // <div id="map-key"><h1> Summer Reading Participant Key</h1><div class="key-info"><img src="sites/summerreading.org/files/images/circle_red.png"/><p>0 - 500 Participants</p></div><div class="key-info"><img src="sites/summerreading.org/files/images/circle_yellow.png"/><p>500 - 1,000 Participants</p></div><div class="key-info-green"><img src="sites/summerreading.org/files/images/circle_green.png"/><p>1000+ Particpants</p></div>
+				  // </div></div></div>
+				  // </div>
+				  // </div>
+				  // ';
+	return $output;
+ }
+
+
+/**
+* administration pages
+*/
+function sr_util_administer() { 
+	$output = "<div class='administer_mainbox'><div class='administer_mainbox_bottom'>
+	           <div class='administer_mainbox_tl'><div class='administer_mainbox_tr'>
+			   <div class='administer_mainbox_br'><div class='administer_mainbox_bl'>
+			   <div style='height: 1px; 800px; clear: both;'><!-- --></div><!-- --></div></div></div></div></div></div>";
+	return $output;
+} 
+
+/**
+ * Menu callback for page title.
+ */
+function sr_util_administer_userunit_title() {
+	global $user;
+	$ret = "";
+   
+	if(sr_user_nodb_isSchoolAdmin($user))
+	{
+	  $ret="Users At Your School";
+	}
+	else
+	{
+	  $ret="Users At Your Branch";
+	}
+	
+	return $ret;
+}
+
+function sr_util_administer_users($page) { 
+
+	$output .= "<div class='administer_mainbox'><div class='administer_mainbox_bottom'><div class='administer_mainbox_tl'><div class='administer_mainbox_tr'><div class='administer_mainbox_br'><div class='administer_mainbox_bl clear-block'><div class='hr'><!-- --></div>";
+	switch ($page) {
+		case "preregister":
+			$output .= sr_user_page_preregister();
+			break;
+		case "browse":
+			drupal_goto("admin/user/user");
+			break;
+		case "search":
+			drupal_goto("search/user");
+			break;
+		case "branch":
+			$output .= sr_util_branchusers();
+			break;
+		default:
+			break;
+	}
+	$output .="</div></div></div></div></div></div>";
+	return $output;
+} 
+
+function sr_util_administer_media($page) { 
+	$output .= "<div class='administer_mainbox'><div class='administer_mainbox_bottom'>
+		<div class='administer_mainbox_tl'><div class='administer_mainbox_tr'><div class='administer_mainbox_br'>
+		<div class='administer_mainbox_bl clear-block'><div class='hr'><!-- --></div>";
+	switch ($page) {
+		case "reviews":
+			$output .= sr_review_adminreviews('unpublish');
+			break;
+		case "reportreviews":
+			$output .= sr_review_adminreviews('reported');
+			break;
+		case "view":
+			$output .= sr_media_adminsearch();
+			break;
+		case "search":
+			drupal_goto("search/node");
+			break;
+			
+		default:
+	}
+	$output .="</div></div></div></div></div></div>";
+	return $output;
+}
+
+function sr_util_administer_badges($page) { 
+	$output .= "<div class='administer_mainbox'><div class='administer_mainbox_bottom'>
+		<div class='administer_mainbox_tl'><div class='administer_mainbox_tr'>
+		<div class='administer_mainbox_br'><div class='administer_mainbox_bl clear-block'><div class='hr'><!-- --></div>";
+	switch ($page) {
+		case "create":
+			$output .= sr_badge_page_createbadge();
+			break;
+		case "browse":
+			$output .= sr_badge_adminbadges();
+			break;
+			
+		default:
+	}
+	$output .="</div></div></div></div></div></div>";
+	return $output;
+} 
+
+function sr_util_administer_branches($page) { 
+	$output .= "<div class='administer_mainbox'><div class='administer_mainbox_bottom'>
+		<div class='administer_mainbox_tl'><div class='administer_mainbox_tr'>
+		<div class='administer_mainbox_br'><div class='administer_mainbox_bl clear-block'><div class='hr'><!-- --></div>";
+	switch ($page) {
+		case "users":
+			$output .= sr_util_branchusers();
+			break;
+		case "media":
+		    //$output .= "under developement";//sr_util_branchusers();
+			$output .= sr_util_branchmedia();
+			break;
+		case "ids":
+			$output .= sr_util_branchids();
+			break;
+			
+		default:
+	}
+	$output .="</div></div></div></div></div></div>";
+	return $output;
+}
+
+function sr_util_administer_stats() { 
+	$output .= "<div class='administer_mainbox'><div class='administer_mainbox_bottom'>
+		<div class='administer_mainbox_tl'><div class='administer_mainbox_tr'>
+		<div class='administer_mainbox_br'><div class='administer_mainbox_bl clear-block'><div class='hr'><!-- --></div>";
+	
+	$output .= "<strong>" . t("Summer Reading statistics reports, exportable in CSV and XLS format.") . "</strong><br /><br />";
+	
+	$result = db_query("SELECT nid, title 
+	  FROM {node} 
+	  WHERE type = '%s' 
+	  ORDER BY nid ASC", 'report');
+
+	$x = 0;
+	while ($row = db_fetch_object($result)) {
+		$output .= '<a href="'. base_path() .'node/'. $row->nid .'">'. $row->title ."</a><br />";
+		$x++;
+	}
+	
+	$output .= "<br>";
+	$output .="</div></div></div></div></div></div>";
+	return $output;
+} 
+
+/**
+ * Menu callback for page title.
+ */
+function sr_util_administer_myunit_title() {
+	global $user;
+	$ret = "";
+   
+	if(sr_user_nodb_isSiteAdmin($user))
+	{
+	  $ret="Summer Reading";
+	}
+	else if(sr_user_nodb_isBoroughAdmin($user))
+	{
+	  $ret="My Borough";
+	}
+	else if(sr_user_nodb_isBranchAdmin($user))
+	{
+	  $ret="My Branch";
+	}
+	else if(sr_user_nodb_isSchoolAdmin($user))
+	{
+	  $ret="My School";
+	}
+	
+	return $ret;
+}
+
+function sr_util_administer_myunit($page) { 
+	$output .= "<div class='administer_mainbox'><div class='administer_mainbox_bottom'>
+		<div class='administer_mainbox_tl'><div class='administer_mainbox_tr'>
+		<div class='administer_mainbox_br'><div class='administer_mainbox_bl clear-block'><div class='hr'><!-- --></div>";
+	switch ($page) {
+
+	case "message":
+        $output .= sr_message_render();
+        break;
+	case "messagelist":
+        $output .= sr_util_message();
+        break;
+
+    case "report":
+			$output .= sr_util_unitreport();
+			break;
+	
+		default:
+	}
+	$output .="</div></div></div></div></div></div>";
+	return $output;
+}
+
+/**
+ * create csv file
+ */
+function sr_util_report_render($type, $age,  $separator = ',', $delimiter = '"', $print = true) {
+    if($type=="srid")
+	{
+	    $sql="SELECT * FROM profile_values p
+				inner join sr_user_badge s on p.uid=s.uid
+				where fid=14 and value <>'' and (s.bid>=625 and s.bid<=650)";
+			
+	    $result = db_query( $sql, $age);
+			 
+		$type='csv';
+	}
+	else if($type=="school")
+	{  
+    	$sql="select u.total as users, b.total as books, m.total as media, bg.total as badge,  t.total as time, u.name, u.borough from sr_admin_statistics u
+			inner join sr_admin_statistics b on b.name=u.name and b.borough=u.borough
+			inner join sr_admin_statistics m on m.name=u.name and m.borough=u.borough
+			inner join sr_admin_statistics bg on bg.name=u.name and bg.borough=u.borough
+			inner join sr_admin_statistics t on t.name=u.name and t.borough=u.borough
+			where u.type='user' and b.type='book' and m.type='media'
+			and bg.type='badge' and t.type='time' and u.name not in (select name from sr_branch) and u.name not in (select u.borough from sr_branch)";
+			
+	    $result = db_query( $sql, $age);
+			 
+		$type='csv';
+	}
+	
+	else if($type !='topcsv')
+	{
+	    global $user;
+	   
+	    if(sr_user_nodb_isSiteAdmin($user))
+		{
+		  $fid="";
+		}
+		else if(sr_user_nodb_isBoroughAdmin($user))
+		{
+		  $fid=Util::FID_PROFILE_BOROUGH;
+		  profile_load_profile($user);
+		  $value= $user->{profile_borough};
+		}
+		else if(sr_user_nodb_isBranchAdmin($user))
+		{
+		  $fid=Util::FID_PROFILE_BRANCH;
+		  profile_load_profile($user);
+		  $value= $user->{profile_branch};
+		  $borough= $user->{profile_borough};
+		}
+		else if(sr_user_nodb_isSchoolAdmin($user))
+		{
+		  $fid=Util::FID_PROFILE_SCHOOL;
+		  profile_load_profile($user);
+		  $value= $user->{profile_school};
+		  $borough= $user->{profile_borough};
+		}		
+				
+		$sql="SELECT username, firstname, lastname, email, age, borough, branch, school, logcount, 
+		    badgecount, likecount, reviewcount, timespent, created
+			FROM sr_branch_users";
+				
+		if(!$fid=="")
+		{
+		    if($fid==Util::FID_PROFILE_BOROUGH)
+		    {
+				$result = db_query( $sql. " where borough = '%s' ", $value);
+			}
+		    else if($fid==Util::FID_PROFILE_BRANCH)
+		    {
+				$result = db_query( $sql. " where branchid = '%s' and borough='%s' ", $value, $borough);
+			}
+			else
+		    {
+			  $result = db_query( $sql. " where school = '%s' and borough='%s' ", $value, $borough);
+			}
+			
+		}
+		else
+		{
+		     $result = db_query( $sql);
+		}
+	}
+	else
+	{
+	    $sql="SELECT username, firstname, lastname, email, age, borough, branch, school, logcount, 
+		    badgecount, likecount, reviewcount, timespent, created
+			FROM sr_branch_users where age=%d order by logcount desc limit 1000";
+			
+	    $result = db_query( $sql, $age);
+			 
+		$type='csv';
+	}
+		
+		  while ($item = db_fetch_array($result)) {
+			$data[] = $item;
+		  }
+		  
+		  if (count($data)) {
+			// Any element will hold the field names, lets pick the first one.
+			foreach ($data[0] as $key => $value) {
+			  $header[] = $key;
+			}
+		  }
+		  
+		  if (is_array($header) && is_array($data)) {
+			$function = 'customreports_render_'. $type;
+			if (function_exists($function)) {
+			  return call_user_func($function, $header, $data, $separator, $delimiter, $print);
+			}
+			else {
+			  drupal_set_message(t('Requested render type not available, falling back to table display.'), 'warning');
+			  return theme('table', $header, $data);
+			}
+		  }
+		  else {
+			drupal_set_message(t('No output from query.'), 'warning');
+			return '';
+		  }
+		  
+}
+
+/**
+* method to load library branch data and put into jquery scope
+*/
+function sr_util_loadBranches() {
+	
+	// load library branches 
+  $branchesBronx = array();
+  $branchesBrook = array();
+  $branchesMan = array();
+  $branchesStat = array();
+  $branchesQueens = array();
+  $branchesOther = array();
+  
+	$result = db_query( "SELECT DISTINCT branchid, name, symbol, borough 
+	  FROM {sr_branch} 
+	  ORDER BY borough, name");
+	while ($row = db_fetch_object($result)) {
+	  switch ($row->borough) {
+	    case "Bronx":
+	     $branchesBronx[$row->branchid] = $row->name;
+	     break;
+	    case "Brooklyn":
+	     $branchesBrook[$row->branchid] = $row->name;
+	     break;
+	    case "Manhattan":
+	     $branchesMan[$row->branchid] = $row->name;
+	     break;
+	    case "Staten Island":
+	     $branchesStat[$row->branchid] = $row->name;
+	     break;
+	    case "Queens":
+	     $branchesQueens[$row->branchid] = $row->name;
+	     break;
+	    default:
+       $branchesOther[$row->branchid] = $row->name;
+	    	
+	  }
+	}
+	
+	// set globally for jquery scripts
+  drupal_add_js(array('branchesBronx' => $branchesBronx), 'setting');	
+  drupal_add_js(array('branchesBrook' => $branchesBrook), 'setting'); 
+  drupal_add_js(array('branchesMan' => $branchesMan), 'setting'); 
+  drupal_add_js(array('branchesStat' => $branchesStat), 'setting'); 
+  drupal_add_js(array('branchesQueens' => $branchesQueens), 'setting'); 
+  drupal_add_js(array('branchesOther' => $branchesOther), 'setting'); 
+  
+}
+
+/**
+ * method to load library branch data and put into jquery scope
+ */
+function sr_util_getBranchName($id) {
+  return db_result(db_query( "SELECT name FROM {sr_branch} WHERE branchid = %d", $id));
+}
+
+/**
+ * method to replace bad words with *asterisks*
+ */
+function sr_util_cleanInput($ToFilter) {
+
+  $Foul = @file(drupal_get_path('module', 'sr_util') . '/badwords.txt');
+  foreach ($Foul as $FoulWord) {
+      
+ 		$FoulWord = trim($FoulWord);
+    if (preg_match("/".$FoulWord."/i", $ToFilter)) {
+      $RepChar = str_repeat('*', strlen($FoulWord));
+      $ToFilter = eregi_replace($FoulWord, $RepChar, trim($ToFilter));
+      $RepChar = "";
+    }
+  }
+  return $ToFilter;
+}
+
+/**
+ * method to return true if contains bad words
+ */
+function sr_util_containsBadInput($ToFilter) {
+	$ret = false;
+	
+  $Foul = @file(drupal_get_path('module', 'sr_util') . '/badwords.txt');
+  foreach ($Foul as $FoulWord) {
+      
+ 		$FoulWord = trim($FoulWord, "\r\n");
+		$FoulWord =trim($FoulWord);
+    if (preg_match("/".$FoulWord."/i", $ToFilter)) {
+    	watchdog('badword', $FoulWord, NULL, WATCHDOG_DEBUG);
+    	$ret = true;
+    	break;
+    }
+  }
+  return $ret;
+}
+
+/**
+ * page to look up branch users
+ */
+function sr_util_branchusers() {
+	global $user;
+    if(sr_user_nodb_isSiteAdmin($user) || sr_user_nodb_isBranchAdmin($user) || sr_user_nodb_isSchoolAdmin($user))
+	{
+		profile_load_profile($user);
+		
+		if(sr_user_nodb_isSiteAdmin($user) || sr_user_nodb_isBranchAdmin($user))
+		{
+			$branchid = $user->profile_branch;
+			$queryBranch = "";
+			
+			if (!$branchid > 0) {
+				$output .= "Your account is not associated with a library branch. Please contact a site administrator.";
+				return $output;
+			}
+		}
+		else
+		{
+		    $school = $user->profile_school;
+			$boro = $user->profile_borough;
+			
+			if (!sr_user_validateSchool($school, $boro)=="") {
+				$output .= "Your account is not associated with a school. Please contact a site administrator.";
+				return $output;
+			}
+		}
+
+		if (strlen(trim($_GET['sort'])) > 0) {
+			$sort = strtolower(trim($_GET['sort']));
+		}
+		else {
+			$sort = "name";
+		}
+		switch ($sort) {
+			case "name":
+				$sql = "name ASC";
+				break;
+				
+			case "firstname":
+				$sql = "firstname ASC";
+				break;
+			
+			case "lastname":
+				$sql = "lastname ASC";
+				break;
+				
+			case "agegroup":
+				$sql = "agegroup ASC";
+				break;
+				
+			case "logcount":
+				$sql = "logcount DESC";
+				break;
+				
+			case "reviewcount":
+				$sql = "reviewcount DESC";
+				break;
+				
+			case "likecount":
+				$sql = "likecount DESC";
+				break;
+				
+			case "badgecount":
+				$sql = "badgecount DESC";
+				break;
+				
+			default:
+				$sql = "name ASC";
+		}
+		
+		$thispage = request_uri();
+		//$thispage = substr($thispage, 1, strlen($thispage));
+		if(strpos($this_page, '?')!==0){
+		  //$query = substr(strstr($thispage, '?'), 1, strlen($thispage));
+		  $thispage = substr($thispage, 0, strpos($thispage, '?'));
+		}
+		if(sr_user_nodb_isSiteAdmin($user) || sr_user_nodb_isBranchAdmin($user))
+		{
+			$output .= "<strong>" . sr_util_getBranchName($branchid) . "</strong><br />" . 
+				"A list of summer reading profiles which are linked to your library branch.";
+									
+			$result = db_query( "SELECT uid, username as name, firstname, lastname, age as agegroup, logcount, badgecount, likecount, reviewcount
+									from {sr_branch_users} where branchid='%s' order by %s", $branchid, $sql);
+		}
+		else
+		{
+		    $output .= "<strong>" . $school . "</strong><br />" . 
+				"A list of summer reading profiles which are linked to your school.";
+					
+			$result = db_query( "SELECT uid, username as name, firstname, lastname, age, logcount, badgecount, likecount, reviewcount
+									from {sr_branch_users} where school='%s' and borough='%s' order by %s", $school, $boro, $sql);
+		
+		}	
+		
+		$output .= '<div id="admin-branchusers" class="admin-table">' ;
+
+		$output .= '<div class="admin-branchusers-heading admin-heading">' ;
+		$output .= '<div class="admin-branchusers-heading-col0 admin-table-heading-col"><a href="'. $thispage .'?sort=name'. $queryBranch .'">Screen Name</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col1 admin-table-heading-col"><a href="'. $thispage .'?sort=firstname'. $queryBranch .'">First Name</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col2 admin-table-heading-col"><a href="'. $thispage .'?sort=lastname'. $queryBranch . '">Last Name</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col3 admin-table-heading-col"><a href="'. $thispage .'?sort=agegroup'. $queryBranch . '">Age Grp</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col3 admin-table-heading-col"><a href="'. $thispage .'?sort=logcount'. $queryBranch . '">Logged</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col4 admin-table-heading-col"><a href="'. $thispage .'?sort=reviewcount'. $queryBranch .'">Reviews</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col5 admin-table-heading-col"><a href="'. $thispage .'?sort=likecount'. $queryBranch .'">Likes</a></div>' ;
+		$output .= '<div class="admin-branchusers-heading-col6 admin-table-heading-col"><a href="'. $thispage .'?sort=badgecount'. $queryBranch .'">Badges</a></div>' ;
+		$output .= "</div>";
+		
+		$x = 0;
+		while ($row = db_fetch_object($result)) {
+
+			if ($x % 2 == 0) {
+				$rowclass = "admin-table-row-even";
+			} else {
+				$rowclass = "admin-table-row-odd";
+			}
+			$output .= '<div class="admin-branchusers-item admin-table-row">' ;
+			$output .= '<div class="admin-branchusers-col0 admin-table-col '. $rowclass .'"><a href="/profile/'. $row->uid .'">'. check_plain($row->name) ."</a></div>";
+			$output .= '<div class="admin-branchusers-col1 admin-table-col '. $rowclass .'">'. check_plain($row->firstname) ."</div>";
+			$output .= '<div class="admin-branchusers-col2 admin-table-col '. $rowclass .'">'. check_plain($row->lastname) ."</div>";
+			$output .= '<div class="admin-branchusers-col3 admin-table-col '. $rowclass .'">'. $row->agegroup."</div>";
+			$output .= '<div class="admin-branchusers-col3 admin-table-col '. $rowclass .'">'. $row->logcount ."</div>";
+			$output .= '<div class="admin-branchusers-col4 admin-table-col '. $rowclass .'">'. $row->reviewcount ."</div>";
+			$output .= '<div class="admin-branchusers-col5 admin-table-col '. $rowclass .'">'. $row->likecount ."</div>";
+			$output .= '<div class="admin-branchusers-col6 admin-table-col '. $rowclass .'">'. $row->badgecount ."</div>";
+			$output .= "</div>";
+			
+			$x++;
+		}
+		$output .= "</div><br /><br />";
+	}
+	else
+	{
+	  $output .= "Oops! Only Branch Admin Can View This.";
+	}
+	return $output;
+	
+	
+}
+
+/**
+ * page to look up branch media activity
+ */
+function sr_util_branchmedia() {
+	global $user;
+    if(sr_user_nodb_isSiteAdmin($user) || sr_user_nodb_isBranchAdmin($user))
+	{
+		profile_load_profile($user);
+		if (strlen(trim($_GET['branchid'])) > 0) {
+			$branchid = strtolower(trim($_GET['branchid']));
+			$queryBranch = "&branchid=" . $branchid;
+		}
+		else {
+			$branchid = $user->profile_branch;
+			$queryBranch = "";
+		}
+		
+		if (!$branchid > 0) {
+			$output .= "Your account is not associated with a library branch. Please contact a site administrator.";
+			return 0;
+		}
+
+		if (strlen(trim($_GET['sort'])) > 0) {
+			$sort = strtolower(trim($_GET['sort']));
+		}
+		else {
+			$sort = "name";
+		}
+		switch ($sort) {
+			case "title":
+				$sql = "title ASC";
+				break;
+				
+			case "author":
+				$sql = "author ASC";
+				break;
+				
+			case "mid":
+				$sql = "mid DESC";
+				break;
+				
+			case "usercount":
+				$sql = "usercount DESC";
+				break;
+				
+			case "reviewcount":
+				$sql = "reviewcount DESC";
+				break;
+				
+			case "mediatype":
+				$sql = "mediatype ASC";
+				break;
+				
+			default:
+				$sql = "title ASC";
+		}
+		
+		$thispage = request_uri();
+		//$thispage = substr($thispage, 1, strlen($thispage));
+		if(strpos($this_page, '?')!==0){
+		  //$query = substr(strstr($thispage, '?'), 1, strlen($thispage));
+		  $thispage = substr($thispage, 0, strpos($thispage, '?'));
+		}
+
+		$output .= "<strong>" . sr_util_getBranchName($branchid) . "</strong><br />" . 
+			"A list of media which was logged by user profiles linked to your library branch.";
+		
+			
+		$result = db_query( "SELECT * from {sr_branch_medias} where branchid=%d order by %s", $branchid, $sql);
+		
+		$output .= '<div id="admin-branchmedia" class="admin-table">' ;
+
+		$output .= '<div class="admin-branchmedia-heading admin-heading">' ;
+		$output .= '<div class="admin-branchmedia-heading-col0 admin-table-heading-col"><a href="'. $thispage .'?sort=mid'. $queryBranch .'">ID</a></div>' ;
+		$output .= '<div class="admin-branchmedia-heading-col1 admin-table-heading-col"><a href="'. $thispage .'?sort=title'. $queryBranch .'">Title</a></div>' ;
+		$output .= '<div class="admin-branchmedia-heading-col2 admin-table-heading-col"><a href="'. $thispage .'?sort=author'. $queryBranch .'">Author</a></div>' ;
+		$output .= '<div class="admin-branchmedia-heading-col3 admin-table-heading-col"><a href="'. $thispage .'?sort=usercount'. $queryBranch .'">Log Count</a></div>' ;
+		$output .= '<div class="admin-branchmedia-heading-col4 admin-table-heading-col"><a href="'. $thispage .'?sort=reviewcount'. $queryBranch .'">Reviews</a></div>' ;
+		$output .= '<div class="admin-branchmedia-heading-col5 admin-table-heading-col"><a href="'. $thispage .'?sort=type'. $queryBranch .'">Type</a></div>' ;
+		$output .= "</div>";
+		
+		$x = 0;
+		while ($row = db_fetch_object($result)) {
+
+			if ($x % 2 == 0) {
+				$rowclass = "admin-table-row-even";
+			}
+			else {
+				$rowclass = "admin-table-row-odd";
+			}
+			$output .= '<div class="admin-branchmedia-item admin-table-row">' ;
+			$output .= '<div class="admin-branchmedia-col0 admin-table-col '. $rowclass .'"><a href="/media/'. $row->mid .'">'. $row->mid ."</a></div>";
+			$output .= '<div class="admin-branchmedia-col1 admin-table-col '. $rowclass .'">'. check_plain(substr($row->title, 0, 43)) . "&nbsp;</div>";
+			$output .= '<div class="admin-branchmedia-col2 admin-table-col '. $rowclass .'">'. check_plain(substr($row->author, 0, 37)) . "&nbsp;</div>";
+			$output .= '<div class="admin-branchmedia-col3 admin-table-col '. $rowclass .'">'. $row->usercount ."</div>";
+			$output .= '<div class="admin-branchmedia-col4 admin-table-col '. $rowclass .'">'. $row->reviewcount ."</div>";
+			$output .= '<div class="admin-branchmedia-col5 admin-table-col '. $rowclass .'">'. $row->type ."</div>";
+			$output .= "</div>";
+			
+			$x++;
+		}
+		$output .= "</div><br /><br />";
+	}
+	else
+	{
+	  $output .= "Oops! Only Branch Admin Can View This.";
+	}
+	return $output;
+}
+
+/**
+ * page to look up branch ids
+ */
+function sr_util_branchids() {
+
+	$output .= t("A list of all the library branches and their internal Summer Reading ID numbers.");
+	
+	$output .= '<div id="admin-branchids" class="admin-table">' ;
+	
+	$result = db_query( "SELECT DISTINCT branchid, name, symbol, borough FROM {sr_branch} ORDER BY borough, name");
+
+	$output .= '<div class="admin-branchids-heading admin-heading">' ;
+	$output .= '<div class="admin-branchids-heading-col0 admin-table-heading-col">Borough</div>' ;
+	$output .= '<div class="admin-branchids-heading-col1 admin-table-heading-col">Branch Name</div>' ;
+	//$output .= '<div class="admin-branchids-heading-col2 admin-table-heading-col">Branch Code</div>' ;
+	$output .= '<div class="admin-branchids-heading-col2 admin-table-heading-col">Branch ID</div>' ;
+	$output .= "</div>";
+
+	$x = 0;
+	while ($row = db_fetch_object($result)) {
+
+		if ($x % 2 == 0) {
+			$rowclass = "admin-table-row-even";
+		}
+		else {
+			$rowclass = "admin-table-row-odd";
+		}
+		
+		$output .= '<div class="admin-branchids-item admin-table-row">' ;
+		$output .= '<div class="admin-branchids-col0 admin-table-col '. $rowclass .'">'. $row->borough ."</div>";
+		$output .= '<div class="admin-branchids-col1 admin-table-col '. $rowclass .'">'. $row->name ."</div>";
+		//$output .= '<div class="admin-branchids-col2 admin-table-col '. $rowclass .'">'. strtoupper($row->symbol) ."</div>";
+		$output .= '<div class="admin-branchids-col2 admin-table-col '. $rowclass .'">'. $row->branchid ."</div>";
+		$output .= "</div>";
+		
+		$x++;
+	}
+	
+	$output .= "</div>";
+	
+	return $output;		
+}
+
+/**
+ * 
+ */
+function sr_util_unitreport() {
+    global $user;
+    
+	$output .="<div class='stats-header'>".sr_util_administer_myunit_title();
+	$output .="</div>";
+	$output .="<div class='stats-title'>Summer Reading Achievements ";
+	$output .="</div>";
+	$output .="<div id='myunit'>";
+	$output .="<div class='current-stats'>Below are current statistics of ".sr_util_administer_myunit_title()."</div>";
+	$output .="<div id='fact-list'>";
+	$output .=sr_user_admin_stats('myunit', $user);
+	$output .= "</div>";
+	//$output .= "</div>";
+	$output .="<div id='output'>";
+	$output .="<div class='msg'>Use the buttons below to export these reports or print a certificate</div>";
+	$output .="<div class='msgbold'>Export Branch Statistics Report:</div>";
+	$output .="<div class='btn'><a href='/administer/myunit/report/csv'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+	$output .="<div class='btn'><a href='/administer/myunit/report/xls'><img src='/sites/summerreading.org/files/images/btn_xlsfile.gif' alt=''/></a></div>";
+	$output .="<div class='msgbold'>Print Certificate:</div>";
+	
+	$output .="<div class='btn'><a class='print-page' rel='nofollow' onclick='window.open(this.href); return false' href='/print/myprint/mylog/0'><img src='/sites/summerreading.org/files/images/btn_print.gif' alt=''/></a></div>";
+	if(sr_user_nodb_isSiteAdmin($user))
+	{
+		$output .="<div class='btn'>Top logcount at age group 1: <a href='/administer/myunit/report/topcsv/1'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+		$output .="<div class='btn'>Top logcount at age group 2: <a href='/administer/myunit/report/topcsv/2'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+		$output .="<div class='btn'>Top logcount at age group 3: <a href='/administer/myunit/report/topcsv/3'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+		$output .="<div class='btn'>Top logcount at age group 4: <a href='/administer/myunit/report/topcsv/4'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+		$output .="<div class='btn'>srid for badge1-badge25: <a href='/administer/myunit/report/srid/1'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+		$output .="<div class='btn'>Statistic for each school:      <a href='/administer/myunit/report/school/2'><img src='/sites/summerreading.org/files/images/btn_csvfile.gif' alt=''/></a></div>";
+	}
+	$output .= "</div><!-- output -->";
+	$output .= "</div><!-- my unit -->";
+	
+	return $output;		
+}
+
+/**
+* reading time functions
+*/
+function sr_util_time_getLastTimestamp($uid) {
+  
+  $result = db_result(db_query("SELECT MAX(timestamp) FROM {sr_time} WHERE uid = %d", $uid));
+  if ($result && is_numeric($result)) {
+  	return $result;
+  }
+  else {
+  	return 0;
+  }
+}
+
+function sr_util_time_saveEntry($uid, $hours, $mins) {
+	// store time in 15 minute intervals
+	$amount = (int)($hours * 4) + (int)$mins;
+	
+  db_query("INSERT INTO {sr_time} (uid, amount, timestamp)
+    VALUES (%d, %d, %d)",
+    $uid, $amount, time());
+  
+  return true;
+}
+
+function sr_util_time_getReadingTime($uid) {
+  
+  $result = db_result(db_query("SELECT SUM(amount) FROM {sr_time} WHERE uid = %d", $uid));
+  if ($result && is_numeric($result)) {
+  	return $result;
+  }
+  else {
+  	return 0;
+  }
+}

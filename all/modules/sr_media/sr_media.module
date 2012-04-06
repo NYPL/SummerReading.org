@@ -1,0 +1,1210 @@
+<?php
+// $Id: sr_media.module
+
+/**
+ * @file
+ * Media related functions for the Summer Reading website
+ */
+
+// Media object definition
+module_load_include('php', 'sr_media', 'Media');
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_media_menu() {
+  $items['mediasearch'] = array(
+    'title' => '',
+    //'title' => 'Search for Media',
+    'page callback' => 'sr_media_page_mediasearch', 
+    'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['media'] = array(
+    'title' => 'Media Page',
+  	'title callback' => 'sr_media_page_media_title',
+    'page callback' => 'sr_media_page_media',
+  	'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['media/%'] = array(
+    'title' => 'Media Page',
+  	'title callback' => 'sr_media_page_media_title',
+    'page callback' => 'sr_media_page_media_args',
+    'page arguments' => array(1),
+  	'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+  );
+  $items['logtoggle/%/%'] = array(
+    'title' => 'Media Log Toggle Function',
+    'page callback' => 'sr_media_logtoggle',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK
+  );
+  $items['medialogpage/%/%'] = array(
+    'title' => 'Load a page of media log items',
+    'page callback' => 'sr_media_medialogpage',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK
+	);
+  
+  $items['medialibrarylog/%/%'] = array(
+    'title' => 'Load a page of media log items',
+    'page callback' => 'sr_media_medialibrarylog',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK
+	);
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_block()
+ */
+/*
+function sr_media_block($op = 'list', $delta = 0, $edit = array()) {
+  // The $op parameter determines what piece of information is being requested.
+  switch ($op) {
+    case 'view': 
+			switch ($delta) {
+        case 1:
+        	// display media log
+        	$block['subject'] = t('Media Log');
+        	$block['content'] = makeMediaLogBlock();
+        	break;
+			}
+			break;
+  }
+  return $block;
+}
+*/
+
+/**
+ * Menu callback for user-media log toggle on/off.
+ */
+function sr_media_logtoggle($on, $mid) {
+
+  if (!is_numeric($on) || !is_numeric($mid)) {
+    return false;
+  }
+
+  global $user;
+  Media::toggleUserMedia($on, $user->uid, $mid);
+  
+  if ($on != 0 && $on != false) {
+		// process add2log action
+		Badge::processAction(Badge::TYPE_ADD2LOG, $user->uid);
+  }
+  
+  return true;
+}
+
+/**
+ * Menu callback for media page title.
+ */
+function sr_media_page_media_title() {
+  $output = "";
+  
+  $media = new Media();
+  
+  if (strlen($_GET['view']) > 0) {
+    
+  	// add new media record via worldcat
+    $media = unserialize(base64_decode($_GET['view']));
+    if ($media instanceof Media) {
+    	//$output = $media->title;
+    }
+    else {
+    	//$output = t("Media Page");
+    }
+      
+  }
+    
+  return $output;
+}
+
+/**
+ * Menu callback for media page.
+ */
+function sr_media_page_media() {
+	return sr_media_media(0);
+}
+
+/**
+ * Menu callback for media page with arguments.
+ */
+function sr_media_page_media_args($mid) {
+	return sr_media_media($mid);
+}
+
+/**
+ * media page handling.
+ */
+function sr_media_media($mid) {
+  global $user;
+	
+  $output = "";
+  $media = new Media();
+  
+  // process requests
+  if (strlen($_GET['view']) > 0) {
+    
+  	// add new media record via worldcat
+    $media = unserialize(base64_decode($_GET['view']));
+    if ($media instanceof Media) {
+    	
+    	// save it
+    	$media->saveMedia();
+
+    	if (strlen($_GET['add']) > 0) {
+	      // save to user's log
+	      Media::toggleUserMedia(true, $user->uid, $media->mid);
+				// process add2log action
+				Badge::processAction(Badge::TYPE_ADD2LOG, $user->uid);
+    	}
+			
+  	}
+  	else {
+    	// no media data ... error?
+    	$output .= t("Unable to load media.");
+    	return 0;
+    }
+    
+  }
+  else if ($mid > 0) {
+    // load by id
+    $media = Media::loadMedia($mid);
+    
+  }
+  else {
+  	// try again to get mid from url
+  	$mid = trim($_GET['mid']);
+  	if ($mid > 0) {
+    	// load by id
+    	$media = Media::loadMedia($mid);
+  	}
+  	else {
+  		// no media requested ... error?
+    	$output .= t("Unable to load media.");
+    	return 0;
+  	}
+  }
+   	
+  // generate output
+  $output .= sr_media_makeMediaHeaderDiv($user->uid, $media);
+
+  // add jquery stuff
+  drupal_add_js(drupal_get_path('module', 'sr_media') . '/mediapage.js');
+  drupal_add_js(array('media_uid' => $user->uid), 'setting');
+	drupal_add_js(array('media_mid' => $media->mid), 'setting'); 
+	drupal_add_js(array('media_msgAdd' => t('Add to your log')), 'setting'); 
+	drupal_add_js(array('media_msgRemove' => t('Remove from your log')), 'setting'); 
+	drupal_add_js(drupal_get_path('module', 'sr_util') . '/jquery.string.1.0.js');
+	drupal_add_js(drupal_get_path('module', 'sr_review') . '/reviews.js');
+	drupal_add_js(array('review_caller' => Review::REVIEW_CALLER_PAGE), 'setting'); 
+	drupal_add_js(array('basePathFull' => 'http://' . $_SERVER['HTTP_HOST'] . base_path()), 'setting');
+	//$warning = t("Be safe. Don't put your personal information on the Internet for others to see. Keep your passwords, real name, age, address, school, and grade private. Ask your parent or guardian for help if you aren't sure what to do.");
+	$warning = t('In the box below, write what you liked (or didn\'t like) about the book. Please remember NOT to include personal information (such as your real name, age, school, address or contact information) in your review. <a href="'. base_path() .'safety">Please click here for more information and tips.</a>');
+	drupal_add_js(array('review_warning' => $warning), 'setting'); 
+
+	$output .= '<br clear="both" />' ;
+	$output .= '<div id="media-bottom" class="clear-block">' ;	
+	// reviews
+	$output .= '' ;
+	$output .= '<div id="media-reviews-users" class="clear-block"><div id="media-reviews-pagelabel"><div class="profile_box_side"><div class="profile_box_bottom"><div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block"><div class="padding-20 clear-block"><div id="media-page-reviews">'. t("Reviews") ."</div>";
+	$output .= sr_review_makeReviewDiv($media->mid, $user->uid, Review::REVIEW_CALLER_PAGE);
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+
+	// users who logged
+	$output .= sr_media_makeLoggerDiv($media->mid);
+
+	$output .= "</div>";
+	
+  return $output;
+}
+
+/**
+ * Menu callback for media log page.
+ */
+function sr_media_medialogpage($page, $uid) {
+
+  if (!is_numeric($page) || !is_numeric($uid)) {
+    print "";
+    exit(0);
+  }
+
+	$medias = Media::loadUserMedia($uid, $page);
+  $output = sr_media_makeMediaLogPage($medias, $uid);
+	
+	if ($medias->count == Media::MEDIALOG_PAGESIZE) {
+		$output .= '<div class="media-log-page" id="media-log-page__'. ($page + 1) .'"><br clear="all" />';
+		$output .= '<a class="seemore" href="javascript:void();" id="seemore__'. ($page + 1) ."|". $uid .'">see more logged media</a>' ;
+		$output .= "</div>";
+	}
+	
+  echo $output;
+  exit(0);
+}
+
+/**
+ * Menu callback for library log on timereading.
+ */
+function sr_media_medialibrarylog($page, $uid) {
+
+  if (!is_numeric($page) || !is_numeric($uid)) {
+    print "";
+    exit(0);
+  }
+
+	$medias = Media::loadUserMedia($uid, $page);
+  $output = sr_media_makeLibraryLogPage($medias, $uid);
+	
+	if ($medias->count == Media::MEDIALOG_PAGESIZE) {
+		$output .= '<div class="media-log-page" id="media-log-page__'. ($page + 1) .'"><br clear="all" />';
+		$output .= '<a class="seemorelog" href="javascript:void();" id="seemore__'. ($page + 1) ."|". $uid .'">see more logged media</a>' ;
+		$output .= "</div>";
+	}
+	
+  echo $output;
+  exit(0);
+}
+
+/**
+ * Menu callback for media search form.
+ */
+function sr_media_page_mediasearch() {
+	$output .= '<div id="books-and-media-search">';
+	$output .= '<div class="SN-bl">';
+	$output .= '<div class="SN-br">';
+	$output .= '<div class="SN-tl">';
+	$output .= '<div class="SN-tr">';
+	$output .= '<h1 class="title">Search for Books &amp; Media</h1>';
+	$output .= t('Search for books and other media.');
+	
+	// jquery stuff
+	drupal_add_js(drupal_get_path('module', 'sr_media') . '/mediasearch.js');
+	
+	// build form
+	//$output.=sr_user_roundbox_start('mediasearch');
+    $output .= drupal_get_form('sr_media_mediasearch');
+    //$output.=sr_user_roundbox_end();
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+    // parse from query
+    $terms = urldecode(trim($_GET['ms']));
+    $start = urldecode(trim($_GET['start']));
+  
+    // build results
+    if ($terms != null && $terms != '') {
+  	
+  	$output .= sr_media_makeBookNotFoundDiv($terms, "below");
+  	$output .= "<div class='mediasearch-results-rule'></div><br>";
+	  
+  	if ($start == null && $start == '') {
+	    $output .= sr_media_performSearch($terms);
+	  } else {
+	    $output .= sr_media_performSearch($terms, $start);
+	  }
+    }
+  return $output;
+}
+
+/**
+ * page for admins to search media
+ */
+function sr_media_adminsearch() {
+
+	$output .= t("Media that has been viewed or logged by users.");
+	
+	// setup terms
+	$terms = "";
+	if (strlen($_GET['terms']) > 0) {
+		$terms = trim($_GET['terms']);
+		$queryTerms = "&terms=" . $terms;
+	}
+	
+	// setup paging
+	$page = 1;
+	if (strlen($_GET['page']) > 0) {
+		$page = trim($_GET['page']);
+		if (!is_numeric($page)) {
+			$page = 1;
+		}
+	}
+	if ($page == 1) {
+		$start = 0;
+	}
+	else {
+		$start = (Media::ADMINMEDIA_PAGESIZE * ($page - 1));
+	}
+			
+	
+	if (strlen(trim($_GET['sort'])) > 0) {
+		$sort = strtolower(trim($_GET['sort']));
+	}
+	else {
+		$sort = "name";
+	}
+	switch ($sort) {
+		case "title":
+			$sql = "title ASC";
+			break;
+			
+		case "author":
+			$sql = "author ASC";
+			break;
+			
+		case "mid":
+			$sql = "mid DESC";
+			break;
+			
+		case "usercount":
+			$sql = "usercount DESC";
+			break;
+			
+		case "reviewcount":
+			$sql = "reviewcount DESC";
+			break;
+			
+		case "mediatype":
+			$sql = "mediatype ASC";
+			break;
+			
+		default:
+			$sql = "title ASC";
+	}
+	
+	$thispage = request_uri();
+	//$thispage = substr($thispage, 1, strlen($thispage));
+	if(strpos($this_page, '?')!==0){
+	  //$query = substr(strstr($thispage, '?'), 1, strlen($thispage));
+	  $thispage = substr($thispage, 0, strpos($thispage, '?'));
+	}
+	
+	$output .= "<br /><br /><form action='' method='get'><strong>Filter by title or author</strong>: <input type='text' name='terms' ";
+	if ($terms != "") {
+		$output .= ' value="' . $terms . '"';
+	}
+	$output .=" /> <input type='submit' value='Go' /></form>";
+
+
+  if (strlen(trim($terms)) > 0) {
+  	$like = "(m.title LIKE '%" . trim($terms) . "%'	OR m.author LIKE '%" . trim($terms) . "%')";
+  }
+  else {
+  	$like = "1=1";
+  }
+  	
+	$result = db_query( "SELECT DISTINCT m.mid, m.title, m.isbn, m.author,
+		(CASE m.mediatype WHEN 0 THEN 'book' WHEN 1 THEN 'video' WHEN 2 THEN 'music' WHEN 3 THEN 'game' ELSE 'book' END) as mediatype, 
+		(SELECT count(um.uid) FROM {sr_user_media} um inner join {users} u on u.uid=um.uid where um.mid = m.mid and u.status=1) AS usercount, 
+		(SELECT count(r.rid) FROM {sr_review} r inner join {users} u on u.uid=r.uid where r.mid = m.mid and u.status=1) AS reviewcount 
+		FROM {sr_media} m 
+		INNER JOIN {sr_user_media} um ON m.mid = um.mid 
+		INNER JOIN {users} u ON u.uid = um.uid 
+		INNER JOIN {users_roles} ur ON ur.uid = u.uid
+		WHERE u.status=1 and  " . $like . 
+		" AND ur.rid = %d " .
+		" ORDER BY " . $sql .
+		" LIMIT %d,%d",
+		Util::RID_SUMMER_READER, $start, Media::ADMINMEDIA_PAGESIZE);
+	
+	
+	$output .= '<div id="admin-branchmedia" class="admin-table">' ;
+
+	$output .= '<div class="admin-branchmedia-heading admin-heading">' ;
+	$output .= '<div class="admin-branchmedia-heading-col0 admin-table-heading-col"><a href="'. $thispage .'?sort=mid'. $queryTerms . '">ID</a></div>' ;
+	$output .= '<div class="admin-branchmedia-heading-col1 admin-table-heading-col"><a href="'. $thispage .'?sort=title'. $queryTerms . '">Title</a></div>' ;
+	$output .= '<div class="admin-branchmedia-heading-col2 admin-table-heading-col"><a href="'. $thispage .'?sort=author'. $queryTerms . '">Author</a></div>' ;
+	$output .= '<div class="admin-branchmedia-heading-col3 admin-table-heading-col"><a href="'. $thispage .'?sort=usercount'. $queryTerms . '">Log Count</a></div>' ;
+	$output .= '<div class="admin-branchmedia-heading-col4 admin-table-heading-col"><a href="'. $thispage .'?sort=reviewcount'. $queryTerms .'">Reviews</a></div>' ;
+	$output .= '<div class="admin-branchmedia-heading-col5 admin-table-heading-col"><a href="'. $thispage .'?sort=mediatype'. $queryTerms .'">Type</a></div>' ;
+	$output .= "</div>";
+	
+	$x = 0;
+	while ($row = db_fetch_object($result)) {
+
+		if ($x % 2 == 0) {
+			$rowclass = "admin-table-row-even";
+		}
+		else {
+			$rowclass = "admin-table-row-odd";
+		}
+		$output .= '<div class="admin-branchmedia-item admin-table-row">' ;
+		$output .= '<div class="admin-branchmedia-col0 admin-table-col '. $rowclass .'"><a href="/media/'. $row->mid .'">'. $row->mid ."</a></div>";
+		$output .= '<div class="admin-branchmedia-col1 admin-table-col '. $rowclass .'">'. substr($row->title, 0, 43) . "&nbsp;</div>";
+		$output .= '<div class="admin-branchmedia-col2 admin-table-col '. $rowclass .'">'. substr($row->author, 0, 37) . "&nbsp;</div>";
+		$output .= '<div class="admin-branchmedia-col3 admin-table-col '. $rowclass .'">'. $row->usercount ."</div>";
+		$output .= '<div class="admin-branchmedia-col4 admin-table-col '. $rowclass .'">'. $row->reviewcount ."</div>";
+		$output .= '<div class="admin-branchmedia-col5 admin-table-col '. $rowclass .'">'. $row->mediatype ."</div>";
+		$output .= "</div>";
+		
+		$x++;
+	}
+	$output .= "</div><br /><br />";
+
+	if ($x == Media::ADMINMEDIA_PAGESIZE || $page > 1) {
+		$output .= '<div class="admin-table-pager">Viewing page '. (string)$page;
+		if ($page > 1) 
+			$output .= '&nbsp;&nbsp;&nbsp;&nbsp;<a href="'. $thispage .'?sort='. $sort . $queryTerms .'&amp;page='. (string)($page-1) .'">&laquo; Previous page</a>';
+		if ($x == Media::ADMINMEDIA_PAGESIZE)
+			$output .= '&nbsp;&nbsp;&nbsp;&nbsp;<a href="'. $thispage .'?sort='. $sort . $queryTerms .'&amp;page='. (string)($page+1) .'">Next page &raquo;</a>';
+		$output .= "</div><br /><br />";
+	}
+	
+	return $output;
+}
+
+/**
+ * Define media search form.
+ */
+function sr_media_mediasearch() {
+  
+	// parse from query
+  $terms = urldecode(trim($_GET['ms']));
+	
+	$form['keyword'] = array(
+    '#title' => t('Keyword'), 
+    '#type' => 'textfield',
+    '#description' => t("Enter a keyword such as title, subject, author, or ISBN number."),
+	  '#default_value' => $terms,
+	  '#size' => 100,
+	  '#maxlength'=> 200
+  );
+  $form['submit'] = array(
+    '#type' => 'submit', 
+    '#value' => t('Search') 
+  );
+  
+  return $form;
+}
+
+/**
+ * Validate media search form.
+ */
+function sr_media_mediasearch_validate($form, &$form_state) {
+  
+  if (trim($form_state['values']['keyword']) == "" || strlen(trim($form_state['values']['keyword'])) < 2) {
+    form_set_error('keyword', t('Please enter a keyword of at least 2 characters.'));
+  } 
+  
+}
+
+/**
+ * Handle post-validation form submission.
+ */
+function sr_media_mediasearch_submit($form, &$form_state) {
+  drupal_goto('mediasearch', 'ms='. urlencode(trim($form_state['values']['keyword'])));
+}
+
+function sr_media_performSearch($terms, $start = 1, $max = 10) {
+
+	$ret = "";
+	$apikey = 'VPnMvg8kQ0CkElqTdoYKiMpOChql73nORdo1w5fXb5KNveKLwk1SqgiDpfWAX28vi2OAb1xa5yATOOCY'; // nypl key
+
+	$searchURL = 'http://worldcat.org/webservices/catalog/search/worldcat/sru?query=srw.kw+all+%22'. urlencode($terms) .'%22';
+  $searchURL .= '&recordSchema=info%3Asrw%2Fschema%2F1%2Fmarcxml&startRecord='. $start .'&maximumRecords='. $max;
+  $searchURL .= '&sortKeys=relevance';
+  $searchURL .= '&wskey='. $apikey;
+
+  $xml = simplexml_load_file($searchURL);
+  $numFound = (string)$xml->numberOfRecords;
+    
+  $xml->registerXPathNamespace("marc", "http://www.loc.gov/MARC21/slim");
+  
+  //$medias = new Collection();
+  $ret .= sr_media_makeMediaSearchPager($numFound, $terms, $start, $max);
+  $ret .= '<div id="mediasearch-results-container">' ;
+  
+  // loop found media
+  $x = 0;
+  foreach($xml->xpath('//marc:record') as $book ) {
+        
+    $book['xmlns:marc'] = 'http://www.loc.gov/MARC21/slim';
+    $field = simplexml_load_string($book->asXML());
+    
+    $media = new Media();
+    
+    $title = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='a']");
+    $media->setTitle($title[0]);
+    $subtitle = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='b']");
+    $media->setSubTitle($subtitle[0]);
+    if ($media->subtitle == "") {
+      $subtitle = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='p']");
+      $media->setSubTitle($subtitle[0]);
+    }
+    $mediatype = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='h']");
+    $media->setMediaType($mediatype[0]);
+    $isbns = $field->xpath("marc:datafield[@tag='020']/marc:subfield[@code='a']");
+    foreach ((array)$isbns as $isbn) {
+      if (strlen($isbn) > 1) {
+        if (strpos($isbn[0], " ") > 0) {
+          $media->setISBN((string)substr($isbn, 0, strpos($isbn, " ")));
+          break; // TODO: save array?
+        } else {
+          $media->setISBN((string)$isbn[0]);
+          break; // TODO: save array?
+        } 
+      }
+    }
+    $author = $field->xpath("marc:datafield[@tag='100']/marc:subfield[@code='a']");
+    $media->setAuthor($author[0]);
+    if ($media->author == "")
+    {
+      $author = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='c']");
+      $media->setAuthor($author[0]);
+    }
+    $publisher = $field->xpath("marc:datafield[@tag='260']/marc:subfield[@code='b']");
+    $media->setPublisher($publisher[0]);
+    $pubdate = $field->xpath("marc:datafield[@tag='260']/marc:subfield[@code='c']");
+    $media->setPubDate($pubdate[0]);
+    $oclc = $field->xpath("marc:controlfield[@tag='001']");
+    $media->setOCLC($oclc[0]);
+    
+    // add to collection
+    //$medias->addObject($x, $media);
+    
+    $ret .= '<div class="mediasearch-results-item">' ;
+
+    // cover images
+    $ret .= '<div class="mediasearch-results-item-cover">';
+    $ret .= '<a href="'. Media::makeMediaURL($media) .'">';
+    $image_url = Media::makeMediaImageURL($media->isbn, 'S', false);
+    $ret .= '<img class="mediasearch-results-item-cover-image" src="' . $image_url . '"/>';
+    $ret .= "</a></div>";    
+    
+    $ret .= '<div class="mediasearch-results-item-title"><a href="'. Media::makeMediaURL($media) .'">'. $media->title;
+    if (strlen(trim($media->subtitle)) > 0) {
+      $ret .= ": " . $media->subtitle . "</a>";
+    }
+    else {
+      $ret .= "</a>";
+    }
+    if (strlen(trim($media->author)) > 0) {
+      $ret .= "<br />\nby " . $media->author . "<br />";
+    }
+    else {
+      $ret .= "<br />";
+    }
+    
+    $ret .= '<div class="mediasearch-type-icon"><img class="media-type" src="' . $media->makeMediaTypeImagePath() . '" /></div>';
+    $ret .= '</div><br clear="all">' ;
+        
+    $ret .= '<input type="button" value="'. t('Add to your log') . '" onclick="javascript: location.href=\'' . 
+    	Media::makeMediaURL($media, true) . '\'" /><br />' ;
+
+    $ret .= t("Find this item at a library:");
+    $ret .= '&nbsp;<a href="' . Media::makeLibrarySystemURL('bpl', $media) . '" target="_bpl">BPL</a>&nbsp;';
+    $ret .= '&nbsp;<a href="' . Media::makeLibrarySystemURL('nypl', $media) . '" target="_nypl">NYPL</a>&nbsp;';
+    $ret .= '&nbsp;<a href="' . Media::makeLibrarySystemURL('qpl', $media) . '" target="_qpl">QPL</a>&nbsp;';
+    $ret .= "<br />";
+    
+    //$ret .= '<a href="http://www.worldcat.org/oclc/' . $media->oclc . '"><div>' . $media->title . ' ' . $media->subtitle . '</div></a>';
+    //$ret .= '<br>' . $media->publisher . ', ' . $media->pubdate;
+
+	  $ret .= "</div>";	
+    $x++;
+    
+  } // end foreach book
+	
+  $ret .= "</div>";
+
+  if ($numFound > 3) {
+	  $ret .= sr_media_makeMediaSearchPager($numFound, $terms, $start, $max);
+	  $ret .= '<div class="mediasearch-results-rule"></div><br />';
+	  $ret .= sr_media_makeBookNotFoundDiv($terms, "above") . "<br />";
+  }
+  
+	return $ret;
+}
+
+
+function sr_media_performSearch_byISBN($isbn) {
+
+	$ret = "";
+	$apikey = 'VPnMvg8kQ0CkElqTdoYKiMpOChql73nORdo1w5fXb5KNveKLwk1SqgiDpfWAX28vi2OAb1xa5yATOOCY'; // nypl key
+
+	$searchURL = 'http://www.worldcat.org/webservices/catalog/content/isbn/'.$isbn.'?wskey='.$apikey;
+    $xml = simplexml_load_file($searchURL);
+    
+    $xml->registerXPathNamespace("marc", "http://www.loc.gov/MARC21/slim");
+  
+	  foreach($xml->xpath('//marc:record') as $book ) {
+			$book['xmlns:marc'] = 'http://www.loc.gov/MARC21/slim';
+			$field = simplexml_load_string($book->asXML());
+			  
+			$media = new Media();
+			
+			$title = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='a']");
+			$media->setTitle($title[0]);
+			$subtitle = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='b']");
+			$media->setSubTitle($subtitle[0]);
+			if ($media->subtitle == "") {
+			  $subtitle = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='p']");
+			  $media->setSubTitle($subtitle[0]);
+			}
+			$mediatype = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='h']");
+			$media->setMediaType($mediatype[0]);
+		    $media->setISBN($isbn);
+			$author = $field->xpath("marc:datafield[@tag='100']/marc:subfield[@code='a']");
+			$media->setAuthor($author[0]);
+			if ($media->author == "")
+			{
+			  $author = $field->xpath("marc:datafield[@tag='245']/marc:subfield[@code='c']");
+			  $media->setAuthor($author[0]);
+			}
+			$publisher = $field->xpath("marc:datafield[@tag='260']/marc:subfield[@code='b']");
+			$media->setPublisher($publisher[0]);
+			$pubdate = $field->xpath("marc:datafield[@tag='260']/marc:subfield[@code='c']");
+			$media->setPubDate($pubdate[0]);
+			$oclc = $field->xpath("marc:controlfield[@tag='001']");
+			$media->setOCLC($oclc[0]);
+			if($media->saveMedia())
+			{
+			   return $media->mid;
+			}
+		}
+		return 0;
+}
+
+function sr_media_makeMediaSearchPager($numFound, $terms, $start, $max) {
+	
+  $ret .= '<div class="mediasearch-results-pager-heading">';
+	
+  if ($numFound > 0) {
+
+  	if ($numFound > $max) {
+			
+  		// multiple pages
+  		$ret .= 'Viewing items ' . $start . ' - ' . ($start-1+$max) . ' out of ' . $numFound . ' total items found.</div>';
+
+ 		  $ret .= '<div class="mediasearch-results-pager">';
+		  if ($start < 2) {
+		    // first page
+		    $ret .= '<a href="mediasearch?ms=' . urlencode($terms) . '&amp;start=' . ($start + $max) . '">Next Page &gt;&gt;</a>';
+		  }
+		  else if ($start-1+$max > $numFound) {
+		    // last page
+		    $ret .= '<a href="mediasearch?ms=' . urlencode($terms) . '&amp;start=' . ($start - $max) . '">&lt;&lt; Previous Page</a>';
+		  }
+		  else {
+		    // middle page
+		    $ret .= '<a href="mediasearch?ms=' . urlencode($terms) . '&amp;start=' . ($start - $max) . '">&lt;&lt; Previous Page</a>';
+		    $ret .= '<span class="mediasearch-results-pager-spacer"></span>';
+		    $ret .= '<a href="mediasearch?ms=' . urlencode($terms) . '&amp;start=' . ($start + $max) . '">Next Page &gt;&gt;</a>';
+		  }
+			$ret .= '</div>';
+  	}
+  	else {
+  		
+  		// only 1 page
+  		if ($numFound == 1) {
+  			$ret .= $numFound . ' item was found.</div>';
+  		} else {
+  			$ret .= $numFound . ' items were found.</div>';
+  		}
+  		
+  	}
+	  
+	}
+	else {
+		$ret .= t("No items found.") . "</div>";
+	}
+	
+  return $ret;
+}
+
+function sr_media_makeBookNotFoundDiv($terms, $direction) {
+	$media = new Media();
+	$media->logtype = 1;
+	$media->title = $terms;
+	
+	$media->mediatype = Media::TYPE_BOOK;
+	drupal_add_js(array('mediaURLBook' => Media::makeMediaURL($media, true)), 'setting');
+	$media->mediatype = Media::TYPE_VIDEO;
+	drupal_add_js(array('mediaURLVideo' => Media::makeMediaURL($media, true)), 'setting');
+	$media->mediatype = Media::TYPE_MUSIC;
+	drupal_add_js(array('mediaURLMusic' => Media::makeMediaURL($media, true)), 'setting');
+	$media->mediatype = Media::TYPE_GAME;
+	drupal_add_js(array('mediaURLGame' => Media::makeMediaURL($media, true)), 'setting');
+	
+  $ret = '<div id="mediasearch-noresult">'. t("Didn't find your item ". $direction ."?") ;
+  $ret .= '<form id="form-custom-add-'. $direction .'">' ;
+  $ret .= '<table cellpadding="1" cellspacing="0" border="0">' ;
+  $ret .= '<tbody style="border: none;">' ;
+  $ret .= "<tr>";
+  $ret .= '<td class="mediatype-radio" valign="center">' ;
+  $ret .= '<input type="radio" class="mediatype_'. $direction .'" name="mediatype_'. $direction .'" value="'. Media::TYPE_BOOK .'" checked="checked" />' ;
+  $ret .= "</td>";
+  $ret .= '<td class="mediatype-icon" valign="center">' ;
+  $ret .= '<img src="'. Media::makeMediaTypeImageURL(Media::TYPE_BOOK) .'" />' ;
+  $ret .= "</td>";
+  $ret .= '<td class="mediatype-radio" valign="center">' ;
+  $ret .= '<input type="radio" class="mediatype_'. $direction .'" name="mediatype_'. $direction .'" value="'. Media::TYPE_VIDEO .'" />' ;
+  $ret .= '</td><td class="mediatype-icon" valign="center""><img src="'. Media::makeMediaTypeImageURL(Media::TYPE_VIDEO) .'" />' ;
+  $ret .= "</td>";
+  $ret .= '<td class="mediatype-radio" valign="center">' ;
+  $ret .= '<input type="radio" class="mediatype_'. $direction .'" name="mediatype_'. $direction .'" value="'. Media::TYPE_MUSIC .'" />' ;
+  $ret .= "</td>";
+  $ret .= '<td class="mediatype-icon" valign="center"><img src="'. Media::makeMediaTypeImageURL(Media::TYPE_MUSIC) .'" />' ;
+  $ret .= "</td>";
+  $ret .= '<td class="mediatype-radio" valign="center">' ;
+  $ret .= '<input type="radio" class="mediatype_'. $direction .'" name="mediatype_'. $direction .'" value="'. Media::TYPE_GAME .'" />' ;
+  $ret .= "</td>";
+  $ret .= '<td class="mediatype-icon" valign="center"><img src="'. Media::makeMediaTypeImageURL(Media::TYPE_GAME) .'" />' ;
+  $ret .= "</td>";
+  $ret .= "</tbody>";
+  $ret .= "</tr>";
+  $ret .= "</table>";
+  $ret .= "</form>";
+  $ret .= 'Choose a media type and <input type="button" class="custom-add" id="custom-add-'. $direction .'" value="'. t("Add it to your log anyway!")  .'" />' ;
+  $ret .= "</div>";
+
+  return $ret;
+}
+
+function sr_media_makeMediaHeaderDiv($uid, $media) {
+	
+	$user = user_load($uid);
+
+	$output = '<div id="media-header" class="clear-block"><div id="media-header-left">';
+  
+  $output .= '<div id="media-header-image"><img src="'. Media::makeMediaImageURL($media->isbn, 'M', false) .'" alt="'. $media->title .'" /></div>';
+  
+  $output .= '</div><div id="media-header-middle"><div id="media-header-metadata">';
+  $output .= '<div class="media-title">'. $media->title .'</div>';
+  if (strlen(trim($media->subtitle)) > 0) {
+    $output .= ": " . $media->subtitle;
+  }
+  /*$output .= '<br />';*/
+  $output .= '<p class="media-details">';
+  if (strlen($media->isbn) > 0) {
+  	$output .= $media->author . '<br />';
+	  $output .= $media->publisher . ', ' . $media->pubdate . '<br />';
+	  $output .= 'ISBN: ' . $media->isbn . '<br />'; 	
+  }
+  $output .= '</p>';
+  $output .= '<img class="media-type" src="' . $media->makeMediaTypeImagePath() . '" alt="" />';
+  
+  $output .= "<br /><br />";
+  
+  // doublecheck mediapage.js if you need to change this button/status stuff
+  $logstatus = 'This item is in your <a href="/profile/'. urlencode($user->name) .'#medialog">Media Log</a>';
+  drupal_add_js(array('logstatus' => $logstatus), 'setting'); 
+  
+  if (Media::existsUserMedia($uid, $media->mid)) {
+  	$output .= '<div id="media-header-metadata-logstatus">'. $logstatus ."</div>";
+  	$output .= '<input type="button" id="usermedia-toggle" value="'; // do not change id here
+  	$output .= t('Remove from your log') . '" />'; // do not change these here
+  }
+  else {
+  	$output .= '<div id="media-header-metadata-logstatus"></div>';
+ 		$output .= '<input type="button" id="usermedia-toggle" value="'; // do not change id here
+  	$output .= t('Add to your log') . '" />'; // do not change these here
+  }
+  
+/*
+  	$votes = fivestar_get_votes($content_type, $content_id, $tag);
+    $node_type = $node->type;
+
+    $values = array(
+      'user' => empty($votes['user']['value']) ? 0 : $votes['user']['value'],
+      'average' => (int)$value,
+      'count' => empty($votes['count']['value']) ? 0 : $votes['count']['value'],
+    );
+ 
+    $settings = array(
+      'stars' => variable_get('fivestar_stars_'. $node_type, 5),
+      'allow_clear' => variable_get('fivestar_unvote_'. $node_type, FALSE),
+      // If the user has setup this content type to use smart stars, display
+      // the smart version instead of just the average.
+      'style' => variable_get('fivestar_style_'. $node_type, 'average') != 'smart' ? 'average' : 'smart',
+      'text' => $summary ? variable_get('fivestar_text_'. $node_type, 'dual') : 'none',
+      'content_type' => 'node',
+      'content_id' => $node->nid,
+      'tag' => $tag,
+      'autosubmit' => TRUE,
+      'title' => FALSE,
+      'feedback_enable' => $summary ? variable_get('fivestar_feedback_'. $node_type, 1) : FALSE,
+      'labels_enable' => $summary ? variable_get('fivestar_labels_enable_'. $node_type, 1) : FALSE,
+      'labels' => $summary ? variable_get('fivestar_labels_'. $node_type, array()) : array(),
+    );
+ 
+    print drupal_get_form('fivestar_custom_widget', $values, $settings);
+*/
+
+  switch ($media->mediatype) {
+  	case Media::TYPE_BOOK:
+  		$mediatype = "book";
+  		break;
+  	case Media::TYPE_VIDEO:
+  		$mediatype = "video";
+  		break;
+  	case Media::TYPE_MUSIC:
+  		$mediatype = "music";
+  		break;
+  	case Media::TYPE_GAME:
+  		$mediatype = "game";
+  		break;
+  	default:
+  		$mediatype = "book";
+  }
+  
+  $output .= '<div class="fivestar-label">Rate this '. $mediatype .':</div>';
+  $votes = fivestar_get_votes('media', $media->mid, 'vote', $uid);
+
+  $values = array(
+    'user' => empty($votes['user']['value']) ? 0 : $votes['user']['value'],
+    'average' => empty($votes['average']['value']) ? 0 : $votes['average']['value'],
+    'count' => empty($votes['count']['value']) ? 0 : $votes['count']['value'],
+  );
+
+  $settings = array(
+    'stars' => 5,
+    'allow_clear' => FALSE,
+    // If the user has setup this content type to use smart stars, display
+    // the smart version instead of just the average.
+    'style' => 'average',
+    'text' => '',
+    'content_type' => 'media',
+    'content_id' => $media->mid,
+    'tag' => 'vote',
+    'autosubmit' => TRUE,
+    'title' => FALSE,
+    'feedback_enable' => FALSE,
+    'labels_enable' => FALSE,
+    'labels' => array()
+  );
+ 
+  $output .= drupal_get_form('fivestar_custom_widget', $values, $settings);
+      
+  
+  $output .= '</div></div><div id="media-header-right">';
+  
+  $output .= '<div id="media-header-library">';
+  $output .= '<p class="media-header-library-text">'. t("Find this item at a library:") .'</p><ul id="library-links">';
+  $output .= '<li><a class="media-header-library-link" href="'. Media::makeLibrarySystemURL('bpl', $media) .'" target="_bpl">BPL</a></li>';
+  $output .= '<li><a class="media-header-library-link" href="'. Media::makeLibrarySystemURL('nypl', $media) .'" target="_nypl">NYPL</a></li>';
+  $output .= '<li><a class="media-header-library-link" href="'. Media::makeLibrarySystemURL('qpl', $media) .'" target="_qpl">QPL</a></li>';
+	$output .= '</ul></div>';
+
+	$output .= '</div></div>';
+	
+  return $output;
+}
+
+function sr_media_makeMediaLog($userReq) {
+	// passed in $uid refers to profile being requested (not neceassily the logged in user)
+	global $user;
+	
+	$output = "";
+	// add jquery stuff
+	drupal_add_js(drupal_get_path('module', 'sr_util') . '/jquery.string.1.0.js');
+	drupal_add_js(drupal_get_path('module', 'sr_review') . '/reviews.js');
+	drupal_add_js(array('review_caller' => Review::REVIEW_CALLER_LOG), 'setting'); 
+	drupal_add_js(array('basePathFull' => 'http://' . $_SERVER['HTTP_HOST'] . base_path()), 'setting'); 
+	//$warning = t("Be safe. Don't put your personal information on the Internet for others to see. Keep your passwords, real name, age, address, school, and grade private. Ask your parent or guardian for help if you aren't sure what to do.");
+	$warning = t('In the box below, write what you liked (or didn\'t like) about the book. Please remember NOT to include personal information (such as your real name, age, school, address or contact information) in your review. <a href="'. base_path() .'safety">Please click here for more information and tips.</a>');
+	drupal_add_js(array('review_warning' => $warning), 'setting'); 
+	
+	$medias = Media::loadUserMedia($userReq->uid);
+	
+	if ($medias instanceof Collection) {
+	
+		if ($medias->count == 0) {
+			if ($userReq->uid == $user->uid) {
+				$output .= '<p class="empty-text">' . t("Your Media Log is empty.") . '<br /><strong><a href="'. base_path() .'mediasearch">'. t("Add media now!") ."</a></strong></p>";
+			}
+			else {
+				$output .= t("Log does not contain any items yet.");
+			}	
+		}
+		
+		$output .= sr_media_makeMediaLogPage($medias, $userReq->uid);
+		
+		// careful editing this, this html also set in medialogpage
+		if ($medias->count == Media::MEDIALOG_PAGESIZE) {
+			$output .= '<div class="media-log-page" id="media-log-page__2"><br clear="all" /><a class="seemore" href="javascript:void();" id="seemore__2|'. 
+				$userReq->uid .'">see more logged media</a></div>';
+		}
+		
+	
+	}
+	else {
+		// media load failure
+	}
+	
+	return $output;
+}
+
+function sr_media_makeLibraryMediaLog() {
+	
+	// passed in $uid refers to profile being requested (not neceassily the logged in user)
+	drupal_add_js(drupal_get_path('module', 'sr_util') . '/jquery.string.1.0.js');
+	drupal_add_js(drupal_get_path('module', 'sr_review') . '/reviews.js');
+	drupal_add_js(array('basePathFull' => 'http://' . $_SERVER['HTTP_HOST'] . base_path()), 'setting');
+	global $user;
+	profile_load_profile($user);
+	$form[]=array();
+	$output = "";
+	$medias = Media::loadLibraryUserMedia($user->{profile_luid});
+	
+	if ($medias instanceof Collection) {
+	    if( $medias->count>0)
+		{
+			$form[] = array(
+				'#value'=> sr_user_roundbox_start('librarylog'),
+			);
+			$form['library_log_start'] = array(
+			   '#value'=>'<div class="header">Recently Checked Out</div><p>On your last visit to the library, you checked out the books below.</p><div class="media-log-page">'
+			);
+			
+			$form['remove_mid'] = array(	 
+				'#type' => 'hidden', 
+				  '#default_value' =>'', 
+			);
+		
+			$x = 0;
+			
+			while ($x < $medias->count){
+				$media = $medias->getObject($x);
+				if (!$media) {
+					break;
+				}
+				if(strlen($media->author)>30)
+				 $author=substr($media->author, 0, 30).'...';
+			    else
+				 $author=$media->author;
+				$form['library_log_'.$x] = array(
+					'#value'=> '<div class="media-log-item"><a href="'. Media::makeMediaURLbyID($media->mid) .'">
+							   <img class="media-header-image" src="'. Media::makeMediaImageURL($media->isbn, 'S', true) .'" alt="" /></a>
+							   <div class="media-log-item-right">
+							   <div class="media-header-title"><b><a href="'. Media::makeMediaURLbyID($media->mid) .'">'.$media->title.'</a></b></div>
+							   <div class="media-header-title">By '. $author.'</div>'
+				);
+				
+				$form['library_log_btn'.$x] = array(	 
+				  '#type' => 'image_button', 
+				  '#value' => t(' '), 
+				  '#src' => 'sites/summerreading.org/files/images/btn_remove.gif',
+				  '#attributes' => array(
+					'onclick' => "$('#edit-remove-mid').val('".$media->mid."');"
+					)
+				);
+				
+				$form[] = array(		  
+				  '#value' => '</div></div>',
+				);	
+				
+				$x++;
+			}
+			
+			// careful editing this, this html also set in medialogpage
+			/*if ($medias->count == Media::MEDIALOG_PAGESIZE) {
+				$form['libarary_log_page']= array(
+				'#value'=>'<div class="media-log-page" id="media-log-page__2"><br clear="all" /><a class="seemorelog" href="javascript:void();" id="seemore__2|'. 
+					$user->uid .'">see more logged media</a></div>');
+			}*/
+			$form[] = array(
+			'#value'=> '<div style="clear: both; width: 400px;"><!-- --></div>');
+			
+			$form[] = array(
+			'#value'=> sr_user_roundbox_end(),
+			);
+		}
+		
+	}
+	else {
+		
+		// media load failure
+	}
+	
+	return $form;
+}
+
+function sr_media_LibraryMediaLogCount() {
+	// passed in $uid refers to profile being requested (not neceassily the logged in user)
+	global $user;
+	profile_load_profile($user);
+	$medias = Media::loadLibraryUserMedia($user->{profile_luid});
+	
+	if ($medias instanceof Collection) {
+	    return $medias->count;
+	}
+}
+
+function sr_media_makeLoggerDiv($mid) {
+	
+	$loggers = Media::loadMediaLoggers($mid);
+	
+	$output .= '<div id="media-loggers"><div class="profile_box_side"><div class="profile_box_bottom"><div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block"><div class="padding-20">';
+	$output .= '<div id="media-loggers-label">'. t("People who logged it") ."</div>";
+	$name = "";
+	$uid = 0;
+	foreach ($loggers as $logger) {
+		foreach ($logger as $key => $value) {
+			switch ($key) {
+				case "name":
+					$name = $value;
+					break;
+				case "uid":
+					$uid = $value;
+					break;
+				default:
+		  }
+		}
+		$img_src=sr_user_makeAvatarURL($uid, 'S');
+		$output .= '<div class="media-logger">';
+		$output .= '<a href="'. base_path() .'profile/'. urlencode($name) .'" title="'. $name .'"><img src="'.$img_src .'" alt="'. $name .'" /></a>';
+		$output .= "</div>";
+	}
+	if (!count($loggers) > 0) {
+		$output .= t("Not yet logged by anyone.");
+	}
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	$output .= "</div>";
+	
+	return $output;	
+}
+
+function sr_media_makeMediaLogPage($medias, $uid) {
+	
+	// passed in $uid refers to profile being requested (not neceassily the logged in user)
+	
+	$output .= '<div class="media-log-page">';
+	
+	$x = 0;
+	while ($x < $medias->count) {
+
+		$media = $medias->getObject($x);
+		if (!$media) {
+			break;
+		}
+		$output .= '<div class="media-log-item">';
+		
+		// add media header
+		$output .= '<a href="'. Media::makeMediaURLbyID($media->mid) .'">';
+		$output .= '<img class="media-header-image" src="'. Media::makeMediaImageURL($media->isbn, 'S', true) .'" alt="" /></a>';
+		
+		$output .= '<div class="media-log-item-right">';
+		$output .= '<div class="media-header-title"><a href="'. Media::makeMediaURLbyID($media->mid) .'">';
+		$output .= $media->title;
+		
+  	if (strlen(trim($media->subtitle)) > 0) {
+    	$output .= ": " . $media->subtitle;
+  	}
+	
+  	$output .= '</a><br /><p class="media-details">'. $media->author .'</p></div>';
+
+	
+	
+	/* Tyler added 05/06/11 - Adding inline star rating, static/non-interactive */
+	$output .= '<div class="fivestar-label">Your rating '. $mediatype .':</div>';
+	$votes = fivestar_get_votes('media', $media->mid, 'vote', $uid);
+
+	$values = array(
+		'user' => empty($votes['user']['value']) ? 0 : $votes['user']['value'],
+		'average' => empty($votes['average']['value']) ? 0 : $votes['average']['value'],
+		'count' => empty($votes['count']['value']) ? 0 : $votes['count']['value'],
+	);
+
+	if (empty($values->user)){
+	
+	}
+	
+	$settings = array(
+		'stars' => 5,
+		'allow_clear' => FALSE,
+		// If the user has setup this content type to use smart stars, display
+		// the smart version instead of just the average.
+		'style' => 'user',
+		'text' => '',
+		'content_type' => 'media',
+		'content_id' => $media->mid,
+		'tag' => 'vote',
+		'autosubmit' => TRUE,
+		'title' => FALSE,
+		'feedback_enable' => FALSE,
+		'labels_enable' => FALSE,
+		'labels' => array()
+	);
+	//$output .= fivestar_static('media', $media->mid, 'vote');
+	$output .= drupal_get_form('fivestar_custom_widget', $values, $settings);
+	/*Tyler added 05/06/11 - Adding inline star rating, static/non-interactive */
+
+
+	
+  	// add reviews
+  	$output .= sr_review_makeReviewDiv($media->mid, $uid, Review::REVIEW_CALLER_LOG);
+  	
+  	$output .= "</div></div>";
+		$x++;
+	}
+
+	$output .= "</div>";
+	
+	return $output;	
+}
+
+function sr_media_makeLibraryLogPage($medias, $uid) {
+	
+	// passed in $uid refers to profile being requested (not neceassily the logged in user)
+	
+	$output .= '<div class="media-log-page">';
+	
+	$x = 0;
+	while ($x < $medias->count) {
+
+		$media = $medias->getObject($x);
+		if (!$media) {
+			break;
+		}
+		$output .= '<div class="media-log-item">';
+		
+		// add media header
+		$output .= '<a href="'. Media::makeMediaURLbyID($media->mid) .'">';
+		$output .= '<img class="media-header-image" src="'. Media::makeMediaImageURL($media->isbn, 'S', true) .'" alt="" /></a>';
+		
+		$output .= '<div class="media-log-item-right">';
+		$output .= '<div class="media-header-title"><a href="'. Media::makeMediaURLbyID($media->mid) .'">';
+		$output .= $media->title;
+		$output .= '</div></a>';
+		
+  	/*if (strlen(trim($media->subtitle)) > 0) {
+    	$output .= ": " . $media->subtitle;
+  	}*/
+	
+  	$output .= '</a><p class="media-details">'. $media->author .'</p></div>';
+
+	// add reviews
+  	//$output .= sr_review_makeReviewDiv($media->mid, $uid, Review::REVIEW_CALLER_LOG);
+  	
+  	$output .= "</div></div>";
+		$x++;
+	}
+
+	$output .= "</div>";
+
+	
+	return $output;	
+}

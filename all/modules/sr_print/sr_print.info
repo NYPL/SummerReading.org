@@ -1,0 +1,7 @@
+; $Id$
+name = SR Print
+description = Custom module for handling print functionality within SummerReading.org
+package = Summer Reading
+core = 6.x
+php = 5.x
+version = 6.x-1.x-dev

@@ -1,0 +1,317 @@
+<?php
+// $Id: sr_util.install
+
+
+
+/**
+* Implementation of hook_update()
+*/
+function sr_util_update_6100() {
+  $ret = array();
+  
+	$ret[] = update_sql("
+		INSERT INTO `sr_branch` (`branchid`,`name`,`symbol`,`borough`)
+		VALUES
+			(224,'Service to the Aging','90','Brooklyn'),
+			(225,'Kidsmobile','91','Brooklyn'),
+			(226,'Bookmobile','92','Brooklyn'),
+			(227,'Bibliobus','93','Brooklyn'),
+			(228,'Bedford Learning Center','94','Brooklyn'),
+			(229,'Central Learning Center','95','Brooklyn'),
+			(230,'Coney Island Learning Center','96','Brooklyn'),
+			(231,'Eastern Parkway Learning Center','97','Brooklyn'),
+			(232,'Flatbush Learning Center','98','Brooklyn'),
+			(233,'Central Library','7','Brooklyn');
+	");
+
+	$ret[] = update_sql("
+		DELETE FROM `sr_branch` WHERE `branchid` IN (109, 110);
+	");
+	
+	return $ret;
+	
+}
+
+/**
+* Implementation of hook_update()
+*/
+function sr_util_update_6101() {
+  $ret = array();
+  
+	$ret[] = update_sql("
+		INSERT INTO `sr_branch` (`branchid`,`name`,`symbol`,`borough`)
+		VALUES
+			(234,'Battery Park Cit','BPC','Manhattan');
+	");
+
+	return $ret;
+	
+}
+
+/**
+* Implementation of hook_install()
+*/
+function sr_util_install() {
+
+  // library branch data
+  db_query("
+		CREATE TABLE IF NOT EXISTS `sr_branch` (
+		  `branchid` int(11) NOT NULL,
+		  `name` varchar(128) DEFAULT NULL,
+		  `symbol` varchar(10) DEFAULT NULL,
+		  `borough` varchar(30) DEFAULT NULL,
+		  PRIMARY KEY (`branchid`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  ");
+  
+  db_query("
+		INSERT INTO `sr_branch` (`branchid`,`name`,`symbol`,`borough`)
+		VALUES
+			(1,'Allerton Library','AL','Bronx'),
+			(2,'Baychester Library','BAR','Bronx'),
+			(3,'Belmont Library and Enrico Fermi Cultural Center','BER','Bronx'),
+			(4,'Bronx Library Center','BLC','Bronx'),
+			(5,'Castle Hill Library','CT','Bronx'),
+			(6,'City Island Library','CI','Bronx'),
+			(7,'Clason\'s Point Library','CP','Bronx'),
+			(8,'Eastchester Library','EA','Bronx'),
+			(9,'Edenwald Library','EW','Bronx'),
+			(10,'Francis Martin Library','FXR','Bronx'),
+			(11,'Grand Concourse Library','GD','Bronx'),
+			(12,'High Bridge Library','HB','Bronx'),
+			(13,'Hunt\'s Point Library','HSR','Bronx'),
+			(14,'Jerome Park Library','JP','Bronx'),
+			(15,'Kingsbridge Library','KBR','Bronx'),
+			(16,'Melrose Library','ME','Bronx'),
+			(17,'Morris Park Library','MP','Bronx'),
+			(18,'Morrisania Library','MR','Bronx'),
+			(19,'Mosholu Library','MO','Bronx'),
+			(20,'Mott Haven Library','MH','Bronx'),
+			(21,'Parkchester Library','PKR','Bronx'),
+			(22,'Pelham Bay Library','PM','Bronx'),
+			(23,'Riverdale Library','RD','Bronx'),
+			(24,'Sedgwick Library','SD','Bronx'),
+			(25,'Soundview Library','SV','Bronx'),
+			(26,'Spuyten Duyvil Library','DY','Bronx'),
+			(27,'Throg\'s Neck Library','TG','Bronx'),
+			(28,'Tremont Library','TM','Bronx'),
+			(29,'Van Cortlandt Library','VC','Bronx'),
+			(30,'Van Nest Library','VN','Bronx'),
+			(31,'Wakefield Library','WK','Bronx'),
+			(32,'West Farms Library','WF','Bronx'),
+			(33,'Westchester Square Library','WT','Bronx'),
+			(34,'Woodlawn Heights Library','WL','Bronx'),
+			(35,'Woodstock Library','WO','Bronx'),
+			(36,'115th Street Library','HU','Manhattan'),
+			(37,'125th Street Library','HD','Manhattan'),
+			(38,'58th Street Library','FE','Manhattan'),
+			(39,'67th Street Library','SS','Manhattan'),
+			(40,'96th Street Library','NSR','Manhattan'),
+			(41,'Aguilar Library','AG','Manhattan'),
+			(42,'Andrew Heiskell Braille and Talking Book Library','LBL','Manhattan'),
+			(43,'Bloomingdale Library','BLR','Manhattan'),
+			(44,'Chatham Square Library','CHR','Manhattan'),
+			(45,'Columbus Library','CS','Manhattan'),
+			(46,'Countee Cullen Library','HTR','Manhattan'),
+			(47,'Donnell Library Center','DLC','Manhattan'),
+			(48,'Epiphany Library','EP','Manhattan'),
+			(49,'Fort Washington Library','FW','Manhattan'),
+			(50,'George Bruce Library','BR','Manhattan'),
+			(51,'Grand Central Library','GC','Manhattan'),
+			(52,'Hamilton Fish Park Library','HF','Manhattan'),
+			(53,'Hamilton Grange Library','HG','Manhattan'),
+			(54,'Harlem Library','HL','Manhattan'),
+			(55,'Hudson Park Library','HP','Manhattan'),
+			(56,'Inwood Library','INR','Manhattan'),
+			(57,'Jefferson Market Library','JMR','Manhattan'),
+			(58,'Kips Bay Library','KP','Manhattan'),
+			(59,'Macomb\'s Bridge Library','MB','Manhattan'),
+			(60,'Mid-Manhattan Library','MML','Manhattan'),
+			(61,'Morningside Heights','CL','Manhattan'),
+			(62,'Muhlenberg Library','MU','Manhattan'),
+			(63,'Mulberry Street Library','ML','Manhattan'),
+			(64,'New Amsterdam Library','LM','Manhattan'),
+			(65,'New York Public Library for the Performing Arts, Dorothy and Lewis B. Cullman Center','LPA','Manhattan'),
+			(66,'Ottendorfer Library','OT','Manhattan'),
+			(67,'Riverside Library','R','Manhattan'),
+			(68,'Roosevelt Island Library','RI','Manhattan'),
+			(69,'Schomburg Center for Research in Black Culture','SC','Manhattan'),
+			(70,'Science, Industry and Business Library (SIBL)','SIBL','Manhattan'),
+			(71,'Seward Park Library','SE','Manhattan'),
+			(72,'St. Agnes Library','SA','Manhattan'),
+			(73,'Stephen A. Schwarzman Building','HSSL','Manhattan'),
+			(74,'Terence Cardinal Cooke-Cathedral Library','CA','Manhattan'),
+			(75,'Tompkins Square Library','TS','Manhattan'),
+			(76,'Washington Heights Library','WH','Manhattan'),
+			(77,'Webster Library','WB','Manhattan'),
+			(78,'Yorkville Library','YV','Manhattan'),
+			(79,'Dongan Hills Library','DH','Staten Island'),
+			(80,'Great Kills Library','GK','Staten Island'),
+			(81,'Huguenot Park Library','HK','Staten Island'),
+			(82,'New Dorp Library','NDR','Staten Island'),
+			(83,'Port Richmond Library','PR','Staten Island'),
+			(84,'Richmondtown Library','RT','Staten Island'),
+			(85,'South Beach Library','SB','Staten Island'),
+			(86,'St. George Library Center','SGC','Staten Island'),
+			(87,'Stapleton Library','ST','Staten Island'),
+			(88,'Todt Hill-Westerleigh Library','THR','Staten Island'),
+			(89,'Tottenville Library','TV','Staten Island'),
+			(90,'West New Brighton Library','NB','Staten Island'),
+			(99,'Bay Ridge','28','Brooklyn'),
+			(98,'Arlington','21','Brooklyn'),
+			(93,'not in NYC','XX','not in NYC'),
+			(94,'Andrew Heiskell Braille and Talking Book Library','LBL','Bronx'),
+			(95,'Andrew Heiskell Braille and Talking Book Library','LBL','Brooklyn'),
+			(96,'Andrew Heiskell Braille and Talking Book Library','LBL','Staten Island'),
+			(97,'Andrew Heiskell Braille and Talking Book Library','LBL','Queens'),
+			(100,'Bedford ','22','Brooklyn'),
+			(101,'Borough Park','25','Brooklyn'),
+			(102,'Brighton Beach','24','Brooklyn'),
+			(103,'Brooklyn Heights','50','Brooklyn'),
+			(104,'Brower Park ','79','Brooklyn'),
+			(105,'Brownsville ','27','Brooklyn'),
+			(106,'Bushwick','29','Brooklyn'),
+			(107,'Canarsie','34','Brooklyn'),
+			(108,'Carroll Gardens','31','Brooklyn'),
+			(109,'Central Library Young Adult Library (03)','3','Brooklyn'),
+			(110,'Central Library Children\'s Library (07)','7','Brooklyn'),
+			(111,'Clarendon','33','Brooklyn'),
+			(112,'Clinton Hill ','83','Brooklyn'),
+			(113,'Coney Island','32','Brooklyn'),
+			(114,'Cortelyou','87','Brooklyn'),
+			(115,'Crown Heights','30','Brooklyn'),
+			(116,'Cypress Hills','65','Brooklyn'),
+			(117,'DeKalb','35','Brooklyn'),
+			(118,'Dyker','82','Brooklyn'),
+			(119,'East Flatbush','36','Brooklyn'),
+			(120,'Eastern Parkway','37','Brooklyn'),
+			(121,'Flatbush','38','Brooklyn'),
+			(122,'Flatlands','39','Brooklyn'),
+			(123,'Fort Hamilton','40','Brooklyn'),
+			(124,'Gerritsen Beach','66','Brooklyn'),
+			(125,'Gravesend','74','Brooklyn'),
+			(126,'Greenpoint','41','Brooklyn'),
+			(127,'Highlawn','42','Brooklyn'),
+			(128,'Homecrest','76','Brooklyn'),
+			(129,'Jamaica Bay','81','Brooklyn'),
+			(130,'Kensington','43','Brooklyn'),
+			(131,'Kings Bay','44','Brooklyn'),
+			(132,'Kings Highway','45','Brooklyn'),
+			(133,'Leonard','46','Brooklyn'),
+			(134,'Macon','47','Brooklyn'),
+			(135,'Mapleton','49','Brooklyn'),
+			(136,'Marcy','59','Brooklyn'),
+			(137,'McKinley Park','67','Brooklyn'),
+			(138,'Midwood','48','Brooklyn'),
+			(139,'Mill Basin','68','Brooklyn'),
+			(140,'New Lots','52','Brooklyn'),
+			(141,'New Utrecht','51','Brooklyn'),
+			(142,'Pacific','69','Brooklyn'),
+			(143,'Paerdegat','78','Brooklyn'),
+			(144,'Park Slope','53','Brooklyn'),
+			(145,'Red Hook','70','Brooklyn'),
+			(146,'Rugby','54','Brooklyn'),
+			(147,'Ryder','80','Brooklyn'),
+			(148,'Saratoga','57','Brooklyn'),
+			(149,'Sheepshead Bay','56','Brooklyn'),
+			(150,'Spring Creek','85','Brooklyn'),
+			(151,'Stone Avenue','26','Brooklyn'),
+			(152,'Sunset Park','55','Brooklyn'),
+			(153,'Ulmer Park','71','Brooklyn'),
+			(154,'Walt Whitman','62','Brooklyn'),
+			(155,'Washington Irving','61','Brooklyn'),
+			(156,'Williamsburgh','60','Brooklyn'),
+			(157,'Windsor Terrace','77','Brooklyn'),
+			(158,'Child\'s Place','39','Brooklyn'),
+			(159,'Astoria','A','Queens'),
+			(160,'Arverne','AR','Queens'),
+			(161,'Auburndale','AU','Queens'),
+			(162,'Bayside','B','Queens'),
+			(163,'Broad Channel','BC','Queens'),
+			(164,'Bellerose','BL','Queens'),
+			(165,'Baisley Park','BP','Queens'),
+			(166,'Broadway','BR','Queens'),
+			(167,'Bay Terrace','BT','Queens'),
+			(168,'Briarwood','BW','Queens'),
+			(169,'Corona','C','Queens'),
+			(170,'Central Library','CEL','Queens'),
+			(171,'Cambria Heights','CM','Queens'),
+			(172,'Court Square','CS','Queens'),
+			(173,'Douglaston','DL','Queens'),
+			(174,'Elmhurst','E','Queens'),
+			(175,'East Elmhurst','EE','Queens'),
+			(176,'East Flushing','EF','Queens'),
+			(177,'Flushing','F','Queens'),
+			(178,'Far Rockaway','FA','Queens'),
+			(179,'Forest Hills','FH','Queens'),
+			(180,'Fresh Meadows','FM','Queens'),
+			(181,'Glen Oaks','GK','Queens'),
+			(182,'Glendale','GL','Queens'),
+			(183,'Hillcrest','H','Queens'),
+			(184,'Howard Beach','HB','Queens'),
+			(185,'Hollis','HO','Queens'),
+			(186,'Jackson Heights','JH','Queens'),
+			(187,'Kew Garden Hills','KE','Queens'),
+			(188,'Laurelton','LA','Queens'),
+			(189,'Langston Hughes','LH','Queens'),
+			(190,'Long Island City','LIC','Queens'),
+			(191,'Lefrak City','LK','Queens'),
+			(192,'Lefferts','LRC','Queens'),
+			(193,'McGoldrick','MG','Queens'),
+			(194,'Maspeth','MA','Queens'),
+			(195,'Mitchell Linden','MT','Queens'),
+			(196,'Middle Village','MV','Queens'),
+			(197,'North Forest Park','NFP','Queens'),
+			(198,'North Hills','NO','Queens'),
+			(199,'Ozone Park','OZ','Queens'),
+			(200,'Poppenhuse','P','Queens'),
+			(201,'Pomonok','PM','Queens'),
+			(202,'Peninsual','PRC','Queens'),
+			(203,'Queens Village','Q','Queens'),
+			(204,'Queensbridge','QB','Queens'),
+			(205,'Queensboro Hill','QH','Queens'),
+			(206,'Ravenswood','RV','Queens'),
+			(207,'Richmond Hill','R','Queens'),
+			(208,'Ridgewood','RD','Queens'),
+			(209,'Rego Park','RG','Queens'),
+			(210,'Rochdale Village','RO','Queens'),
+			(211,'Rosedale','RS','Queens'),
+			(212,'Steinway','S','Queens'),
+			(213,'Saint Albans','SA','Queens'),
+			(214,'Seaside','SE','Queens'),
+			(215,'South Hollis','SH','Queens'),
+			(216,'South Jamaica','SJ','Queens'),
+			(217,'Sunnyside','SU','Queens'),
+			(218,'South Ozone Park','SZ','Queens'),
+			(219,'Whitestone','W','Queens'),
+			(220,'Woodhaven','WN','Queens'),
+			(221,'Windsor Park','WP','Queens'),
+			(222,'Woodside','WS','Queens'),
+			(223,'Program Coordnation and Management','PCM','Queens');
+	");
+
+
+  // reading time log
+  db_query("
+		CREATE TABLE `sr_time` (
+		  `tid` int(11) NOT NULL AUTO_INCREMENT,
+		  `uid` int(11) DEFAULT NULL,
+		  `amount` int(11) DEFAULT NULL,
+		  `timestamp` int(11) DEFAULT NULL,
+		  PRIMARY KEY (`tid`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	");
+
+}
+
+
+/**
+* Implementation of hook_uninstall()
+*/
+function sr_util_uninstall() {
+	
+  db_query('DROP TABLE {sr_branch}');
+  // don't uninstall sr_time - don't want to accidentally lose data
+  
+}
+

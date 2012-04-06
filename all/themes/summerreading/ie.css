@@ -1,0 +1,308 @@
+#div_screen_name_adjective{ text-align:center;}
+#div_screen_name_adjective.form-item { font-size:16px; display:inline; }
+#btnDiv{ width:73%; height:50px; }
+#btnDiv  fieldset { width:195px; float:left; }
+
+* html #summerreading-logo { padding-top: 5px;}
+
+* html #map-header p {
+display:none !important;
+}
+
+* html #feature1 .features-bottom {
+	padding-bottom: 25px !important; padding-left: 20px !important; width: 400px !important; padding-right: 10px !important; background: url(/sites/all/themes/summerreading/images/feature_lb_bottom.gif) no-repeat left bottom; padding-top: 0px !important;
+}
+
+* html #feature2 .features-bottom {
+	padding-bottom: 45px; padding-left: 20px; width: 425px; padding-right: 0px !important; background: url(/sites/all/themes/summerreading/images/feature2_bottom.gif) no-repeat left bottom; padding-top: 0px
+}
+
+
+* html #feature1 {
+	width: 425px !important; display: inline; background: none transparent scroll repeat 0% 0%; float: left; height: 300px;
+	padding:0px 5px 0 0px !important; margin-right:0px; margin-top:10px; margin-left:5px !important;
+}
+* html #feature2 {
+	width: 400px !important; display: inline; background: none transparent scroll repeat 0% 0%; float: left; height: 300px;
+	padding:0px 0 0 0px; margin-left:15px !important; margin-top:10px;
+}
+
+* html #map_bg {
+display:none !important;
+}
+
+* html #map-canvas {
+display:none !important;
+}
+
+* html #map-key {
+display:none !important;
+}
+
+* html #key-info {
+display:none !important;
+}
+
+*+html #map-bottom {
+padding-bottom:0px;
+}
+
+*+html #map-key h1 {
+margin-top:10px;
+}
+
+*+html #map-bg {
+padding-bottom:30px;
+}
+
+#map-header {
+margin-bottom:5px;
+margin-left:25px;
+}
+
+#map_bg {
+width: 876px; display: inline; background: none transparent scroll repeat 0% 0%; float: left; height: 380px
+float: left;
+margin:0 auto;
+margin-bottom:32px;
+padding:10px 15px 50px 10px;
+background: #26ABCF;
+
+}
+
+
+#map-mid {
+width: 876px; margin:0 auto; background: url(/sites/all/themes/summerreading/images/lb_middle.gif) repeat-y left top; 
+}
+
+#map-top {
+	width: 876px; margin:0 auto; background: url(/sites/all/themes/summerreading/images/lb_top.gif) no-repeat left top; padding-top: 20px
+}
+#map-bottom {
+	padding-bottom: 40px; /*padding-left: 20px;*/ width: 876px; /*padding-right: 15px;*/ background: url(/sites/all/themes/summerreading/images/lb_bottom.gif) no-repeat left bottom; padding-top: 0px
+}
+
+#map_canvas {
+height: 320px;
+width: 840px;
+margin:0 auto;
+}
+
+#map-key {
+width:600px;
+margin-left:20px;
+}
+
+
+/*#feature1, #feature2 { background: none;  float: left; display: inline; width: 420px; height: 400px; }
+
+
+.features-mid { background: transparent url(/sites/all/themes/summerreading/images/features-mid.gif) repeat-y left top; width: 420px; }
+.features-top { background:  transparent url(/sites/all/themes/summerreading/images/features-top.gif) no-repeat left top; padding-top: 20px; }
+.features-bottom { background: transparent  url(/sites/all/themes/summerreading/images/features-bottom.gif) no-repeat left bottom; width: 385px; padding: 0px 15px 15px 20px;}
+
+#feature2 .first-graf { color:#EDEA66; font-size:.875em; line-height:1.2em; width:350px; font-weight:normal; }
+#feature2 li { color: #ffffff; font-size:.6em; width:300px; font-weight:normal; }
+#feature1 h3, #feature2 h3 { color: #FFFFFF; }
+
+#feature1 { margin-right: 10px; }*/
+
+#feature1 .features-bottom iframe {
+					margin-left:50px;
+					width:270px; 
+					height:218px;
+					}
+
+
+#feature1 {
+	width: 425px; display: inline; background: none transparent scroll repeat 0% 0%; float: left; height: 300px;
+	padding:0px 0 0 0px; margin-right:0px; margin-top:10px; margin-left:10px;
+}
+#feature2 {
+	width: 400px; display: inline; background: none transparent scroll repeat 0% 0%; float: left; height: 300px;
+	padding:0px 0 0 0px; margin-left:25px; margin-top:10px;
+}
+#feature1 .features-mid {
+	width: 425px; background: url(/sites/all/themes/summerreading/images/feature_lb_middle.gif) repeat-y left top; 
+}
+#feature1 .features-top {
+	background: url(/sites/all/themes/summerreading/images/feature_lb_top.gif) no-repeat left top; padding-top: 5px
+}
+#feature1 .features-bottom {
+	padding-bottom: 25px; padding-left: 20px; width: 400px; padding-right: 15px; background: url(/sites/all/themes/summerreading/images/feature_lb_bottom.gif) no-repeat left bottom; padding-top: 0px
+}
+
+#feature2 .features-mid {
+	width: 432px; background: url(/sites/all/themes/summerreading/images/feature2_middle.gif) repeat-y left top; padding-right:0px;
+}
+#feature2 .features-top {
+	width: 432px; background: url(/sites/all/themes/summerreading/images/feature2_top.gif) no-repeat left top; padding-top: 20px
+}
+#feature2 .features-bottom {
+	padding-bottom: 45px; padding-left: 20px; width: 425px; padding-right: 15px; background: url(/sites/all/themes/summerreading/images/feature2_bottom.gif) no-repeat left bottom; padding-top: 0px
+}
+
+#feature2  .features-bottom img {
+width:263px; 
+margin-top: 20px; 
+margin-left: 58px;
+margin-bottom: 20px;
+}
+
+#feature2 .first-graf {
+	line-height: 1.2em; width: 350px; color: #edea66; font-size: 0.87em; font-weight: normal
+}
+
+#feature2 ul {
+	width: 170px; color: #ffffff; font-size: 0.6em; font-weight: normal; margin:0 auto; margin-top:10px;
+}
+
+#feature2 li {
+	width: 300px; color: #ffffff; font-size: 0.6em; font-weight: normal
+}
+#feature1 h3 {
+	color: #ffffff;
+	width:340px;
+	margin: 10px auto;
+	
+}
+#feature2 H3 {
+	color: #ffffff
+}
+/*#feature1 {
+	margin-right: 10px
+}*/
+
+
+
+#footer-right img { margin-right:30px; }
+.AI-tr {background: url(/sites/summerreading.org/files/images/top_right.gif) 100% 0 no-repeat; padding:20px;}
+* html .SN-bl { width: 900px }
+* html .SN-br { width: 900px }
+* html .SN-tl { width: 900px }
+* html .SN-tr { width: 860px; overflow: hidden;}
+
+*:first-child+html .SN-bl { width: 900px }
+*:first-child+html .SN-br { width: 900px }
+*:first-child+html .SN-tl { width: 900px }
+*:first-child+html .SN-tr { width: 860px; overflow: hidden;}
+#footer-menus { }
+
+#page { font-size: 0.875em line-height: 1.286em; overflow: hidden;
+}
+
+#user-login {  padding: 10px 7px 10px 10px; width: 220px; }
+#header-right #user-login {height: 100px\0/;}
+#content-area #user-login #edit-submit  { float: none;}
+#user-login .form-submit { float: left;}
+#user-login #login-register { float: left; display: block; margin-left: 10px; padding-top: 10px;}
+#user-login input { margin: 6px 0; }
+#user-login #edit-submit {font-size:0 !important;display:block;line-height:0; }
+
+#header { display: inline; }
+
+* html #header-search {   height: 50px; padding:5px 0 0 15px; }
+*:first-child+html #header-search {   height: 50px; padding:5px 0 0 15px; }
+#header-search form { }
+input #header-search  { margin-top:15px; }
+
+#header-right { padding: 20px 40px 20px 0px; width: 256px; display: inline; } 
+#header-right .clearblock {width:500px; }
+* html #header-nav { width: 300px; overflow: hidden;}
+* #header-nav-right { display: inline; float: left; width: 200px;}
+
+/* profile page */
+/*#profile-header-right { width: 420px; }*/
+
+* html #badge-winners-outer { width: 900px; }
+
+* html .administer_mainbox_bl { /*bottom left bg */
+
+	
+
+}
+
+* html .badge-winners {
+	width: 800px;
+}
+
+input#usermedia-toggle {
+
+}
+
+#mediasearch input#edit-submit {
+font-size:0;display:block;line-height:0;
+}
+
+#readtime .header { display: block; padding-top: 10px; line-height: 30px;}
+* html #sr-user-readtime  #profile-readtime { background-image: url(/sites/summerreading.org/files/images/img_crest_timereading-ie6.gif) !important;}
+
+#cardadd .header { display: block; padding-top: 10px; line-height: 30px;}
+
+
+* html #readtime .SN-tr { padding-bottom: 50px; }
+*:first-child+html #readtime .SN-tr { padding-bottom: 50px; }
+
+#main { padding-top: 10px; }
+
+legend { margin: 0px; padding: 0px; }
+
+.policy-description  { padding-top: 20px; }
+
+.facts-all .list-item-right {
+	padding: 15px 0 5px 0;
+}
+
+#sr-util-message-form .form-submit {
+	font-size:0 !important;display:block;line-height:0;
+}
+
+#header-nav-left  { display: inline; }
+#header-nav-left a { height: 1%; }
+
+*:first-child+html  div.tabs /* See also the tabs.css file. */
+{
+	height: 32px;
+}
+
+/*#feature2 .features-bottom { min-height: 365px; height: auto !important; height: 365px; }*/
+/*#feature2 .features-bottom {
+	min-height: 365px; height: auto !important*/
+}
+
+#content-area form#user-pass input#edit-submit{
+	font-size:0 !important;display:block;line-height:0;
+}
+
+* html #content { min-height: 350px; height: auto !important; height: 350px; }
+
+* html #header-search form input#search_submit { 
+	margin: -17px 0 0 5px;
+}
+
+*:first-child+html #header-search form input#search_submit { 
+	margin: -17px 0 0 5px;
+}
+
+*:first-child+html #readtime .clear { height: 20px; }
+
+
+#badge-code-form #edit-submit{ font-size:0 !important;display:block;line-height:0;}
+
+* html #review-popup { background: url(images/report-popup-ie6.gif) no-repeat; width: 560px; height: 326px; z-index:102; }
+* html #review-popup-inner { padding: 60px 0 0 60px; }
+
+
+* html #review-popup-inner #close-btn { background-image:url(about:blank);  background-color: blue; top: 0px; right: 0px;}
+*:first-child+html #review-popup-inner #close-btn {  background-image:url(about:blank);}
+
+* html #game1 { margin-right: 0 !important; width: 200px; display: inline !important; }
+* html #game2 { margin-right: 0 !important; width: 200px; display: inline !important; }
+
+* html #media-reviews-users { display: inline; width: 400px;}
+* html #media-page-reviews { width: auto; }
+
+* html #cardadd .cardimage img { float: none; margin-right: 0px; display: none; }
+* html #cardadd .cardimage img#card-ie6 { display: block !important; }
+*:first-child+html .cardimage img  { float: none; margin-right: 0px; }
+*:first-child+html .cardimage { display: inline; }

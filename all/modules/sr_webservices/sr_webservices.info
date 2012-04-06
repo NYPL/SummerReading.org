@@ -1,0 +1,11 @@
+; $Id$
+name = SR Webservices
+description = Custom module for handling webservice functionality within SummerReading.org
+package = Summer Reading
+core = 6.x
+php = 5.x
+version = 6.x-1.x-dev
+
+
+
+

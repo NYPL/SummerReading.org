@@ -1,0 +1,734 @@
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN"> 
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head><title>
+	Flip My Photos - Online Image Editor - Rotate, Resize, Flip photos for MySpace, Facebook or email.
+</title><meta name="keywords" content="photo editor, image editor, online, free online image editor, edit photos online, free online photo editor, rotate, flip, resize, convert, free, myspace, facebook, online photo editor" /><meta name="description" content="FlipMyPhotos is a free photo editor with all the basic features: rotate, resize, fix red eye, etc. Perfect for MySpace, Facebook, Flickr etc." /><link rel="SHORTCUT ICON" href="/images/logo.ico" /><link rel="stylesheet" type="text/css" href="main.css" />
+    <style type="text/css">    
+    html, body{ height:100%; }     
+    </style>    
+</head>
+<body>
+    <script type="text/javascript" src="js/common.js" > </script>
+    
+    
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+    var pageTracker = _gat._getTracker("UA-925539-4");
+    pageTracker._initData();
+    pageTracker._trackPageview();
+    </script>            
+    
+    
+    <form name="form1" method="post" action="editpicture.aspx" id="form1" style="height: 100%;" enctype="multipart/form-data">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTQxNjAyOTAwMA9kFgICAw8WAh4HZW5jdHlwZQUTbXVsdGlwYXJ0L2Zvcm0tZGF0YRYMZg9kFgoCAQ9kFgJmDw9kFgYeC29ubW91c2VvdmVyBRJTaG93SG92ZXJCdXR0b24oKTseCm9ubW91c2VvdXQFFFNob3dSZWd1bGFyQnV0dG9uKCk7HghvbmNoYW5nZQUPRmlsZVNlbGVjdGVkKCk7ZAIDDw9kFgIfAQVHU3dpdGNoQnV0dG9ucygnVXBsb2FkSW1hZ2UyX2J0blVwbG9hZCcsICdVcGxvYWRJbWFnZTJfYnRuVXBsb2FkSG92ZXInKTtkAgQPD2QWBh4Hb25jbGljawUWcmV0dXJuIFNob3dQcm9ncmVzcygpOx8CBUdTd2l0Y2hCdXR0b25zKCdVcGxvYWRJbWFnZTJfYnRuVXBsb2FkSG92ZXInLCAnVXBsb2FkSW1hZ2UyX2J0blVwbG9hZCcpOx4Fc3R5bGUFDWRpc3BsYXk6bm9uZTtkAgYPD2QWAh8BBVdTd2l0Y2hCdXR0b25zKCdVcGxvYWRJbWFnZTJfYnRuTXVsdGlwbGVVcGxvYWQnLCAnVXBsb2FkSW1hZ2UyX2J0bk11bHRpcGxlVXBsb2FkSG92ZXInKTtkAgcPD2QWBB8CBVdTd2l0Y2hCdXR0b25zKCdVcGxvYWRJbWFnZTJfYnRuTXVsdGlwbGVVcGxvYWRIb3ZlcicsICdVcGxvYWRJbWFnZTJfYnRuTXVsdGlwbGVVcGxvYWQnKTsfBQUNZGlzcGxheTpub25lO2QCAQ9kFhQCAw8PZBYGHwEFGkhpZ2hsaWdoSW1hZ2UodGhpcywgdHJ1ZSk7HwIFG0hpZ2hsaWdoSW1hZ2UodGhpcywgZmFsc2UpOx8EBSFJbWFnZUNsaWNrZWQodGhpcyk7IHJldHVybiBmYWxzZTtkAgQPD2QWBh8BBRpIaWdobGlnaEltYWdlKHRoaXMsIHRydWUpOx8CBRtIaWdobGlnaEltYWdlKHRoaXMsIGZhbHNlKTsfBAUhSW1hZ2VDbGlja2VkKHRoaXMpOyByZXR1cm4gZmFsc2U7ZAIFDw9kFgYfAQUaSGlnaGxpZ2hJbWFnZSh0aGlzLCB0cnVlKTsfAgUbSGlnaGxpZ2hJbWFnZSh0aGlzLCBmYWxzZSk7HwQFIUltYWdlQ2xpY2tlZCh0aGlzKTsgcmV0dXJuIGZhbHNlO2QCBg8PZBYGHwEFGkhpZ2hsaWdoSW1hZ2UodGhpcywgdHJ1ZSk7HwIFG0hpZ2hsaWdoSW1hZ2UodGhpcywgZmFsc2UpOx8EBSFJbWFnZUNsaWNrZWQodGhpcyk7IHJldHVybiBmYWxzZTtkAgcPD2QWBh8BBRpIaWdobGlnaEltYWdlKHRoaXMsIHRydWUpOx8CBRtIaWdobGlnaEltYWdlKHRoaXMsIGZhbHNlKTsfBAUhSW1hZ2VDbGlja2VkKHRoaXMpOyByZXR1cm4gZmFsc2U7ZAIIDw9kFgYfAQUaSGlnaGxpZ2hJbWFnZSh0aGlzLCB0cnVlKTsfAgUbSGlnaGxpZ2hJbWFnZSh0aGlzLCBmYWxzZSk7HwQFIUltYWdlQ2xpY2tlZCh0aGlzKTsgcmV0dXJuIGZhbHNlO2QCCQ8PZBYGHwEFGkhpZ2hsaWdoSW1hZ2UodGhpcywgdHJ1ZSk7HwIFG0hpZ2hsaWdoSW1hZ2UodGhpcywgZmFsc2UpOx8EBSFJbWFnZUNsaWNrZWQodGhpcyk7IHJldHVybiBmYWxzZTtkAgoPD2QWBh8BBRpIaWdobGlnaEltYWdlKHRoaXMsIHRydWUpOx8CBRtIaWdobGlnaEltYWdlKHRoaXMsIGZhbHNlKTsfBAUhSW1hZ2VDbGlja2VkKHRoaXMpOyByZXR1cm4gZmFsc2U7ZAILDw9kFgYfAQUaSGlnaGxpZ2hJbWFnZSh0aGlzLCB0cnVlKTsfAgUbSGlnaGxpZ2hJbWFnZSh0aGlzLCBmYWxzZSk7HwQFIUltYWdlQ2xpY2tlZCh0aGlzKTsgcmV0dXJuIGZhbHNlO2QCDA8PZBYCHwUFDWRpc3BsYXk6bm9uZTtkAgIPD2QWAh8EBRpyZXR1cm4gQ29uZmlybVN0YXJ0T3ZlcigpO2QCAw8PZBYCHwQFGXJldHVybiBDb25maXJtRGVsZXRpbmcoKTtkAgQPD2QWAh8EBRxyZXR1cm4gQ29uZmlybURlbGV0aW5nQWxsKCk7ZAIFDxYCHgdWaXNpYmxlaGQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgQFFlVwbG9hZEltYWdlMiRidG5VcGxvYWQFG1VwbG9hZEltYWdlMiRidG5VcGxvYWRIb3ZlcgUeVXBsb2FkSW1hZ2UyJGJ0bk11bHRpcGxlVXBsb2FkBSNVcGxvYWRJbWFnZTIkYnRuTXVsdGlwbGVVcGxvYWRIb3Zlcn6V43iN+q8K6oYtNKB/69u/l9te" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form1'];
+if (!theForm) {
+    theForm = document.form1;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+    
+   
+    
+    <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; height: 100%; position: absolute; top: 0px; left: 0px;">
+        
+        
+        <tr>
+            <td align="left"> 
+                <table border="0" cellpadding="0" cellspacing="0" style="height: 100%;"><tr><td>
+                    <table id="tblMain" style="width: 1000px; height: 100%;" border="0" cellpadding="0" cellspacing="0">
+                    
+                    <tr>
+                        <td style="height: 78px; text-align: right;" class="page_header">
+                            <div style="position: absolute; top: 16px; left: 16px;">
+                            <a href="/">
+                            <img src="images/topbanner.png" style="border: 0px;" alt="Flip my photos" />
+                            </a>
+                            </div>
+                            <div class="beta" style="position: absolute; top: 24px; left: 210px;">
+                            (Beta)
+                            </div>                        
+                        
+         
+                        
+                            <div class="font_small" style="padding-right: 20px;">
+                                <a href="multiupload.aspx" class="link_small">Multi Upload</a>
+                                |                 
+                                <a href="help/overview.aspx" class="link_small">Help</a>
+                                | 
+                                <a href="contactus.aspx" class="link_small">Contact Us</a>
+                                | 
+                                <a href="spreadtheword.aspx" class="link_small">Spread the Word</a>                            
+                            </div>
+                            <div style="float: right; padding-top: 8px;">
+
+
+<table border="0" cellpadding="0" cellspacing="0"><tr>
+<td style="vertical-align: top;">
+    
+
+<style type="text/css">
+div.fileinputs {
+    position: relative;
+    display: inline;
+}
+
+div.fakefile {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 3;
+}
+
+div.fakebrowse {
+    position: absolute;
+    top: 0px;        
+}
+
+input.file {
+    position: relative;
+    -moz-opacity: 0;
+    filter:alpha(opacity: 0);
+    opacity: 0;    
+    z-index: 2;
+}
+
+input.readonly_input
+{
+    position: relative;
+    background-color: #b2b2b2; 
+    border-width: 0px;
+    height: 16px;    
+    
+    font-size: 11px; 
+    font-family: Arial; 
+    color: White;        
+    padding-top: 3px;
+    
+    z-index: 3;    
+}
+
+td.fake_input
+{
+    position: relative;
+    z-index: 3;    
+}
+</style>
+
+
+
+<div id="divContainer" class="fileinputs">
+    <input type="file" name="UploadImage2$ctlAFileUpload$fileUpload" id="UploadImage2_ctlAFileUpload_fileUpload" class="file" onmouseover="ShowHoverButton();" onmouseout="ShowRegularButton();" onchange="FileSelected();" />
+    
+    <div id="divFakeFile" class="fakefile" style="background-color: #b2b2b2; height: 20px;">
+    <input id="tbFileName" type="text" readonly="readonly" class="readonly_input" style="width: 145px;" />
+    </div>
+    
+    <div id="divFakeBrowse" class="fakebrowse" style="left: 145px;">
+    <img id="imgBrowse" src="images/browse2.png" alt="" /><img id="imgBrowseHover" src="images/browse2_hover.png" alt="" style="display: none;" />
+    </div>
+</div>
+
+
+<script type="text/javascript">
+function AdjustCotrol()
+{   
+    // Clear text box 
+    var tbFileName = document.getElementById("tbFileName");
+    tbFileName.value = "";    
+    
+    if(BrowserDetect.browser == "Explorer")
+    {
+        var tbFileName = document.getElementById("tbFileName");
+        tbFileName.style.width = "160px"; //"158px";
+        tbFileName.style.paddingTop = "0px";
+        var divFakeBrowse = document.getElementById("divFakeBrowse");
+        divFakeBrowse.style.left = "160px";
+        divFakeBrowse.style.marginTop = "1px";
+        var divFakeFile = document.getElementById("divFakeFile");
+        divFakeFile.style.marginTop = "1px";
+    }
+    else if(BrowserDetect.browser == "Opera")
+    {
+        var divFakeBrowse = document.getElementById("divFakeBrowse");        
+        divFakeBrowse.style.marginTop = "1px"; 
+        
+        var divFakeFile = document.getElementById("divFakeFile");
+        divFakeFile.style.marginTop = "1px";            
+        
+        var divContainer = document.getElementById("divContainer");
+        divContainer.appendChild(document.createTextNode('\u00a0'));
+    }
+    else if(BrowserDetect.browser == "Safari")
+    {
+        var fileUploadID = 'UploadImage2_ctlAFileUpload_fileUpload';
+        var fileUpload = document.getElementById(fileUploadID);
+        fileUpload.style.width = "220px";
+    }
+}
+
+function ShowHoverButton()
+{
+    document.getElementById("imgBrowse").style.display = "none";                    
+    document.getElementById("imgBrowseHover").style.display = "inline";                        
+}
+
+function ShowRegularButton()
+{
+    document.getElementById("imgBrowse").style.display = "inline";                    
+    document.getElementById("imgBrowseHover").style.display = "none";                    
+}        
+
+function FileSelected()
+{   
+    var fileUpload = document.getElementById('UploadImage2_ctlAFileUpload_fileUpload');
+    var tbFileName = document.getElementById("tbFileName");
+    tbFileName.value = fileUpload.value;
+}
+
+</script>
+
+
+</td>
+
+<td style="padding-top: 1px; padding-left: 4px;">
+    <input type="image" name="UploadImage2$btnUpload" id="UploadImage2_btnUpload" onmouseover="SwitchButtons('UploadImage2_btnUpload', 'UploadImage2_btnUploadHover');" src="images/upload.png" style="border-width:0px;" /><input type="image" name="UploadImage2$btnUploadHover" id="UploadImage2_btnUploadHover" onmouseout="SwitchButtons('UploadImage2_btnUploadHover', 'UploadImage2_btnUpload');" src="images/upload_hover.png" onclick="return ShowProgress();" style="border-width:0px;display:none;" />
+</td>    
+<td style="width: 7px;">    
+    &nbsp;
+</td>    
+<td style="padding-top: 1px;">    
+    <input type="image" name="UploadImage2$btnMultipleUpload" id="UploadImage2_btnMultipleUpload" onmouseover="SwitchButtons('UploadImage2_btnMultipleUpload', 'UploadImage2_btnMultipleUploadHover');" src="images/multyupload.png" style="border-width:0px;" /><input type="image" name="UploadImage2$btnMultipleUploadHover" id="UploadImage2_btnMultipleUploadHover" onmouseout="SwitchButtons('UploadImage2_btnMultipleUploadHover', 'UploadImage2_btnMultipleUpload');" src="images/multyupload_hover.png" style="border-width:0px;display:none;" />
+</td>
+<td style="padding-left: 5px; width: 16px;">
+    <span id="spanProgress" style="height: 16px; width: 16px; display: none;"><img id="imgProgress" src="images/progress/circle-ball-dark-antialiased.gif" alt="" style="border: 0px;" /></span>
+</td>
+</tr></table>
+<script type="text/javascript">
+function UploadImage_Load()
+{   
+    
+    //if(IsIE())
+    //{
+        //var spanButtons = document.getElementById("spanButtons");
+        //spanButtons.style.paddingTop = "4px;";
+    //}
+}
+
+function Wait()
+{
+    var counter;
+    for(var i = 0; i < 2000; i++)
+    {
+        counter++;
+    }
+}
+
+function ShowProgress()
+{
+    document.getElementById("spanProgress").style.display = "block";                                
+    if(BrowserDetect.browser == "Explorer")
+    {
+        document.getElementById("imgProgress").style.display = "none";
+        document.getElementById("spanProgress").style.backgroundImage = "url(images/progress/circle-ball-dark-antialiased.gif)";
+    }
+
+    if(BrowserDetect.browser == "Opera")
+    {
+        Wait();
+    }
+    
+    return true;
+}
+
+//function ShowHoverButton()
+//{
+//    document.getElementById("imgBrowse").style.display = "none";                    
+//    document.getElementById("imgBrowseHover").style.display = "inline";                    
+//}
+
+function SwitchButtons(buttonToHideID, buttonToShowID)
+{
+    document.getElementById(buttonToHideID).style.display = "none";
+    document.getElementById(buttonToShowID).style.display = "inline";
+}
+</script>
+
+</div>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="height: 100px;">
+                            <input type="hidden" name="ImageStrip1$hfSelectedImage" id="ImageStrip1_hfSelectedImage" />
+<input type="hidden" name="ImageStrip1$hfCurrentImageIndex" id="ImageStrip1_hfCurrentImageIndex" value="0" />
+<input type="hidden" name="ImageStrip1$hfVisibleImagesNumber" id="ImageStrip1_hfVisibleImagesNumber" value="9" />
+
+<table cellpadding="0" cellspacing="0" border="0" style="background-color: #C4C4C4">
+    <tr style="height: 120px;">
+        <td>   
+            <a href="#" onclick="ImageStripScrollBack(); return false;"  ondblclick="if(IsIE()) { ImageStripScrollBack(); }">
+            <img src="images/arrow_left.bmp" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td>&nbsp;&nbsp;</td>
+
+        <td style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage1" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage1','')">
+            <img id="stripImg1" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage2" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage2','')">
+            <img id="stripImg2" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage3" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage3','')">
+            <img id="stripImg3" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        
+        <td style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage4" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage4','')">
+            <img id="stripImg4" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage5" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage5','')">
+            <img id="stripImg5" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage6" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage6','')">
+            <img id="stripImg6" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        
+        <td id="tdStrip7" style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage7" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage7','')">
+            <img id="stripImg7" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td id="tdStrip8" style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage8" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage8','')">
+            <img id="stripImg8" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+        <td id="tdStrip9" style="width: 100px" valign="middle" align="center">
+            <a onclick="ImageClicked(this); return false;" id="ImageStrip1_lbImage9" onmouseover="HighlighImage(this, true);" onmouseout="HighlighImage(this, false);" href="javascript:__doPostBack('ImageStrip1$lbImage9','')">
+            <img id="stripImg9" src="images/transparent_pixel.gif" alt="" style="border-width: 0px;" />
+            </a>
+        </td>       
+        
+        
+        <td>&nbsp;&nbsp;</td>
+        <td>
+            <a href="#" onclick="ImageStripScrollForward();return false;" ondblclick="if(IsIE()) { ImageStripScrollForward(); }">
+            <img src="images/arrow_right.bmp" alt="" style="border-width: 0px;" />
+            </a>
+        </td>
+    </tr>
+</table>
+
+<input type="submit" name="ImageStrip1$btnPostback" value="" id="ImageStrip1_btnPostback" style="display:none;" />
+
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+//var selectedColor = "#b8e1b8";//"#6d6d92";
+var selectedColor = "#838383";
+
+
+var selectedImageId = 234445;
+var arrAllImageUrls = new Array('t/conv/234445/bd6ba2fb22585eaf443099177a0ff1e6/a2.jpg');
+/*"images/blue.png", "images/pink.png", "images/yellow.png",
+                            "images/blue.png", "images/pink.png", "images/yellow.png",
+                            "images/blue.png", "images/pink.png", "images/yellow.png",
+                            "images/blue.png", "images/pink.png", "images/yellow.png",
+                            "images/blue.png", "images/pink.png", "images/yellow.png",
+                            "images/blue.png", "images/pink.png", "images/yellow.png",
+                            "images/blue.png", "images/pink.png", "images/yellow.png");*/
+
+var arrImageIDs = new Array("stripImg1", "stripImg2", "stripImg3",
+                            "stripImg4", "stripImg5", "stripImg6",
+                            "stripImg7", "stripImg8", "stripImg9");
+
+function _FindStripImage(aHref)
+{
+    var img;    
+    for(var i = 0; i < aHref.childNodes.length; i++)
+    {
+        var node = aHref.childNodes[i];
+        if(node != null && node.id != null && node.id.indexOf("stripImg") == 0)
+        {
+            img = node;
+            break;
+        }
+    }    
+    return img;
+}
+
+
+function PostbackImageClick()
+{   
+    if(IsChanged())
+    {
+        setTimeout(PostbackImageClick, 200);
+    }
+    else    
+    {
+        var btnPostback = document.getElementById('ImageStrip1_btnPostback');
+        btnPostback.click();
+    }
+}
+
+function ImageClicked(hlImage)
+{
+    SaveNetImaging(80);
+
+    var hdSelectedImage = document.getElementById('ImageStrip1_hfSelectedImage');
+    var img = _FindStripImage(hlImage);    
+    hdSelectedImage.value = img.src;
+ 
+    PostbackImageClick();       
+}
+
+var visibleImagesNumber = arrImageIDs.length;
+var currImageIndex = 0;
+function ImageStripRefresh()
+{
+    var imgPreload;    
+    for(var i = 0; i < visibleImagesNumber; i++)
+    {
+        var imageTag = document.getElementById(arrImageIDs[i]);
+        var imageUrl;
+        if(i < arrAllImageUrls.length)
+        {            
+            imageUrl = arrAllImageUrls[currImageIndex + i];     
+            //imgPreload = new Image();                 
+            //imgPreload.src = imageUrl;  
+        }
+        else
+        {
+            imageUrl = "images/transparent_pixel.gif";            
+        }
+        imageTag.src = imageUrl;
+        
+        var tdToHighlight = imageTag.parentNode.parentNode;    
+        if(imageUrl.indexOf("conv/" + selectedImageId + "/") != -1)
+        {            
+            tdToHighlight.style.backgroundColor = selectedColor;        
+        }
+        else
+        {
+            // Clear old selection
+            tdToHighlight.style.backgroundColor = "";        
+        }
+    }
+    
+    // Preload prev & next item
+    if(currImageIndex > 0)
+    {
+        imageUrl = arrAllImageUrls[currImageIndex - 1];     
+        imgPreload = new Image();                 
+        imgPreload.src = imageUrl;          
+    }    
+    if(currImageIndex + visibleImagesNumber < arrAllImageUrls.length)
+    {
+        imageUrl = arrAllImageUrls[currImageIndex + visibleImagesNumber];     
+        imgPreload = new Image();                 
+        imgPreload.src = imageUrl;              
+    }
+    
+    // Save current selected image
+    var hfCurrentImageIndex = document.getElementById('ImageStrip1_hfCurrentImageIndex');
+    hfCurrentImageIndex.value = currImageIndex;    
+}
+
+function ImageStripScrollBack()
+{    
+    if(currImageIndex > 0)
+    {
+        currImageIndex --;        
+        ImageStripRefresh();        
+    }
+}
+
+function ImageStripScrollForward()
+{
+    if(currImageIndex < arrAllImageUrls.length - visibleImagesNumber)  // Should be replaced with visible images
+    {
+        currImageIndex ++;        
+        ImageStripRefresh();
+    }
+}
+
+function HighlighImage(aHref, fHighlight)
+{       
+    //var  imgStrip = aHref.childNodes[0];
+    var imgStrip = _FindStripImage(aHref);    
+    if(imgStrip.width > 1)
+    {        
+        var tdToHighlight = aHref.parentNode;            
+        if(tdToHighlight.style.backgroundColor != selectedColor && tdToHighlight.style.backgroundColor != HexToDec(selectedColor))
+        {
+            if(fHighlight)
+            {        
+                tdToHighlight.style.backgroundColor = "#b2b2b2";
+            }
+            else    
+            {
+                tdToHighlight.style.backgroundColor = "";
+            }
+        }
+    }
+}
+
+
+function ResizeStrip()
+{
+    var availWidth = screen.availWidth;             
+    //var availWidth = 1024;
+    
+    var tdStrip7 = document.getElementById('tdStrip7');
+    var tdStrip8 = document.getElementById('tdStrip8');
+    var tdStrip9 = document.getElementById('tdStrip9');
+    
+    visibleImagesNumber = arrImageIDs.length;
+    if(availWidth < 1200)
+    {
+        tdStrip9.style.display = "none";
+        visibleImagesNumber--;
+    }
+    if(availWidth < 1100)
+    {
+        tdStrip8.style.display = "none";
+        visibleImagesNumber--;
+    }
+    if(availWidth < 1000)
+    {
+        tdStrip7.style.display = "none";
+        visibleImagesNumber--;
+    }
+    
+    var hfVisibleImagesNumber = document.getElementById('ImageStrip1_hfVisibleImagesNumber');
+    hfVisibleImagesNumber.value = visibleImagesNumber;
+}
+</script>        
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="dark_gray" style="font-family: Arial; font-size: 11px; text-align: left; padding: 5px;">
+                            For full screen mode, click away from photo and press F11
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                    <td style="width: 100%; height: 100%;">
+                        <table style="width: 100%; height: 100%;" border="0" cellpadding="0" cellspacing="0">
+                            <tr><td style="width: 850px; height: 100%; background-color: #cccccc;">
+                                <script type="text/javascript" src="js/common.js" > </script>
+                                <script type="text/javascript">
+                                    ShowNetImaging('conv/234445/bd6ba2fb22585eaf443099177a0ff1e6/a2.jpg', '234445.jpg');            
+                                </script>                    
+                            </td>
+                            <td style="width: 150px; background-color: #cccccc; text-align: right; vertical-align: top;">
+                            <br />
+                            <br />
+                            <br />
+                            <div class="edit_box">
+                            <p class="edit_links"><a onclick="return ConfirmStartOver();" id="lbStartOver" class="action" href="javascript:__doPostBack('lbStartOver','')" style="display:inline-block;border-width:0px;">Start over</a></p>
+                            
+                            <p class="edit_links"><a class="action" href="#" onclick="SaveNetImaging(80); return false;">Save this photo</a></p>
+                            <p class="edit_links"><a onclick="return ConfirmDeleting();" id="lbDelete" class="action" href="javascript:__doPostBack('lbDelete','')" style="display:inline-block;border-width:0px;">Delete this photo</a></p>
+
+                            <p class="edit_links"><a onclick="return ConfirmDeletingAll();" id="lbDeleteAll" class="action" href="javascript:__doPostBack('lbDeleteAll','')" style="display:inline-block;border-width:0px;">Delete all photos</a></p>
+                            </div>            
+                            
+                            
+                            <div style="padding: 10px;">
+                            &nbsp;
+                            </div>
+                            
+                            <div style="padding: 10px;">
+                            &nbsp;
+                            </div>
+                            
+                            <div style="padding: 3px;">
+                            &nbsp;
+                            </div>                            
+
+
+                            <div class="edit_box">
+                            
+                            <p class="edit_links"><a class="action" href="#" onclick="return LinkClicked(this, 'hostpicture.aspx', false);">
+                                Host/Share photo</a></p>
+                            <p class="edit_links"><a class="action" href="#" onclick="return LinkClicked(this, 'emailpicture.aspx', false);">Email this photo</a></p>
+                            <p class="edit_links"><a class="action" href="#" onclick="pageTracker._trackPageview('/download/main'); return LinkClicked(this, 'download.aspx', true);">Download this photo</a></p>
+                            
+                            </div>
+                            
+                            
+                            
+                            
+                            </td></tr>            
+                        </table>
+                    </td>
+                    </tr>
+                    
+                    </table> 
+                </td>
+                
+                
+                <td style="padding-left: 10px; padding-top: 5px;">
+                    <div style="height: 600px; width: 160px;">
+                    
+                    <script type="text/javascript"><!--
+                    google_ad_client = "pub-4604682650583428";
+                    /* flipmyphotos_skyscrapper */
+                    google_ad_slot = "0657630311";
+                    google_ad_width = 160;
+                    google_ad_height = 600;
+                    //-->
+                    </script>
+                    <script type="text/javascript"
+                    src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+                    </script>       
+                    </div>                        
+                </td></tr></table>
+            </td>
+        </tr>
+    </table>    
+    
+    
+       
+       
+    <script type="text/javascript">
+    var linkToRedirect;
+    
+    function PostbackLinkClick()
+    {   
+        if(IsChanged())
+        {
+            setTimeout(PostbackLinkClick, 200);
+        }
+        else    
+        {
+            window.location = linkToRedirect;
+        }
+    }    
+    
+    function NotifyServerAJAX()
+    {
+        var xmlHttp=null; // Defines that xmlHttp is a new variable.
+        try 
+        {
+            xmlHttp=new ActiveXObject("Msxml2.XMLHTTP");
+        } 
+        catch (e) 
+        {
+            xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        
+         xmlHttp.open("get","AJAX.aspx",false); // .open(RequestType, Source);
+         xmlHttp.send(null);          
+         var serverResponse = xmlHttp.responseText;         
+    }
+    
+    function LinkClicked(thisLink, href, isDownload)
+    {
+        linkToRedirect = href;
+        var fSaving = SaveNetImaging(80);        
+        
+        var fResult;
+        // If it's a download in IE and if we need to save, then we need to have little bit different code than in FireFox, etc.
+        if(fSaving && isDownload && BrowserDetect.browser == "Explorer")
+        {
+            NotifyServerAJAX();
+            thisLink.href = href;
+            fResult = true;            
+        }
+        else        
+        {
+            PostbackLinkClick();
+            fResult = false;
+        }
+
+        return fResult;
+    }
+    
+    function ConfirmDeleting()
+    {
+        return confirm("Are you sure you want delete the image?");
+    }
+    
+    function ConfirmDeletingAll()
+    {
+        return confirm("Are you sure you want delete all images?");
+    }    
+    
+    function ConfirmStartOver()
+    {
+        return confirm("Are you sure you want start over? All your changes will be lost."); 
+    }
+    
+    function ResizeTool()
+    {
+        var availWidth = screen.availWidth;        
+        //var availWidth = 1024;
+        var tblMain = document.getElementById('tblMain');
+        if(availWidth < 1000)
+        {
+            //alert("700");
+            tblMain.style.width = "700px";
+        }        
+        else if(availWidth < 1100)
+        {
+            //alert("800");
+            tblMain.style.width = "800px";
+        }        
+        else if(availWidth < 1200)
+        {
+            tblMain.style.width = "900px";
+        }
+    }
+    
+    function HelpHover(fHover)
+    {
+        document.getElementById("imgHelp").style.display = fHover ? "none" : "inline";
+        document.getElementById("imgHelpHover").style.display = fHover ? "inline" : "none";
+    }
+    </script>            
+    
+    
+
+<script type="text/javascript">
+//<![CDATA[
+ResizeTool();AdjustCotrol();ResizeStrip(); ImageStripRefresh();//]]>
+</script>
+</form>   
+
+</body>
+</html>

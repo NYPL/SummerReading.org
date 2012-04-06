@@ -1,0 +1,33 @@
+<?php
+// $Id: sr_review.install
+
+
+/**
+* Implementation of hook_install()
+*/
+function sr_review_install() {
+
+	db_query("
+		CREATE TABLE `sr_review` (
+		  `rid` int(11) NOT NULL AUTO_INCREMENT,
+		  `uid` int(11) DEFAULT NULL,
+		  `mid` int(11) DEFAULT NULL,
+		  `nid` int(11) DEFAULT NULL,
+		  PRIMARY KEY (`rid`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	");
+
+
+	db_query("	
+		CREATE TABLE `sr_review_like` (
+		  `lid` int(11) NOT NULL AUTO_INCREMENT,
+		  `rid` int(11) DEFAULT NULL,
+		  `uid` int(11) DEFAULT NULL,
+		  PRIMARY KEY (`lid`)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	");
+
+}
+
+
+// no uninstall - don't want to accidentally lose data

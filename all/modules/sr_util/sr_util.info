@@ -1,0 +1,7 @@
+; $Id$
+name = SR Utilities
+description = Custom module providing utilities and data for Summer Reading website
+package = Summer Reading
+core = 6.x
+php = 5.x
+version = 6.x-1.x-dev

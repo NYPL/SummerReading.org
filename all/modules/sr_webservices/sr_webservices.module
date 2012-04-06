@@ -1,0 +1,82 @@
+<?php
+/**
+ * @file
+ * import libarycard_user log file into our db
+ */
+ /**
+ * Implementation of hook_user()
+ */
+function sr_webservices_perm() {
+  return array('remote access');
+}
+/**
+ * Implementation of hook_disable().
+ * Actions that need to happen when this module is disabled.
+ */
+function sr_webservices_disable() {
+  cache_clear_all('services:methods', 'cache');
+}
+
+/**
+ * Implementation of hook_enable().
+ * Actions that need to happen when this module is enabled.
+ */
+function sr_webservices_enable() {
+  cache_clear_all('services:methods', 'cache');
+}
+
+function remote_access($uid) {
+  global $user;
+  return (user_access('remote access'));
+}
+
+/**
+* Implementation of hook_service()
+*/
+function sr_webservices_service() {
+  return array(
+    array(
+      '#method'   => 'import.library.logs',
+      '#callback' => 'import_library_logs',
+	  '#access callback' => 'remote_access',
+      '#return'   => 'struct',
+      '#args'     => array(
+        array(
+          '#name'         => 'library_logs',
+          '#type'         => 'array',
+          '#description'  => t('library logs'),
+        )),
+      '#help'     => t('import library log file.'))
+  );
+}
+
+function import_library_logs($library_logs) {
+  $return = new stdClass();
+  $imported='';
+  
+  if (is_array($library_logs)) {
+    foreach ($library_logs as $user_item) {
+		if (!is_object($user_item)) {
+			$user_item = (object) $user_item;
+		}
+	
+		if(isset($user_item->uid)){
+		    $user_isbns=$user_item->isbnlist;
+		    if (is_array($user_isbns)) {
+				 foreach ($user_isbns as $isbn_item) {
+					 if(isset($isbn_item))
+					 {
+						db_query("INSERT INTO {sr_user_library_logs} (uid, isbn, created) VALUES (%d, %s, %d)", $user_item->uid, $isbn_item, time());
+						$imported.="<item>uid:".$user_item->uid." isbn:".$isbn_item."</item>";
+					 }
+				 }
+			}
+		}
+    }
+  }
+  
+  $return->imported = $imported;
+  return $return;
+}
+
+

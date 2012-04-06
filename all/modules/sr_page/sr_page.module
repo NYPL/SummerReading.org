@@ -1,0 +1,426 @@
+<?php
+
+/**
+ * Implementation of hook_perm().
+ *
+ */
+function sr_page_perm() {
+  return array(
+    'create custom home page',
+    'delete own custom home page',
+    'delete any custom home page',
+    'edit own custom home page',
+    'edit any custom home page',
+	'edit custom home page',
+  );
+}
+
+/**
+ * Implementation of hook_access().
+ *
+ */
+function sr_page_access($op, $node, $account) {
+  if ($op == 'create') {
+		if(user_access('create custom home page', $account)) 
+		{ 
+		    $result = sr_page_isexits($account);
+			if(isset($result) && $result>0 )
+				return false;
+			else
+				return true;
+		}
+   }
+   if ($op == 'update') {
+    if (user_access('edit any example content', $account) || sr_page_permit($account, $node)) {
+        return TRUE;
+    }
+   }
+   if ($op == 'delete') {
+   if (user_access('delete any example content', $account)) {
+      return TRUE;
+   }
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_page_menu() {
+  $items['administer/myunit/custom-page'] = array(
+	'title' => 'Edit Custom Home Page',
+    'page callback'    => 'sr_page_admin_render',
+    'access arguments' => array('edit custom home page'),
+    'weight' => 3,
+    'type' => MENU_LOCAL_TASK
+  );
+  return $items;
+}
+
+/**
+ * 
+ */
+function sr_page_admin_render() {
+  
+   global $user;
+   $unit_info=sr_page_get_unit_info($user);
+   $output .= sr_page_admin_roundbox_start();
+   $hasPage=0;
+   if(isset($unit_info) && count($unit_info)==4)
+   {
+       if(($unit_info['type']=='branch'||$unit_info['type']=='school') && strlen($unit_info['name'])>0 && strlen($unit_info['title'])>0)
+	   {
+		   $result = sr_page_isexits($user);
+		  
+		  // If the branch/school already has a page, give 'em an edit link.
+		  $custom_page_nid = $result;
+		  if (isset($custom_page_nid) &&  $custom_page_nid >0) {
+			$text = t('Edit your custom page');
+			$path = 'node/' . $custom_page_nid . '/edit';
+			$output .= '<p>' . l($text, $path) . '</p>';
+			$hasPage=1;
+		  }
+	  }
+   }
+   if($hasPage==0)
+   {
+       $output .= 'Oops! Only branch administrators and school administrators who are assigned to a specific branch or school can view this page. 
+			Contact the site administrator if you have an issue. They may need to assign to specific branch or school to your account.';
+   }
+    $output .= sr_page_admin_roundbox_end();
+	return $output;
+ }
+
+/**
+ * Implementation of hook_node_info().
+ *
+ */
+function sr_page_node_info() {
+  return array(
+    'custom_home_page' => array(
+      'name' => t('Custom Home Page'),
+      'module' => 'sr_page',
+      'description' => t("Create Custom Home Page."),
+      'has_title' => TRUE,
+      'title_label' => t('Branch or School Name:'),
+      'has_body' => TRUE,
+      'body_label' => t('Content'),
+    )
+  );
+}
+
+/**
+ * Implementation of hook_form().
+ *
+ */
+function sr_page_form(&$node, $form_state) {
+  // The site admin can decide if this node type has a title and body, and how
+  // the fields should be labeled. We need to load these settings so we can
+  // build the node form correctly.
+  $type = node_get_types('type', $node);
+  global $user;
+  $unit_info=sr_page_get_unit_info($user);
+
+  if ($type->has_title) {
+    $form['title'] = array(
+      '#type' => 'textfield',
+      '#title' => check_plain($type->title_label),
+      '#required' => TRUE,
+      '#default_value' => isset($node->title) ? $node->title : $unit_info['title'],
+      '#weight' => -5,
+	 // '#disabled' => TRUE,
+    );
+  }
+
+  if ($type->has_body) {
+    $form['body_field'] = sr_page_node_body_field($node, $type->body_label, $type->min_word_count);
+  }
+ 
+  // Now we define the form elements specific to our node type.
+  $form['unittype'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Unit Type'),
+    '#value' => isset($node->unittype) ? $node->unittype : $unit_info['type'],
+	'#disabled' => TRUE,
+	'#required' => TRUE,
+  );
+  $form['unitname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Unit Name'),
+    '#value' => isset($node->unitname) ? $node->unitname : $unit_info['name'],
+	'#disabled' => TRUE,
+	'#required' => TRUE,
+  );
+   $form['unitborough'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Unit Borough'),
+    '#value' => isset($node->unitborough) ? $node->unitborough : $unit_info['unitborough'],
+	'#disabled' => TRUE,
+	//'#required' => TRUE,
+  );
+
+  return $form;
+}
+
+function sr_page_node_body_field(&$node, $label, $word_count) {
+
+  $form['#prefix'] = '<div class="body-field-wrapper">';
+  $form['#suffix'] = '</div>';
+  
+  $form['body'] = array(
+    '#type' => 'textarea', 
+    '#title' => check_plain($label), 
+    '#default_value' =>  $node->body ? $node->body :sr_page_get_default_body(), 
+    '#rows' => 20, 
+    '#required' => TRUE,
+  );
+
+  $form['format'] = filter_form($node->format);
+
+  return $form;
+}
+
+function sr_page_get_default_body(){
+return 'Welcome!';
+}
+
+/**
+ * Implementation of hook_insert().
+ *
+ */
+function sr_page_insert($node) {
+  db_query("INSERT INTO {sr_custom_page} (vid, nid, type, name, borough) VALUES (%d, %d, '%s', '%s')", $node->vid, $node->nid, $node->unittype, $node->unitname, $node->unitborough);
+}
+
+/**
+ * Implementation of hook_update().
+ *
+ */
+function sr_page_update($node) {
+  // if this is a new node or we're adding a new revision,
+  if ($node->revision) {
+    node_example_insert($node);
+  }
+  else {
+    db_query("UPDATE {sr_custom_page} SET type= '%s', name = '%s', borough='%s' WHERE vid = %d", $node->unittype, $node->unitname, $node->unitborough, $node->vid );
+  }
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function sr_page_nodeapi(&$node, $op, $teaser, $page) {
+  switch ($op) {
+    case 'delete revision':
+      // Notice that we're matching a single revision based on the node's vid.
+      db_query('DELETE FROM {sr_custom_page} WHERE vid = %d', $node->vid);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_delete().
+ */
+function sr_page_delete($node) {
+  // Notice that we're matching all revision, by using the node's nid.
+  db_query('DELETE FROM {sr_custom_page} WHERE nid = %d', $node->nid);
+}
+
+/**
+ * Implementation of hook_load().
+ *
+ */
+function sr_page_load($node) {
+  $additions = db_fetch_object(db_query('SELECT type as unittype, name as unitname, borough as unitborough FROM {sr_custom_page} WHERE vid = %d', $node->vid));
+  return $additions;
+}
+
+/**
+ * Implementation of hook_view().
+ */
+function sr_page_view($node, $teaser = FALSE, $page = FALSE) {
+  $node = node_prepare($node, $teaser);
+  /*$node->content['myfield'] = array(
+    '#value' => theme('sr_page_display', $node),
+    '#weight' => 1,
+  );*/
+
+  return $node;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function sr_page_theme() {
+  return array(
+    'sr_page_display' => array(
+      'arguments' => array('node'),
+    ),
+  );
+}
+
+/**
+ * A custom theme function.
+ *
+ */
+function theme_sr_page_display($node) {
+  $output = '<div class="custom-page-stats">';
+  $output .= sr_page_render_stats($node->unittype, $node->unitname, $node->unitborough);
+  $output .= '</div>';
+  return $output;
+}
+
+function sr_page_permit($account, $node)
+{ 
+     $unit_info=sr_page_get_unit_info($account);
+	
+     
+	 if($unit_info['type']==$node->unittype && $unit_info['type']=='school' && $unit_info['borough']==$node->unitborough && $unit_info['name']==$node->unitname)
+			return true;
+	 else if($unit_info['type']==$node->unittype && $unit_info['type']=='branch' && $unit_info['name']==$node->unitname)
+			return true;
+	 
+	 else
+		return false;
+}
+
+function sr_page_isexits($user)
+{
+    $unit_info=sr_page_get_unit_info($user);
+	
+    if(strlen($unit_info['name'])>0)
+	{
+	    if($unit_info['type'] == 'school')
+		   $result = db_result(db_query("SELECT node.nid AS nid FROM {node} INNER JOIN sr_custom_page c ON node.vid =c.vid WHERE c.name = '%s' and c.borough='%s' LIMIT 1",  (string)$unit_info['name'], $unit_info['borough']));
+		else
+		   $result = db_result(db_query("SELECT node.nid AS nid FROM {node} INNER JOIN sr_custom_page c ON node.vid =c.vid WHERE c.name = '%s' LIMIT 1",  (string)$unit_info['name']));
+	}
+	return $result;
+}
+
+function sr_page_get_unit_info($user)
+{
+    profile_load_profile($user);
+	$unit_info=array();
+	
+    if (sr_user_nodb_isSchoolAdmin($user)) {
+      $unit_info['type'] = 'school'; 
+      $unit_info['name'] = $user->{profile_school};
+	  $unit_info['borough'] = $user->{profile_borough};
+    }
+    elseif (sr_user_nodb_isBranchAdmin($user)) {
+       $unit_info['type']  = 'branch'; 
+       $unit_info['name'] = $user->{profile_branch};
+	  // $unit_info['borough'] = $user->{profile_borough};
+    }
+	if(isset( $unit_info['type']) && isset($unit_info['name']) && strlen($unit_info['name'])>0 && strlen($unit_info['type'])>0)
+	{
+	   if($unit_info['type'] =='branch')
+	   {
+	       $sql = "SELECT TRIM(name) FROM sr_branch WHERE branchid=%d LIMIT 1";
+	       $unit_info['title'] = trim(db_result(db_query($sql, $unit_info['name'])));
+		   $unit_info['title'] = $unit_info['title']; 
+	    }
+		else 
+		  $unit_info['title'] = $unit_info['name']; 
+	}
+	$unit_info['type'] =isset($unit_info['type'])?$unit_info['type']: '';
+	$unit_info['name'] =isset($unit_info['name'])?$unit_info['name']:'';
+	$unit_info['title'] =isset($unit_info['title'])?$unit_info['title']: '';
+	$unit_info['borough'] =isset($unit_info['borough'])?$unit_info['borough']: '';
+	return  $unit_info;
+}
+
+function sr_page_render_stats($type, $id, $borough) {
+ 
+	  $ret = array();	
+	  $retpre=array();
+	  if($type=='branch')
+	  {
+		  $sql = "SELECT name, borough FROM sr_branch WHERE branchid=%d";
+		  
+		  $item = db_fetch_array(db_query($sql,$id));
+		  if($item)
+		  { 
+		     $name=$item['name'];
+			 $borough=$item['borough'];
+		  }
+		  $query = db_query("SELECT * FROM sr_admin_statistics WHERE name='%s' and borough='%s'", $name, $borough);
+		  while ($result = db_fetch_object($query)) {
+			$ret[$result->type] = $result->total;
+		  }
+		  $query = db_query("SELECT * FROM sr_pre_reg_stats WHERE branchid=%d", $id);
+			 
+		  $existing_item = db_fetch_array($query);
+		  if ($existing_item) {
+				$retpre['users'] = $existing_item['users'];
+				$retpre['books'] = $existing_item['books'];
+			  }
+	  }
+	  else if($type=='school')
+	  {
+		  $query = db_query("SELECT * FROM sr_admin_statistics WHERE name='%s' and borough='%s'", $name, $borough);
+		  while ($result = db_fetch_object($query)) {
+			$ret[$result->type] = $result->total;
+		  }
+	  }
+	  $ret['user']=isset($ret['user'])?$ret['user']:0;
+	  $ret['book']=isset($ret['book'])?$ret['book']:0;
+	  $ret['media']=isset($ret['media'])?$ret['media']:0;
+	  $ret['badge']=isset($ret['badge'])?$ret['badge']:0;
+	  $ret['time']=isset($ret['time'])?$ret['time']:0;
+	  
+	  $ret['user']=$ret['user']+(isset($retpre['users'])?$retpre['users']:0);
+	  $ret['book']=$ret['book']+(isset($retpre['books'])?$retpre['books']:0);
+	  $ret['media']=$ret['media']+(isset($retpre['books'])?$retpre['books']:0);
+	  $output .= '<div id="fact-list-custom-page"><div class="profile_box_side"><div class="profile_box_bottom"><div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block"><div class="padding-20">';	
+	  $output .= '<div class="list-title">'. t("Quick Facts") . '</div>';
+	  $output .= '<div class="facts-all-reg facts-all"><img src="/sites/summerreading.org/files/images/img_user_color.png" alt=""/>';
+	  $output .= '<div class="list-item-right">'. $ret['user'] . '</div>';
+	  $output .= '<div class="list-item-msg">Registrants</div></div>';
+	  $output .= '<div class="facts-all-books facts-all"><img src="/sites/summerreading.org/files/images/img_user_book_sm.png" alt=""/>';
+	  $output .= '<div class="list-item-right">'. $ret['book'] . '</div>';
+	  $output .= '<div class="list-item-msg">Books Logged</div></div>';
+	  $output .= '<div class="facts-all-media facts-all"><img src="/sites/summerreading.org/files/images/img_computer_color.png" alt=""/>';
+	  $output .= '<div class="list-item-right">'. $ret['media'] . '</div>';
+	  $output .= '<div class="list-item-msg">Media Logged</div></div>';
+	  $output .= '<div class="facts-all-badges facts-all"><img src="/sites/summerreading.org/files/images/img_badge_color.png" alt=""/>';
+	  $output .= '<div class="list-item-right">'. $ret['badge'] . '</div>';
+	  $output .= '<div class="list-item-msg">Badges Won</div></div>';
+	  $output .= '<div class="facts-all-minutes facts-all"><img src="/sites/summerreading.org/files/images/img_time_color.png" alt=""/>';
+	  $output .= '<div class="list-item-right">'.(int)($ret['time']/60). '</div>';
+	  $output .= '<div class="list-item-msg">Hours Spent Reading</div>';
+      $output .= '</div></div></div></div></div></div></div></div>';
+	  return $output;
+}
+
+function sr_page_admin_roundbox_start() {
+
+   $output='<div id="admin-user-page">
+				<div class="administer_mainbox">
+				<div class="administer_mainbox_bottom">
+				<div class="administer_mainbox_tl">
+				<div class="administer_mainbox_tr">
+				<div class="administer_mainbox_br">
+				<div class="administer_mainbox_bl">
+				<div class="hr"><!-- --></div>'
+			;
+   return $output;
+}
+
+function sr_page_admin_roundbox_end() {
+
+   $output='</div></div></div></div></div></div><div class="clear">&nbsp;</div></div>';
+   return $output;
+}
+
+function sr_pageview_roundbox_start() {
+
+   $output='<div class="top-container"><div class="SN-bl"><div class="SN-br"><div class="SN-tl"><div class="SN-tr">';
+   return $output;
+}
+
+function sr_pageview_roundbox_end() {
+
+   $output='</div></div></div></div></div><div class="clear">&nbsp;</div></div>';
+   return $output;
+}

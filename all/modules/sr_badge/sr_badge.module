@@ -1,0 +1,692 @@
+<?php
+// $Id: sr_badge.module
+
+/**
+ * @file
+ * Badge related functions for the Summer Reading website
+ */
+
+// Review object definition
+module_load_include('php', 'sr_badge', 'Badge');
+
+/**
+ * Implementation of hook_menu().
+ */
+function sr_badge_menu() {
+	$items['createbadge'] = array(
+    'title' => 'Create New Badge',
+    'page callback' => 'sr_badge_page_createbadge',
+    'access arguments' => array('edit any badge content'),
+    'type' => MENU_NORMAL_ITEM
+    );
+	$items['badge/%'] = array(
+    'title arguments' => array(1),
+	'page callback' => 'sr_badge_page_badge',
+    'page arguments' => array(1),
+	'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+	);
+	$items['badgewinners/%/%'] = array(
+    'title' => 'Load a page of badge winners',
+    'page callback' => 'sr_badge_badgewinners',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('create review content'),
+    'type' => MENU_CALLBACK
+	);
+	$items['badgecode'] = array(
+    'title' => '',
+	'page callback' => 'sr_badge_page_code',
+	'access arguments' => array('create review content'),
+    'type' => MENU_NORMAL_ITEM
+	);
+	$items['adminbadges'] = array(
+    'title' => 'Administer Badges',
+	'page callback' => 'sr_badge_adminbadges',
+	'access arguments' => array('edit any badge content'),
+    'type' => MENU_NORMAL_ITEM
+	);
+    return $items;
+}
+
+/**
+ * Menu callback for badge page title.
+ */
+function sr_badge_page_badge_title($arg) {
+
+	if (is_numeric($arg)) {
+		$badge = Badge::loadBadge($arg);
+		$ret = check_plain($badge->title);
+	}
+
+	return $ret;
+}
+
+/**
+ * Menu callback for badge page title.
+ */
+function sr_badge_page_badge($arg) {
+	global $user;
+
+	if (!is_numeric($arg)) {
+		drupal_not_found();
+		return 0;
+	}
+	
+	$badge = Badge::loadBadge($arg);
+	if (!strlen($badge->title) > 0) {
+		drupal_not_found();
+		return 0;
+	}
+	
+	drupal_add_js(array('basePathFull' => 'http://' . $_SERVER['HTTP_HOST'] . base_path()), 'setting');
+	drupal_add_js(drupal_get_path('module', 'sr_util') . '/jquery.string.1.0.js');
+	drupal_add_js(drupal_get_path('module', 'sr_badge') . '/badgepage.js');
+	
+	$winners = Badge::loadBadgeWinners($badge->bid);
+	
+	$output .= '<div id="badge-header" class="clear-block">' ;
+	
+	$output .= '<div id="badge-icon-large"><img src="'. Badge::makeBadgeImageURL($badge->bid, "L") .'" alt="'. check_plain($badge->title) .'" /></div>' ;
+	
+	$output .= '<div id="badge-header-middle">' ;
+	$output .= '<div id="badge-title">' . check_plain($badge->title) . '</div>';
+	$output .= '<div id="badge-description">' ;
+	$output .= check_markup($badge->desc);
+	$output .= "</div>";
+	$output .= '<div id="badge-count">' ;
+	$output .= Badge::loadBadgeWinnersCount($badge->bid) . " people have earned this badge";
+	$output .= "</div>";
+	$output .= "</div>";
+	
+	$output .= '<div id="badge-earn"><div class="blue-cnr-tl"><div class="blue-cnr-tr"><div class="blue-cnr-br"><div class="blue-cnr-bl"><div class="padding-10">' ;
+	$ts = Badge::existsUserBadge($user->uid, $badge->bid);
+	if ($ts > 0) {
+		$output .= "<p class='badge-award-time'><strong>You were awarded this badge on:</strong><br /><br />". format_date($ts, "medium");
+	}
+	else {
+		$output .= "<p class='badge-award-time'><strong>How to earn it:</strong></p><p class='badge-how-to'>". check_markup($badge->earn) ."</p>";
+	}
+	$output .= "</div></div></div></div></div></div>";
+	
+	$output .= "</div>"; // badge header
+	$output .= '<br clear="both" />' ;
+	$output .= '<div id="badge-winners-outer"><div class="profile_box_side"><div class="profile_box_bottom"><div class="profile_box_tl"><div class="profile_box_tr"><div class="profile_box_br"><div class="profile_box_bl clear-block"><div class="padding-20"><div id="badge-winners-label">'. t("Badge Awardees") ."</div>";
+	$output .= sr_badge_makeWinnersDiv($winners);
+	
+	// careful editing this, this html also set in badgewinners
+	if (count($winners) == Badge::WINNER_PAGESIZE) {
+		$output .= '<div class="badge-winners" id="badge-winners__2"><br clear="all" />' ;
+		$output .= '<a class="seemore" href="javascript:void();" id="seemore__2|'.	$badge->bid .'">see more awardees</a>' ;
+		$output .= "</div>";
+	}
+	
+	$output .= "</div>"; // badge-winners-outer
+	$output .= "</div>"; 
+	$output .= "</div>"; 
+	$output .= "</div>"; 
+	$output .= "</div>"; 
+	$output .= "</div>"; 
+	$output .= "</div>"; 
+	$output .= "</div>"; 
+	
+	return $output;
+}
+
+/**
+ * Menu callback for badge winners.
+ */
+function sr_badge_badgewinners($page, $bid) {
+
+  if (!is_numeric($page) || !is_numeric($bid)) {
+    echo "";
+    exit(0);
+  }
+
+	$winners = Badge::loadBadgeWinners($bid, $page);
+	$output = sr_badge_makeWinnersDiv($winners);
+	
+	if (count($winners) == Badge::WINNER_PAGESIZE) {
+		$output .= '<div class="badge-winners" id="badge-winners__'. ($page + 1) .'"><br clear="all" />' ;
+		$output .= '<a class="seemore" href="javascript:void();" id="seemore__'. ($page + 1) ."|". $bid .'">see more awardees</a>' ;
+		$output .= "</div>";
+	}
+	
+  echo $output;
+  exit(0);
+}
+
+/**
+ * Menu callback for create badge form.
+ */
+function sr_badge_page_createbadge() {
+	
+	drupal_add_js(drupal_get_path('module', 'sr_badge') .'/createbadge.js');
+	drupal_add_js(array('type_code' => (string)Badge::TYPE_CODE), 'setting'); 
+	drupal_add_js(array('type_login' => (string)Badge::TYPE_LOGIN), 'setting'); 
+	drupal_add_js(array('type_add2log' => (string)Badge::TYPE_ADD2LOG), 'setting'); 
+	drupal_add_js(array('type_review' => (string)Badge::TYPE_REVIEW), 'setting'); 
+	drupal_add_js(array('type_like' => (string)Badge::TYPE_LIKE), 'setting'); 
+	drupal_add_js(array('type_wasliked' => (string)Badge::TYPE_WASLIKED), 'setting'); 
+	drupal_add_js(array('type_code_add2log' => (string)Badge::TYPE_CODE_ADD2LOG), 'setting'); 
+	
+	$output = t('Create a new Summer Reading Badge.');
+	$output .= drupal_get_form('sr_badge_createbadge');
+  
+  return $output;
+}
+
+/**
+ * Define create badge form.
+ */
+function sr_badge_createbadge() {
+
+	$form['title'] = array(
+		'#title' => t('Title'), 
+		'#type' => 'textfield',
+		'#description' => t("Enter the badge title."),
+    '#required' => true
+	);
+	$form['earn'] = array(
+		'#title' => t('How You Earn It'), 
+		'#type' => 'textarea',
+		'#description' => t("Describe how the badge is earned (to those who have not yet earned it)."),
+		'#cols' => 50,
+		'#rows' => 4,
+		'#resizable' => false,
+    '#required' => true
+	);
+	$form['desc'] = array(
+		'#title' => t('Description'),
+		'#type' => 'textarea',
+		'#description' => t("Other descriptive text, visible on the badge page."),
+		'#cols' => 50,
+		'#rows' => 4,
+		'#resizable' => false,
+		'#required' => false
+	);
+
+	$form['#attributes']['enctype'] = 'multipart/form-data';
+	$form['icon'] = array(
+		'#title' => t('Badge Icon'), 
+		'#type' => 'file',
+		'#size' => 40,
+		'#description' => t("Upload the badge icon. (200 pixels by 200 pixels square JPG)")
+	);
+	$form['icon_thumb'] = array(
+		'#title' => t('Badge Icon Thumbnail'), 
+		'#type' => 'file',
+		'#size' => 40,
+		'#description' => t("Upload a smaller version of the same badge icon. (65 pixels by 65 pixels square JPG)")
+	);
+	$zipURL = "http://". $_SERVER['HTTP_HOST'] . base_path() . file_directory_path() ."/badge/badgeicons.zip";
+	$form['zipfile'] = array( 
+	'#prefix' => '<div id="zipfile">', 
+	'#value' => '(here is a <a href="'. $zipURL .'" target="_new">zip archive</a> containing badge icons and thumbnails which may be of use)', 
+	'#suffix' => '</div>', 
+	); 
+	
+    global $user;
+	if(sr_user_nodb_isSiteAdmin($user))
+	{
+		$badgetypes = array(
+			'' => t('-- Please select --'),
+		  Badge::TYPE_CODE => t('Code Entry'),
+		  Badge::TYPE_LOGIN => t('Login Trigger'),
+		  Badge::TYPE_ADD2LOG => t('Add to Media Log Trigger'),
+		  Badge::TYPE_REVIEW => t('Write Review Trigger'),
+		  Badge::TYPE_LIKE => t('Like Review Trigger'),
+		  Badge::TYPE_WASLIKED => t('Review was Liked Trigger'),
+		  Badge::TYPE_CODE_ADD2LOG => t('Code Entry + Log Entry')
+		);
+	}
+	else
+	{
+	     $badgetypes = array(
+			'' => t('-- Please select --'),
+		  Badge::TYPE_CODE => t('Code Entry'),
+		  Badge::TYPE_CODE_ADD2LOG => t('Code Entry + Log Entry')
+		);
+	}
+	$form['details'] = array(
+		'#type' => 'fieldset',
+		'#title' => t('Badge Type'),
+		'#collapsible' => false,
+		'#tree' => true
+	);
+	$form['details']['badgetype'] = array(
+    '#title' => t('Earn Action'),
+    '#type' => 'select',
+    '#description' => t("Choose the badge action type. (that which causes badge to be earned)"),
+    '#options' => $badgetypes,
+    '#required' => true
+	);
+	$form['details']['codequantity'] = array(
+		'#title' => 'Action Detail', 
+		'#type' => 'textfield',
+		'#description' => '<span id="action-description">&nbsp;</span>',
+		'#size' => 40,
+    '#required' => true
+	);
+	$form['details']['codequantity1'] = array(
+		'#title' => 'Action Detail', 
+		'#type' => 'textfield',
+		'#description' => '<span class="action-description">Enter book/media ISBNs, separated by commas.</span>',
+		'#size' => 100,
+
+	);
+	$form['details']['mids'] = array(
+		'#type' => 'hidden',
+		'#size' => 100,
+		'#default_value' => '',
+
+	);
+	$form['submit'] = array(
+		'#type' => 'submit', 
+		'#value' => t('Save')
+	);
+
+	return $form;
+}
+
+/**
+ * Validate create badge form.
+ */
+function sr_badge_createbadge_validate($form, &$form_state) {
+	
+	if (strlen($form_state['values']['details']['badgetype']) > 0)
+	{
+		if ($form_state['values']['details']['badgetype'] == (string)Badge::TYPE_CODE||$form_state['values']['details']['badgetype'] == (string)Badge::TYPE_CODE_ADD2LOG) {
+			
+			$code = str_replace(" ", "", $form_state['values']['details']['codequantity']);
+			
+			if(!sr_badge_only_alpha_numeric($code))
+			{
+			  form_set_error('codequantity', t('For the selected Action Type, Action Detail must be a alpha-numeric text.'));
+			}
+			
+			if($form_state['values']['details']['badgetype'] == (string)Badge::TYPE_CODE_ADD2LOG)
+			{
+			   if(strlen(trim($form_state['values']['details']['codequantity1']))>0)
+			   {
+			     $str_mids="";
+			     $code1= str_replace(" ", "", $form_state['values']['details']['codequantity1']);
+				 $code1= str_replace("-", "",  $code1);
+				 $isbns=split(",", $code1);
+				 if(count($isbns)>0){
+				   foreach ($isbns as $isbn) {
+				        if(strlen($isbn)>0)
+						{
+						    if(sr_badge_only_alpha_numeric($isbn))
+							{
+								$isbn=trim($isbn);
+								$mid=Media::loadMedia_byISBN($isbn);
+								
+								if($mid>0)
+								{
+								  $str_mids.=$mid.',';
+								}
+								else
+								{
+								   $mid=sr_media_performSearch_byISBN($isbn);
+								   if($mid>0)
+								   {
+									  $str_mids.=$mid.',';
+								   }
+								   else
+								   {
+									  form_set_error('codequantity1', t('Could not find media with this isbn='.$isbn. ' (Perhaps you forgot to separate ISBNs by comma?)'));
+								   }
+								}
+							}
+							else
+							{
+							  form_set_error('codequantity1', t('Wrong isbn format isbn='.$isbn. ' (Perhaps you forgot to separate ISBNs by comma?)'));
+							}
+						}
+					}
+					
+					$form_state['values']['details']['mids']=$str_mids;
+				 }
+			   }
+			
+			}
+		}		
+		else {
+				if (!is_numeric(trim($form_state['values']['details']['codequantity']))) {
+				form_set_error('codequantity', t('For the selected Action Type, Action Detail must be a number.'));
+			}
+		}	
+	}
+	
+  $validators = array(
+    'file_validate_extensions' => array('jpg'),
+  	'file_validate_image_resolution' => array('200x200', '200x200')
+  );
+  $file = file_save_upload('icon', $validators, false, FILE_EXISTS_REPLACE);
+  if (!$file) {
+    form_set_error('icon', t('Badge Icon field is required, and needs to be a 200 pixel by 200 pixel square JPG file.'));
+  }
+  $validators = array(
+    'file_validate_extensions' => array('jpg'),
+  	'file_validate_image_resolution' => array('65x65', '65x65')
+  );
+  $file = file_save_upload('icon_thumb', $validators, false, FILE_EXISTS_REPLACE);
+  if (!$file) {
+    form_set_error('icon_thumb', t('Badge Icon Thumbnail field is required, and needs to be a 65 pixel by 65 pixel square JPG file.'));
+  }
+}
+
+function sr_badge_only_alpha_numeric($text){
+	if (ereg('[^A-Za-z0-9]', $text)) {
+	  return false;
+	}
+	else {
+	  return true;
+	}
+}
+
+/**
+ * Handle post-validation form submission.
+ */
+function sr_badge_createbadge_submit($form, &$form_state) {
+    $code1 ="";
+	if ($form_state['values']['details']['badgetype'] == Badge::TYPE_CODE||$form_state['values']['details']['badgetype'] == (string)Badge::TYPE_CODE_ADD2LOG) {
+		$code = strtoupper(str_replace(" ", "", $form_state['values']['details']['codequantity']));
+		
+		if($form_state['values']['details']['badgetype'] == (string)Badge::TYPE_CODE_ADD2LOG)
+		{
+			$code1 = strtoupper(str_replace(" ", "", $form_state['values']['details']['codequantity1']));
+			$code1 = str_replace("-", "", $code1);
+		}
+		$quantity = 0;
+	}
+	else {
+		$quantity = trim($form_state['values']['details']['codequantity']);
+		$code = "";
+	}
+
+	// save badge
+	$badge = new Badge();
+	$badge->title = trim($form_state['values']['title']);
+	$badge->earn = check_markup(trim($form_state['values']['earn']));
+	$badge->desc = check_markup(trim($form_state['values']['desc']));
+	$badge->badgetype = $form_state['values']['details']['badgetype'];
+	$badge->code = $code;
+	$badge->code1 = $code1;
+	$badge->quantity = $quantity;
+	$badge->saveBadge();
+	if (!$badge->bid > 0) {
+    drupal_set_message(t('An error occurred when saving the Badge to the server.'), 'error');
+    return 0;
+	}
+	
+	//save mid in db
+	if($form_state['values']['details']['badgetype'] == (string)Badge::TYPE_CODE_ADD2LOG)
+	{ 
+		  $mids=strtoupper(str_replace(" ", "", $form_state['values']['details']['mids']));
+		  if(strlen($mids)>0)
+		  {
+		    $arr_mids=split(",", $mids);
+			if(count($arr_mids)>0)
+			{
+			   foreach($arr_mids as $mid)
+			   {
+			      if($mid>0)
+				  {
+					  if(!$badge->saveBadgeLog($badge->bid, $mid))
+					  {
+						drupal_set_message(t('An error occurred when saving the Badge to the server.'), 'error');
+						return 0;
+					  }
+				  }
+			   }
+			}
+		  }
+	}
+	
+	// save icon file
+  $validators = array(
+    'file_validate_extensions' => array('jpg'),
+  	'file_validate_image_resolution' => array('200x200', '200x200')
+  );
+	$file = file_save_upload('icon', $validators, false, FILE_EXISTS_REPLACE);
+  if (!$file) {
+    drupal_set_message(t('An error occurred when uploading the Badge Icon to the server.'), 'error');
+    return 0;
+  }
+  $src = file_directory_temp() ."/". $file->filename;
+  $dest = file_directory_path() ."/badge/badge-L__". $badge->bid .".jpg";
+  if (!file_copy($src, $dest, FILE_EXISTS_REPLACE)) {
+    drupal_set_message(t('An error occurred when saving the uploaded Badge Icon to the server.'), 'error');
+    return 0;
+  }
+  
+  // save thumbnail
+  $validators = array(
+    'file_validate_extensions' => array('jpg'),
+  	'file_validate_image_resolution' => array('65x65', '65x65')
+  );
+  $file = file_save_upload('icon_thumb', $validators, false, FILE_EXISTS_REPLACE);
+  if (!$file) {
+    drupal_set_message(t('An error occurred when uploading the Badge Icon Thumbnail to the server.'), 'error');
+    return 0;
+  }
+  $src = file_directory_temp() . "/" . $file->filename;
+  $dest = file_directory_path() ."/badge/badge-S__". $badge->bid .".jpg";
+  if (!file_copy($src, $dest, FILE_EXISTS_REPLACE)) {
+    drupal_set_message(t('An error occurred when saving the uploaded Badge Icon Thumbnail to the server.'), 'error');
+    return 0;
+  }
+  
+  // changed thumbnail method, not good enough quality
+  //$img = imagecreatefromjpeg(Badge::makeBadgeImageURL($badge->bid, 'L'));
+	//$thumb = imagecreatetruecolor(85, 85);
+	//imagecopyresized($thumb, $img, 0, 0, 0, 0, 85, 85, imagesx($img), imagesy($img));
+	//imagejpeg($thumb, $destS, 100);
+	//imagedestroy($img);
+	
+  drupal_set_message(t('The Badge was successfully saved.'), 'status');
+
+  return;
+}
+
+/**
+ * page to administer badges
+ */
+function sr_badge_adminbadges() {
+
+	$output .= t("A list of all badges in the system.");
+	
+	$output .= '<div id="admin-badges" class="admin-table">' ;
+
+	$output .= '<div class="admin-badges-heading admin-heading">' ;
+	$output .= '<div class="admin-badges-heading-col0 admin-table-heading-col">Name</div>' ;
+	$output .= '<div class="admin-badges-heading-col1 admin-table-heading-col">&nbsp;</div>' ;
+	$output .= '<div class="admin-badges-heading-col2 admin-table-heading-col">Type</div>' ;
+	$output .= '<div class="admin-badges-heading-col3 admin-table-heading-col">Status</div>' ;
+	$output .= "</div>";
+
+	
+	$badges = Badge::loadAllBadges();
+	if ($badges->count > 0) {
+				
+		$x = 0;
+		
+		while ($x < $badges->count) {
+			$badge = $badges->getObject($x);
+			
+			if (!$badge) {
+				break;
+			}
+			
+			if ($x % 2 == 0) {
+				$rowclass = "admin-table-row-even";
+			} else {
+				$rowclass = "admin-table-row-odd";
+			}
+			$output .= '<div class="admin-badges-item admin-table-row">' ;
+			
+			$output .= '<div class="admin-badges-col0 admin-table-col '. $rowclass .'"><a href="'. base_path() .'badge/'. $badge->bid .'">'. check_plain($badge->title) ."</a></div>";
+			$output .= '<div class="admin-badges-col1 admin-table-col '. $rowclass .'"><a href="'. base_path() .'node/'. $badge->nid .'/edit">edit</a></div>' ;
+			$output .= '<div class="admin-badges-col2 admin-table-col '. $rowclass .'">';
+			switch ($badge->badgetype) {
+				case Badge::TYPE_CODE:
+					$output .= "code (" . strtoupper($badge->code) . ")";
+					break;
+				case Badge::TYPE_LOGIN:
+					$output .= "login trigger";
+					break;
+				case Badge::TYPE_ADD2LOG:
+					$output .= "media log trigger";
+					break;
+				case Badge::TYPE_REVIEW:
+					$output .= "review trigger";
+					break;
+				case Badge::TYPE_LIKE:
+					$output .= "review like trigger";
+					break;
+				case Badge::TYPE_WASLIKED:
+					$output .= "was liked trigger";
+				case Badge::TYPE_CODE_ADD2LOG:
+					$output .= "code (" . strtoupper($badge->code) . ") isbn(".strtoupper($badge->code1).")";
+					break;
+				default:
+			}			
+			$output .= "</div>";
+			$output .= '<div class="admin-badges-col3 admin-table-col '. $rowclass .'">'. ($badge->status == 1 ? "published" : "unpublished") ."</div>";
+			
+			$output .= "</div>";
+			$x++;
+			
+		} // end review loop
+		
+	}
+	
+	$output .= "</div><br /><br />";
+	
+	return $output;
+}
+
+/**
+ * Menu callback for badge code form.
+ */
+function sr_badge_page_code() {
+	$output .= '<div id="badge-code-form">';
+	$output .= '<div class="SN-bl">';
+	$output .= '<div class="SN-br">';
+	$output .= '<div class="SN-tl">';
+	$output .= '<div class="SN-tr">';
+	$output .= '<h1 class="title">Enter Badge Code</h1>';
+	$output .= drupal_get_form('sr_badge_code');
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+	$output .= '</div>';
+  return $output;
+}
+
+/**
+ * Define badge code form.
+ */
+function sr_badge_code() {
+
+	$form['code'] = array(
+		'#title' => t('Code'), 
+		'#type' => 'textfield',
+		'#description' => t("Enter the secret badge code."),
+    '#required' => true
+	);
+	$form['submit'] = array(
+		'#type' => 'submit', 
+		'#value' => t('Submit')
+	);
+
+	return $form;
+}
+
+/**
+ * badge code form submit.
+ */
+function sr_badge_code_submit($form, &$form_state) {
+	global $user;
+
+	$bid = Badge::processAction(Badge::TYPE_CODE, $user->uid, $form_state['values']['code']);
+
+	if ($bid > 0) {
+		// winner!
+		drupal_goto("badge/" . $bid);
+	}
+	else {
+		// loser
+		$bid = Badge::processAction(Badge::TYPE_CODE_ADD2LOG, $user->uid, $form_state['values']['code']);
+		if ($bid > 0) {
+		    // winner!
+			drupal_goto("badge/" . $bid);
+	    }
+	    else {
+			drupal_set_message("Sorry, that code didn't not match any badges. Please try again.", 'status');
+		}
+	}
+	
+}
+
+function sr_badge_makeUserBadgeList($userReq) {
+
+	$output = "";
+	
+	$badges = Badge::loadUserBadges($userReq->uid);
+	
+	if ($badges instanceof Collection) {
+		
+		if ($badges->count == 0) {
+			// this should never really happen ... 1st login badge should be there
+			$output .= t("No badges awarded yet.");
+		}
+		$x = 0;
+		while ($x < $badges->count) {
+
+			$badge = $badges->getObject($x);
+			if (!$badge) {
+				break;
+			}
+			$output .= '<div class="badge-list-item">' ;
+			
+			$output .= '<div class="badge-list-item-icon"><a href="'. base_path() .'badge/'. $badge->bid .'" title="'. check_plain($badge->title) .'">';
+			$output .= '<img class="avatar-small-list" src="'. Badge::makeBadgeImageURL($badge->bid, 'S') .'" alt="'. check_plain($badge->title) .'" /></a></div>';
+  		
+			$output .= "</div>";
+  		
+			$x++;
+		}
+	
+	} 
+	
+	return $output;
+}
+
+function sr_badge_makeWinnersDiv($winners) {
+	$output .= '<div class="badge-winners">';
+	$name = "";
+	$uid = 0;
+	foreach ($winners as $winner) {
+		foreach ($winner as $key => $value) {
+			switch ($key) {
+				case "name":
+					$name = $value;
+					break;
+				case "uid":
+					$uid = $value;
+					break;
+				default:
+		  }
+		}
+		$output .= '<div class="badge-winner">' ;
+		$output .= '<a href="'. base_path() .'profile/'. urlencode($name) .'" title="'. $name . 
+			'"><img class="avatar-small-list" src="'. sr_user_makeAvatarURL($uid, 'S') .'" alt="'. $name .'" /></a>' ;
+		$output .= "</div>";
+	}
+	$output .= "</div>";
+
+	return $output;
+}

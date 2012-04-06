@@ -1,0 +1,38 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file for wysiwyg with images.
+ */
+/**
+ * Implementation of hook_install().
+ */
+function feature_wysiwyg_install() {
+  
+  // Some bad data seems to be stuck in caches on
+  // new sites, for instance wysiwyg won't work until caches
+  // are cleared, so make sure we have a clean start.
+  drupal_flush_all_caches();
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function feature_wysiwyg_enable() {
+   
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function feature_wysiwyg_disable() {
+  
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function feature_wysiwyg_uninstall() {
+
+}
